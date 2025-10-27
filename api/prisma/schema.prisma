@@ -1,11 +1,8 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../app/generated/prisma"
 }
 
@@ -15,30 +12,30 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String    @id @default(uuid())
+  email     String    @unique
   password  String
-  decks     Deck[]
-  createdAt DateTime @default(now())
+  koleksi   Koleksi[]
+  createdAt DateTime  @default(now())
 }
 
-model Deck {
+model Koleksi {
   id        String   @id @default(uuid())
-  name      String
+  nama      String
   user      User     @relation(fields: [userId], references: [id])
   userId    String
-  cards     Card[]
+  kartu     Kartu[]
   createdAt DateTime @default(now())
 }
 
-model Card {
-  id           String   @id @default(uuid())
-  deck         Deck     @relation(fields: [deckId], references:[id])
-  deckId       String
-  front        String   // soal
-  back         String   // jawaban
-  difficulty   Int      @default(0) // ini untuk algoritma SRS (0 easy – 3 very hard)
-  reviewDueAt  DateTime @default(now()) // kapan card ini muncul lagi
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+model Kartu {
+  id           String    @id @default(uuid())
+  koleksi      Koleksi   @relation(fields: [koleksiId], references:[id])
+  koleksiId    String
+  front        String
+  back         String
+  difficulty   Int        @default(0)
+  reviewDueAt  DateTime   @default(now())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
