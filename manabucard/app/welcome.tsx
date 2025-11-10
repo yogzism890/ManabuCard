@@ -7,24 +7,30 @@ export default function WelcomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Gambar karakter */}
-      <Image source={require("../assets/images/buddy1.png")} style={styles.image} />
+      {/* Karakter di belakang teks */}
+      <Image
+        source={require("../assets/images/img_welcome.png")}
+        style={styles.image}
+      />
 
-      {/* Judul */}
-      <Text style={styles.title}>Hi Buddy!</Text>
+      {/* Konten di atas karakter */}
+      <View style={styles.content}>
+        <Text style={styles.title}>Hi Buddy!</Text>
 
-      {/* Tombol start */}
-      <TouchableOpacity style={styles.button} onPress={() => router.push("/(tabs)" as any)}>
-        <Text style={styles.buttonText}>{`Let's start`}</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push("/(tabs)" as any)}
+        >
+          <Text style={styles.buttonText}>{'Let\'s start'}</Text>
+        </TouchableOpacity>
 
-      {/* Footer */}
-      <Text style={styles.footer}>
-        Already using ManabuCard?{" "}
-        <Text style={styles.link} onPress={() => router.push("/login" as any)}>
-          Log in
+        <Text style={styles.footer}>
+          Already using ManabuCard?{" "}
+          <Text style={styles.link} onPress={() => router.push("/login" as any)}>
+            Log in
+          </Text>
         </Text>
-      </Text>
+      </View>
     </View>
   );
 }
@@ -32,16 +38,21 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F2F4EC",
+    backgroundColor: "#F2F4EC", // warna dasar lembut
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
   },
   image: {
-    width: 250,
-    height: 250,
+    position: "absolute",
+    bottom: 200, // geser sedikit ke bawah biar kayak latar
+    width: 450,
+    height: 450,
     resizeMode: "contain",
-    marginBottom: 20,
+    zIndex: 0, // di belakang teks
+  },
+  content: {
+    alignItems: "center",
+    zIndex: 1, // teks dan tombol di atas gambar
   },
   title: {
     fontSize: 34,
