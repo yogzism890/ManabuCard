@@ -7,6 +7,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -34,9 +35,7 @@ export default function RegisterScreen() {
       return;
     }
 
-    // Dummy Register (API belum siap)
     alert("Akun berhasil dibuat!");
-
     router.push("/auth/login");
   };
 
@@ -46,10 +45,15 @@ export default function RegisterScreen() {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={{ width: "100%", alignItems: "center" }}
       >
-        <Animated.View
-          entering={FadeInDown.duration(600)}
-          style={styles.card}
-        >
+        <Animated.View entering={FadeInDown.duration(600)} style={styles.card}>
+
+          {/* ⭐ LOGO DI SINI */}
+          <Animated.Image
+            entering={FadeInDown.delay(150).duration(500)}
+            source={require("@/assets/images/manabulogo.png")}
+            style={styles.logo}
+          />
+
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.subtitle}>Join ManabuCard today</Text>
 
@@ -96,10 +100,7 @@ export default function RegisterScreen() {
           {/* Footer */}
           <Text style={styles.footer}>
             Already have an account?{" "}
-            <Text
-              style={styles.link}
-              onPress={() => router.push("/auth/login")}
-            >
+            <Text style={styles.link} onPress={() => router.push("/auth/login")}>
               Log in
             </Text>
           </Text>
@@ -129,6 +130,14 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     shadowOffset: { height: 5, width: 0 },
     elevation: 8,
+  },
+
+  /* ⭐ LOGO STYLE */
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 15,
+    borderRadius: 26,
   },
 
   title: {
