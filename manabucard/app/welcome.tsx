@@ -9,7 +9,7 @@ export default function WelcomeScreen() {
   return (
     <LinearGradient
       colors={["#F8FAF4", "#EEF2E6"]}
-      style={styles.container as StyleProp<ViewStyle>}
+      style={styles.container}
     >
       {/* Gambar Karakter */}
       <Image
@@ -39,72 +39,60 @@ export default function WelcomeScreen() {
   );
 }
 
-const styles = StyleSheet.create<{
-  container: ViewStyle;
-  image: ImageStyle;
-  card: ViewStyle;
-  title: TextStyle;
-  button: ViewStyle;
-  buttonText: TextStyle;
-  footer: TextStyle;
-  link: TextStyle;
-}>({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
   },
 
   image: {
-    position: "absolute",
-    bottom: 120,
-    width: "88%",
-    height: 320,
+    width: "100%",
+    height: 270,
     resizeMode: "contain",
-    opacity: 0.95,
+    marginTop: 40,
   },
 
   card: {
+    marginTop: 10,
     alignItems: "center",
     paddingHorizontal: 24,
     paddingVertical: 28,
-    backgroundColor: "rgba(255,255,255,0.85)",
+    backgroundColor: "rgba(255,255,255,0.9)",
     borderRadius: 25,
-    width: "80%",
+    width: "85%",
     elevation: 8,
     shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    shadowOffset: {
-      height: 4,
-      width: 0
-    },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: { height: 4, width: 0 },
   },
 
   title: {
-    fontSize: 38,
+    fontSize: 40,
     fontWeight: "800",
     color: "#222",
-    marginBottom: 24,
+    marginBottom: 20,
+    fontFamily: "FredokaOne-Regular", // childish font (optional)
   },
 
   button: {
-    backgroundColor: "#444",
+    backgroundColor: "#3A7DFF",
     paddingVertical: 14,
     paddingHorizontal: 60,
     borderRadius: 28,
-    elevation: 3,
     marginBottom: 20,
+    elevation: 4,
   },
 
   buttonText: {
     color: "#fff",
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "bold",
   },
 
   footer: {
-    color: "#666",
+    color: "#777",
     fontSize: 15,
   },
 
