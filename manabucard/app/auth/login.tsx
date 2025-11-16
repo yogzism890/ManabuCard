@@ -47,7 +47,7 @@ export default function Login() {
         <Text style={styles.buttonText}>Masuk</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push("/auth/register" as any)}>
+      <TouchableOpacity onPress={() => router.push("/auth/register")}>
         <Text style={styles.link}>Belum punya akun? Daftar</Text>
       </TouchableOpacity>
     </View>
