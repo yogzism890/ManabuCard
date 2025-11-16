@@ -7,6 +7,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -42,6 +43,13 @@ export default function LoginScreen() {
           entering={FadeInDown.duration(600)}
           style={styles.card}
         >
+          {/*  LOGO  */}
+          <Animated.Image
+            entering={FadeInDown.delay(150).duration(500)}
+            source={require("@/assets/images/manabulogo.png")}
+            style={styles.logo}
+          />
+
           <Text style={styles.title}>Welcome Back!</Text>
           <Text style={styles.subtitle}>Log in to continue</Text>
 
@@ -109,6 +117,14 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     shadowOffset: { height: 5, width: 0 },
     elevation: 8,
+  },
+
+  /* ⭐ STYLE LOGO */
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 15,
+    borderRadius: 26,
   },
 
   title: {
