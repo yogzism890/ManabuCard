@@ -72,7 +72,7 @@ export default function Onboarding() {
     }
   };
 
-  const handleSkip = () => router.replace("/(tabs)");
+  const handleSkip = () => router.replace("/auth/login");
 
   return (
     <View style={styles.container}>
