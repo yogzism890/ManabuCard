@@ -68,7 +68,7 @@ export default function Onboarding() {
     if (page < onboardingData.length - 1) {
       pagerRef.current?.setPage(page + 1);
     } else {
-      router.replace("/(tabs)");
+      router.replace("/auth/login");
     }
   };
 
