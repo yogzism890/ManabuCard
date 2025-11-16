@@ -47,7 +47,7 @@ export default function WelcomeScreen() {
         {/* Footer login */}
         <Animated.Text entering={FadeInDown.delay(600).duration(600)} style={styles.footer}>
           Already using ManabuCard?{" "}
-          <Text style={styles.link} onPress={() => router.push("/login" as any)}>
+          <Text style={styles.link} onPress={() => router.push("/auth/login" as any)}>
             Log in
           </Text>
         </Animated.Text>
