@@ -1,75 +1,169 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
-export default function Login() {
+export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
     if (!email || !password) {
-      Alert.alert("Error", "Email dan password wajib diisi.");
+      alert("Email & password wajib diisi");
       return;
     }
 
-    // Dummy login (sementara sebelum API siap)
+    // Dummy login
     if (email === "test@mail.com" && password === "123456") {
-      Alert.alert("Berhasil", "Login sukses!");
-
-      // Redirect ke halaman main app
+      alert("Login berhasil!");
       router.replace("/(tabs)");
     } else {
-      Alert.alert("Gagal", "Email atau password salah (dummy check).");
+      alert("Email atau password salah (dummy)");
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+    <LinearGradient colors={["#F8FAF4", "#EEF2E6"]} style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ width: "100%", alignItems: "center" }}
+      >
+        <Animated.View
+          entering={FadeInDown.duration(600)}
+          style={styles.card}
+        >
+          <Text style={styles.title}>Welcome Back!</Text>
+          <Text style={styles.subtitle}>Log in to continue</Text>
 
-      <TextInput
-        placeholder="Email"
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-      />
+          {/* Email */}
+          <View style={styles.inputBox}>
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              placeholderTextColor="#aaa"
+              value={email}
+              onChangeText={setEmail}
+            />
+          </View>
 
-      <TextInput
-        placeholder="Password"
-        secureTextEntry
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-      />
+          {/* Password */}
+          <View style={styles.inputBox}>
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              placeholderTextColor="#aaa"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
+          </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Masuk</Text>
-      </TouchableOpacity>
+          {/* Button */}
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Log in</Text>
+          </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push("/auth/register")}>
-        <Text style={styles.link}>Belum punya akun? Daftar</Text>
-      </TouchableOpacity>
-    </View>
+          {/* Footer */}
+          <Text style={styles.footer}>
+            Don’t have an account?{" "}
+            <Text
+              style={styles.link}
+              onPress={() => router.push("/auth/register")}
+            >
+              Register
+            </Text>
+          </Text>
+        </Animated.View>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 20 },
-  title: { fontSize: 28, fontWeight: "bold", marginBottom: 20, textAlign: "center" },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  card: {
+    width: "85%",
+    paddingHorizontal: 28,
+    paddingVertical: 36,
+    backgroundColor: "white",
+    borderRadius: 26,
+    alignItems: "center",
+
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    shadowOffset: { height: 5, width: 0 },
+    elevation: 8,
+  },
+
+  title: {
+    fontSize: 36,
+    fontFamily: "FredokaBold",
+    color: "#222",
+  },
+
+  subtitle: {
+    fontSize: 16,
+    fontFamily: "Fredoka",
+    color: "#555",
+    marginBottom: 32,
+  },
+
+  inputBox: {
+    width: "100%",
+    backgroundColor: "#F5F7F0",
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 14,
+  },
+
   input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 12,
+    fontSize: 16,
+    color: "#333",
+    fontFamily: "Fredoka",
   },
+
   button: {
-    backgroundColor: "#007bff",
-    padding: 14,
-    borderRadius: 10,
+    backgroundColor: "#3A7DFF",
+    width: "100%",
+    paddingVertical: 14,
+    borderRadius: 18,
     marginTop: 10,
+    marginBottom: 14,
+    elevation: 4,
   },
-  buttonText: { color: "#fff", textAlign: "center", fontWeight: "bold" },
-  link: { marginTop: 15, textAlign: "center", color: "#007bff" },
+
+  buttonText: {
+    color: "#fff",
+    textAlign: "center",
+    fontFamily: "FredokaBold",
+    fontSize: 18,
+  },
+
+  footer: {
+    color: "#777",
+    fontSize: 15,
+    fontFamily: "Fredoka",
+  },
+
+  link: {
+    color: "#3A7DFF",
+    fontFamily: "FredokaBold",
+  },
 });
