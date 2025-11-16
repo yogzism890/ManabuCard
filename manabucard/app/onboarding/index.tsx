@@ -1,4 +1,3 @@
-// app/onboarding/index.tsx
 import React, { useRef, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import PagerView from "react-native-pager-view";
