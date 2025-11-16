@@ -1,31 +1,56 @@
-import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, StyleProp, ViewStyle, ImageStyle, TextStyle } from "react-native";
+import React, { useEffect } from "react";
+import { Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedStyle,
+  FadeInDown,
+} from "react-native-reanimated";
 
 export default function WelcomeScreen() {
   const router = useRouter();
 
+  // Animations
+  const scale = useSharedValue(0.3);
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    scale.value = withTiming(1, { duration: 600 });
+    opacity.value = withTiming(1, { duration: 700 });
+  }, []);
+
+  const cardAnim = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
+
   return (
     <LinearGradient colors={["#F8FAF4", "#EEF2E6"]} style={styles.container}>
-      {/* Card Box */}
-      <Animated.View entering={FadeInDown.duration(600)} style={styles.card}>
-        <Text style={styles.title}>Hi Buddy!</Text>
+      <Animated.View style={[styles.card, cardAnim]}>
+        {/* Title */}
+        <Animated.Text entering={FadeInDown.delay(300).duration(500)} style={styles.title}>
+          Hi Buddy!
+        </Animated.Text>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push("/(tabs)" as any)}
-        >
-          <Text style={styles.buttonText}>Let’s start</Text>
-        </TouchableOpacity>
+        {/* Button */}
+        <Animated.View entering={FadeInDown.delay(550).duration(500)}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.push("/(tabs)" as any)}
+          >
+            <Text style={styles.buttonText}>Let’s start</Text>
+          </TouchableOpacity>
+        </Animated.View>
 
-        <Text style={styles.footer}>
+        {/* Footer */}
+        <Animated.Text entering={FadeInDown.delay(750).duration(500)} style={styles.footer}>
           Already using ManabuCard?{" "}
           <Text style={styles.link} onPress={() => router.push("/login" as any)}>
             Log in
           </Text>
-        </Text>
+        </Animated.Text>
       </Animated.View>
     </LinearGradient>
   );
