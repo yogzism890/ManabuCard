@@ -17,6 +17,10 @@ export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  
+
 
   const handleLogin = () => {
     if (!email || !password) {
@@ -74,6 +78,7 @@ export default function LoginScreen() {
               value={password}
               onChangeText={setPassword}
             />
+
           </View>
 
           {/* Forgot Password */}
