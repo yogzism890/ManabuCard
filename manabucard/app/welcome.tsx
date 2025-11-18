@@ -31,7 +31,7 @@ export default function WelcomeScreen() {
       <Animated.View style={[styles.card, cardAnim]}>
         {/* Title */}
         <Animated.Text entering={FadeInDown.delay(200).duration(600)} style={styles.title}>
-          Hi Buddy!
+          Hi Faiz
         </Animated.Text>
 
         {/* Start button */}
