@@ -187,4 +187,13 @@ const styles = StyleSheet.create({
     color: "#3A7DFF",
     fontFamily: "FredokaBold",
   },
+
+  forgotPassword: {
+    marginBottom: 14,
+  },
+
+  forgotPasswordText: {
+    color: "#3A7DFF",
+    fontFamily: "FredokaBold",
+  },
 });
