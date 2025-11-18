@@ -69,16 +69,23 @@ export default function LoginScreen() {
           </View>
 
           {/* Password */}
-          <View style={styles.inputBox}>
+          <View style={styles.inputBoxRow}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { flex: 1 }]}
               placeholder="Password"
               placeholderTextColor="#aaa"
-              secureTextEntry
+              secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
             />
 
+            {/* Kotak ceklis */}
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.checkbox}
+            >
+              {showPassword && <Text style={styles.checkmark}>✓</Text>}
+            </TouchableOpacity>
           </View>
 
           {/* Forgot Password */}
