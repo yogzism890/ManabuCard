@@ -208,4 +208,33 @@ const styles = StyleSheet.create({
     color: "#3A7DFF",
     fontFamily: "FredokaBold",
   },
+
+  inputBoxRow: {
+  width: "100%",
+  backgroundColor: "#F5F7F0",
+  borderRadius: 14,
+  paddingHorizontal: 16,
+  paddingVertical: 12,
+  marginBottom: 14,
+  flexDirection: "row",
+  alignItems: "center",
+  },
+
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: "#3A7DFF",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 10,
+  },
+
+  checkmark: {
+    fontSize: 16,
+    color: "#3A7DFF",
+    fontWeight: "bold",
+  },
+
 });
