@@ -150,7 +150,14 @@ const styles = StyleSheet.create({
     color: "#777",
     marginBottom: 20,
   },
-  nextBtn: { backgroundColor: "#3A7DFF", paddingHorizontal: 24, paddingVertical: 12, borderRadius: 24,  marginBottom: 20, },
+  nextBtn: {
+    backgroundColor: "#3A7DFF",
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    borderRadius: 24,
+    marginBottom: 24,
+  },
+
   nextText: { color: "#fff", fontFamily: "FredokaBold", paddingBottom: 32 },
 
   startBtn: { backgroundColor: "#3A7DFF", width: "100%", paddingVertical: 14, borderRadius: 28 },
