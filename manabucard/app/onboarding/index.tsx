@@ -167,6 +167,15 @@ const styles = StyleSheet.create({
   },
 
 
-  startBtn: { backgroundColor: "#3A7DFF", width: "100%", paddingVertical: 14, borderRadius: 28 },
+    startBtn: {
+    backgroundColor: "#3A7DFF",
+    width: "100%",
+    paddingVertical: 8,
+    borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 24,
+  },
+
   startText: { textAlign: "center", color: "#fff", fontFamily: "FredokaBold", fontSize: 18 },
 });
