@@ -158,7 +158,14 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
 
-  nextText: { color: "#fff", fontFamily: "FredokaBold", paddingBottom: 32 },
+  nextText: {
+    color: "#fff",
+    fontFamily: "FredokaBold",
+    fontSize: 16,
+    textAlign: "center",
+    textAlignVertical: "center",
+  },
+
 
   startBtn: { backgroundColor: "#3A7DFF", width: "100%", paddingVertical: 14, borderRadius: 28 },
   startText: { textAlign: "center", color: "#fff", fontFamily: "FredokaBold", fontSize: 18 },
