@@ -144,9 +144,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  skip: { fontSize: 16, fontFamily: "FredokaBold", color: "#777" },
-  nextBtn: { backgroundColor: "#3A7DFF", paddingHorizontal: 24, paddingVertical: 12, borderRadius: 24 },
-  nextText: { color: "#fff", fontFamily: "FredokaBold" },
+  skip: {
+    fontSize: 16,
+    fontFamily: "FredokaBold",
+    color: "#777",
+    marginBottom: 20,
+  },
+  nextBtn: { backgroundColor: "#3A7DFF", paddingHorizontal: 24, paddingVertical: 12, borderRadius: 24,  marginBottom: 20, },
+  nextText: { color: "#fff", fontFamily: "FredokaBold", paddingBottom: 32 },
 
   startBtn: { backgroundColor: "#3A7DFF", width: "100%", paddingVertical: 14, borderRadius: 28 },
   startText: { textAlign: "center", color: "#fff", fontFamily: "FredokaBold", fontSize: 18 },
