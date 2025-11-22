@@ -177,5 +177,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
 
-  startText: { textAlign: "center", color: "#fff", fontFamily: "FredokaBold", fontSize: 18 },
+  startText: {
+    color: "#fff",
+    fontFamily: "FredokaBold",
+    fontSize: 18,
+    textAlign: "center",
+    textAlignVertical: "center",
+  },
 });
