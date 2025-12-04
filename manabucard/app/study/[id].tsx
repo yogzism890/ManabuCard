@@ -1,159 +1,260 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
-import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import FlipCard from '../../components/FlipCard';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+// Perbaikan 1: Impor 'useRouter' untuk navigasi kembali ke home
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router'; 
 
-// Mock Data (Nanti diganti API)
-const mockCards = [
-  { id: 1, front: 'Apple', back: 'Apel' },
-  { id: 2, front: 'To Run', back: 'Berlari' },
-  { id: 3, front: 'Beautiful', back: 'Cantik/Indah' },
-  { id: 4, front: 'Cat', back: 'Kucing' },
-];
+// ASUMSI: Import komponen FlipCard Anda
+import FlipCard from '../../components/FlipCard'; 
+import Button from '../../components/ui/Button'; 
 
-export default function StudyScreen() {
-  const { id } = useLocalSearchParams(); // Mengambil ID dari URL
-  const router = useRouter();
-  
-  const [currentIndex, setCurrentIndex] = useState(0);
+// --- KONSTANTA API ---
+// GANTI DENGAN IP DAN TOKEN ASLI ANDA
+const API_BASE_URL = 'http://192.168.100.9:3000/api'; 
+const MOCK_AUTH_TOKEN = 'YOUR_AUTH_TOKEN_HERE'; 
+// ----------------------
 
-  const currentCard = mockCards[currentIndex];
-  const progress = ((currentIndex + 1) / mockCards.length) * 100;
-
-  const handleNext = () => {
-    if (currentIndex < mockCards.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      // Logic jika kartu habis (Selesai)
-      alert("Hore! Anda telah menyelesaikan set ini.");
-      router.back();
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
-  };
-
-  return (
-    <SafeAreaView style={styles.container}>
-      {/* Mengatur Header Navigasi secara dinamis */}
-      <Stack.Screen 
-        options={{ 
-          title: `Set #${id}`, // Menampilkan ID di header
-          headerBackTitle: 'Back',
-          headerShadowVisible: false,
-          headerStyle: { backgroundColor: '#F9FAFB' }
-        }} 
-      />
-
-      <View style={styles.content}>
-        {/* Progress Bar */}
-        <View style={styles.progressContainer}>
-          <Text style={styles.counterText}>{currentIndex + 1} / {mockCards.length}</Text>
-          <View style={styles.track}>
-            <View style={[styles.fill, { width: `${progress}%` }]} />
-          </View>
-        </View>
-
-        {/* Flip Card Component */}
-        <View style={styles.cardArea}>
-          <FlipCard 
-            frontText={currentCard.front} 
-            backText={currentCard.back} 
-            resetTrigger={currentIndex} // Reset animasi saat index berubah
-          />
-        </View>
-
-        {/* Control Buttons */}
-        <View style={styles.controls}>
-          <TouchableOpacity 
-            style={[styles.btn, styles.btnSecondary]} 
-            onPress={handlePrev}
-            disabled={currentIndex === 0}
-          >
-            <Ionicons name="arrow-back" size={24} color={currentIndex === 0 ? "#ccc" : "#4F46E5"} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.btn, styles.btnPrimary]} onPress={handleNext}>
-            <Text style={styles.btnText}>Next Card</Text>
-            <Ionicons name="arrow-forward" size={20} color="#FFF" style={{marginLeft: 8}} />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </SafeAreaView>
-  );
+// --- Tipe Data ---
+interface Kartu {
+  id: string;
+  front: string;
+  back: string;
+  difficulty: number; // Nilai SRS saat ini
 }
 
+// --- MOCK DATA ---
+const MOCK_STUDY_CARDS: Kartu[] = [
+  { id: 'c1', front: 'Diligent', back: 'Rajin, tekun', difficulty: 1 },
+  { id: 'c2', front: 'To acquire', back: 'Memperoleh, mendapatkan', difficulty: 2 },
+  { id: 'c3', front: 'Crucial', back: 'Sangat penting, menentukan', difficulty: 1 },
+  { id: 'c4', front: 'Substantial', back: 'Banyak, besar, penting', difficulty: 3 },
+  { id: 'c5', front: 'Exhausted', back: 'Sangat lelah', difficulty: 0 },
+];
+
+/** Simulasi fungsi fetching kartu (Ganti dengan fetch API asli nanti) */
+const fetchStudyCardsMock = (koleksiId: string): Promise<Kartu[]> => {
+  console.log(`Fetching cards for Collection ID: ${koleksiId}`);
+  // NANTI: Ganti dengan panggilan fetch ke GET /api/koleksi/[id]/kartu
+  return new Promise(resolve => setTimeout(() => resolve(MOCK_STUDY_CARDS), 1000));
+};
+
+/** Memperbarui status SRS (difficulty dan reviewDueAt) di database */
+async function updateKartuSRSData(cardId: string, newDifficulty: number, newReviewDueAt: Date): Promise<void> {
+  // ... (Fungsi ini tidak diubah dan sudah benar)
+  const response = await fetch(`${API_BASE_URL}/kartu/${cardId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`, 
+    },
+    body: JSON.stringify({ 
+      newDifficulty: newDifficulty, 
+      newReviewDueAt: newReviewDueAt.toISOString() 
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({ message: 'Gagal update SRS: No error body.' }));
+    console.error('Update SRS failed for card:', cardId, 'Status:', response.status, 'Body:', errorBody);
+    throw new Error('Gagal memperbarui status kartu di server.');
+  }
+}
+
+
+const StudySessionScreen = () => {
+    // Perbaikan 2: Inisialisasi useRouter
+    const router = useRouter(); 
+    const { id: koleksiId } = useLocalSearchParams();
+    const [cards, setCards] = useState<Kartu[]>([]);
+    const [currentCardIndex, setCurrentCardIndex] = useState(0);
+    const [isFlipped, setIsFlipped] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const idString = Array.isArray(koleksiId) ? koleksiId[0] : koleksiId;
+    const currentCard = cards[currentCardIndex];
+    const totalCards = cards.length;
+
+    // --- Logika SRS (Hanya didefinisikan sekali di dalam komponen) ---
+    const calculateNextReviewDate = useCallback((currentDiff: number, grade: 'hard' | 'good' | 'easy'): { diff: number, nextDate: Date } => {
+        let nextDifficulty = currentDiff;
+        let daysToAdd = 1; 
+
+        if (grade === 'easy') {
+            nextDifficulty = Math.min(5, currentDiff + 1);
+            daysToAdd = Math.max(7, nextDifficulty * 4); 
+        } else if (grade === 'good') {
+            daysToAdd = Math.max(3, currentDiff * 2); 
+        } else if (grade === 'hard') {
+            nextDifficulty = Math.max(0, currentDiff - 1);
+            daysToAdd = 1;
+        }
+
+        const nextDate = new Date();
+        nextDate.setDate(nextDate.getDate() + daysToAdd); 
+
+        return { diff: nextDifficulty, nextDate: nextDate };
+    }, []); 
+
+    // Perbaikan 3: Hapus definisi handleAnswer yang redundant (di akhir kode asli)
+    const handleAnswer = useCallback(async (grade: 'hard' | 'good' | 'easy') => {
+        if (!currentCard) return;
+        
+        // 1. Hitung data SRS baru
+        const { diff: newDifficulty, nextDate: newReviewDueAt } = 
+            calculateNextReviewDate(currentCard.difficulty, grade);
+
+        try {
+            // 2. Panggil API untuk memperbarui status kartu
+            await updateKartuSRSData(currentCard.id, newDifficulty, newReviewDueAt);
+            
+            // 3. Pindah ke kartu berikutnya (Hanya jika update sukses)
+            if (currentCardIndex < totalCards - 1) {
+                setCurrentCardIndex(prev => prev + 1);
+                setIsFlipped(false); 
+            } else {
+                // Sesi selesai
+                Alert.alert("Sesi Selesai!", "Semua kartu yang jatuh tempo telah di-review.", [
+                    { text: "Kembali ke Home", onPress: () => router.push('/home') } 
+                ]);
+            }
+        } catch (error) {
+            Alert.alert("Error", "Gagal menyimpan hasil review. Cek koneksi atau server log.");
+        }
+        
+    }, [currentCard, currentCardIndex, totalCards, calculateNextReviewDate, router]);
+
+
+    // Memuat Kartu
+    useEffect(() => {
+        if (!idString) return;
+        const loadCards = async () => {
+            try {
+                // NANTI: Ganti fetchStudyCardsMock dengan fetch API ASLI
+                const fetchedCards = await fetchStudyCardsMock(idString); 
+                setCards(fetchedCards);
+            } catch (error) {
+                console.error("Error loading study session:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadCards();
+    }, [idString]);
+
+
+    // --- Tampilan Loading / Kosong ---
+    if (isLoading) {
+        return (
+            <View style={styles.center}>
+                <ActivityIndicator size="large" color="#3498db" />
+                <Text style={{ marginTop: 10 }}>Memuat kartu sesi belajar...</Text>
+            </View>
+        );
+    }
+
+    if (totalCards === 0) {
+        return (
+            <View style={styles.center}>
+                <Text style={styles.emptyText}>Tidak ada kartu yang jatuh tempo di koleksi ini!</Text>
+            </View>
+        );
+    }
+    
+    // --- Tampilan Sesi Belajar ---
+    return (
+        <View style={styles.container}>
+            <Stack.Screen options={{ title: `Sesi Belajar: ${idString}` }} />
+
+            <Text style={styles.progressText}>
+                Progress: Card {currentCardIndex + 1} / {totalCards}
+            </Text>
+
+            {/* Area Kartu FlipCard yang bisa di-tap */}
+            <TouchableOpacity 
+                onPress={() => setIsFlipped(prev => !prev)} 
+                activeOpacity={1}
+                style={styles.cardContainer}
+            >
+                <FlipCard
+                    frontText={currentCard.front}
+                    backText={isFlipped ? currentCard.back : 'Ketuk untuk melihat jawaban'} 
+                    isFlipped={isFlipped}
+                />
+            </TouchableOpacity>
+            
+            {/* Tombol Penilaian (SRS Buttons) */}
+            {isFlipped && (
+                <View style={styles.buttonContainer}>
+                    <Button 
+                        title="Hard (Sulit)" 
+                        onPress={() => handleAnswer('hard')} 
+                        variant="srs_hard"
+                        style={styles.srsButton}
+                    />
+                    <Button 
+                        title="Good (Bisa)" 
+                        onPress={() => handleAnswer('good')} 
+                        variant="secondary"
+                        style={styles.srsButton}
+                    />
+                    <Button 
+                        title="Easy (Mudah)" 
+                        onPress={() => handleAnswer('easy')} 
+                        variant="srs_easy"
+                        style={styles.srsButton}
+                    />
+                </View>
+            )}
+
+            {!isFlipped && (
+                <Text style={styles.tapToFlip}>Ketuk kartu untuk mengungkapkan jawaban</Text>
+            )}
+        </View>
+    );
+};
+
+// ... (Gaya/Stylesheets tetap sama) ...
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'space-between', // Atur jarak atas-tengah-bawah
-  },
-  progressContainer: {
-    marginBottom: 20,
-  },
-  counterText: {
-    textAlign: 'center',
-    marginBottom: 8,
-    color: '#6B7280',
-    fontWeight: '600',
-  },
-  track: {
-    height: 8,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  fill: {
-    height: '100%',
-    backgroundColor: '#4F46E5',
-    borderRadius: 4,
-  },
-  cardArea: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  controls: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  btn: {
-    height: 56,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 16,
-    flexDirection: 'row',
-  },
-  btnSecondary: {
-    width: 56,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  btnPrimary: {
-    flex: 1,
-    marginLeft: 16,
-    backgroundColor: '#4F46E5',
-    shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  btnText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+    container: {
+        flex: 1,
+        padding: 20,
+        backgroundColor: '#f9f9f9',
+        alignItems: 'center',
+    },
+    center: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    progressText: {
+        fontSize: 16,
+        color: '#888',
+        marginBottom: 20,
+        alignSelf: 'flex-start'
+    },
+    cardContainer: {
+        width: '100%',
+        aspectRatio: 16 / 9, 
+        marginBottom: 30,
+        maxWidth: 400,
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        maxWidth: 400,
+    },
+    srsButton: {
+        width: '32%', 
+    },
+    tapToFlip: {
+        marginTop: 10,
+        color: '#3498db',
+        fontStyle: 'italic',
+    },
+    emptyText: {
+        fontSize: 18,
+        color: '#7f8c8d',
+    }
 });
+
+export default StudySessionScreen;
