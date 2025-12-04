@@ -5,7 +5,6 @@ import {
   StyleSheet, 
   ScrollView, 
   TouchableOpacity, 
-  Image, 
   SafeAreaView 
 } from 'react-native';
 import { router } from 'expo-router';
@@ -22,10 +21,13 @@ const categories = [
 export default function HomeScreen() {
   
   // Fungsi ketika kategori diklik
-  const handleCategoryPress = (categoryTitle: string) => {
-    console.log(`Membuka kategori: ${categoryTitle}`);
-    // Nanti kita arahkan ke halaman belajar/flashcard
-    // router.push('/study/...'); 
+  const handleCategoryPress = (categoryTitle: string, id: number) => {
+    // Arahkan ke halaman detail dengan membawa param id
+    // Pastikan file app/study/[id].tsx sudah dibuat
+    router.push({
+      pathname: "/study/[id]",
+      params: { id: id }
+    });
   };
 
   return (
@@ -64,7 +66,8 @@ export default function HomeScreen() {
             <TouchableOpacity 
               key={item.id} 
               style={[styles.card, { borderLeftColor: item.color }]}
-              onPress={() => handleCategoryPress(item.title)}
+              // PERBAIKAN DI SINI: Mengirimkan item.title DAN item.id
+              onPress={() => handleCategoryPress(item.title, item.id)}
             >
               <View style={[styles.iconContainer, { backgroundColor: item.color + '20' }]}>
                 {/* @ts-ignore - Ionicons glyph map types */}
