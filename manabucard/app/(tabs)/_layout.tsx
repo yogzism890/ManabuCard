@@ -1,50 +1,24 @@
-import React from "react";
-import { Tabs } from "expo-router";
-import { useColorScheme } from "@/hooks/use-color-scheme";
-import { Colors } from "@/constants/theme";
-import { HapticTab } from "@/components/haptic-tab";
-import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-        tabBarLabelStyle: {
-          fontFamily: "FredokaBold", // apply custom font
-          fontSize: 12,
-        },
-        tabBarStyle: {
-          height: 65,
-          paddingBottom: 10,
-          paddingTop: 6,
-          borderTopWidth: 0,
-          elevation: 8,
-          backgroundColor: "#fff",
-        },
-        tabBarButton: HapticTab,
-      }}
-    >
+    <Tabs screenOptions={{ tabBarActiveTintColor: '#4F46E5', headerShown: false }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
-          tabBarIcon: ({ color }) =>
-            <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Home',
+          tabBarIcon: ({ color }) => <Ionicons name="home" size={24} color={color} />,
         }}
       />
-
       <Tabs.Screen
-        name="explore"
+        name="explore" // Asumsi file explore.tsx ada sesuai gambar kamu
         options={{
-          title: "Explore",
-          tabBarIcon: ({ color }) =>
-            <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Explore',
+          tabBarIcon: ({ color }) => <Ionicons name="search" size={24} color={color} />,
         }}
       />
+      {/* Tambahkan tab lain jika perlu */}
     </Tabs>
   );
 }
