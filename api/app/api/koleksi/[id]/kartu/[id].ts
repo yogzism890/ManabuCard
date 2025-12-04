@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 const MOCK_USER_ID = 'isi_dengan_id_pengguna_yang_valid';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { id } = req.query; // ID Kartu
+  const { id } = req.query;
   
   if (req.method === 'PATCH') {
     if (typeof id !== 'string') {

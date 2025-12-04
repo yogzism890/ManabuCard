@@ -14,7 +14,7 @@ interface Kartu {
 }
 
 // --- 2. Fungsi API Frontend (Harap sesuaikan dengan struktur folder Anda) ---
-const API_BASE_URL = 'http://192.168.100.9/api'; // Next.js API URL
+const API_BASE_URL = 'http://192.168.100.9:3000/api'; // Next.js API URL
 
 /** Mengambil daftar kartu yang jatuh tempo untuk Koleksi ID tertentu */
 async function fetchCardsForKoleksi(koleksiId: string): Promise<Kartu[]> {
