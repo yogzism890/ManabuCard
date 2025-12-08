@@ -10,10 +10,6 @@ const getAuthenticatedUserId = () => MOCK_USER_ID;
 export async function POST(req: Request) {
     const userId = getAuthenticatedUserId();
 
-    if (!userId) {
-        return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
-    }
-
     try {
         const body = await req.json();
         const { koleksiId, front, back } = body;
@@ -25,26 +21,26 @@ export async function POST(req: Request) {
             );
         }
 
-        // Cek Keamanan: Pastikan Koleksi milik User yang login
-        const koleksi = await prisma.koleksi.findUnique({
-            where: { id: koleksiId, userId: userId },
-        });
+        // Cek Keamanan: Pastikan Koleksi milik User yang login (di-comment untuk development)
+        // const koleksi = await prisma.koleksi.findUnique({
+        //     where: { id: koleksiId, userId: userId },
+        // });
 
-        if (!koleksi) {
-            return NextResponse.json(
-                { error: "FORBIDDEN: Koleksi tidak ditemukan atau bukan milik user ini." },
-                { status: 403 }
-            );
-        }
+        // if (!koleksi) {
+        //     return NextResponse.json(
+        //         { error: "FORBIDDEN: Koleksi tidak ditemukan atau bukan milik user ini." },
+        //         { status: 403 }
+        //     );
+        // }
 
         // Buat Kartu Baru: Inisialisasi SRS (reviewDueAt = sekarang, difficulty = 0)
         const newKartu = await prisma.kartu.create({
-            data: { 
-                koleksiId, 
-                front, 
+            data: {
+                koleksiId,
+                front,
                 back,
-                difficulty: 0, 
-                reviewDueAt: new Date(), 
+                difficulty: 0,
+                reviewDueAt: new Date(),
             },
         });
 

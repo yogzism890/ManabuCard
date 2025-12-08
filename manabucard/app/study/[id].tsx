@@ -33,17 +33,13 @@ const MOCK_STUDY_CARDS: Kartu[] = [
 /** Fungsi fetching kartu yang jatuh tempo dari API */
 const fetchStudyCards = async (koleksiId: string): Promise<Kartu[]> => {
   console.log(`Fetching due cards for Collection ID: ${koleksiId}`);
-  const response = await fetch(`${API_BASE_URL}/kartu?koleksiId=${koleksiId}`, {
+  const response = await fetch(`${API_BASE_URL}/koleksi/${koleksiId}/kartu`, {
     headers: { 'Authorization': `Bearer ${MOCK_AUTH_TOKEN}` },
   });
   if (!response.ok) throw new Error('Gagal mengambil kartu.');
   const cards = await response.json();
 
-  // Filter kartu yang jatuh tempo (reviewDueAt <= sekarang)
-  const now = new Date();
-  const dueCards = cards.filter((card: any) => new Date(card.reviewDueAt) <= now);
-
-  return dueCards.map((card: any) => ({
+  return cards.map((card: any) => ({
     id: card.id,
     front: card.front,
     back: card.back,
@@ -142,8 +138,7 @@ const StudySessionScreen = () => {
         if (!idString) return;
         const loadCards = async () => {
             try {
-                // NANTI: Ganti fetchStudyCardsMock dengan fetch API ASLI
-                const fetchedCards = await fetchStudyCardsMock(idString); 
+                const fetchedCards = await fetchStudyCards(idString);
                 setCards(fetchedCards);
             } catch (error) {
                 console.error("Error loading study session:", error);

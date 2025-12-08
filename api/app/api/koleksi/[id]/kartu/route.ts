@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-const MOCK_USER_ID = 'isi_dengan_id_pengguna_yang_valid'; 
-const getAuthenticatedUserId = () => MOCK_USER_ID; 
+const MOCK_USER_ID = '550e8400-e29b-41d4-a716-446655440000';
+const getAuthenticatedUserId = () => MOCK_USER_ID;
 
 /**
- * Endpoint GET /api/koleksi/[id]/kartu: Mengambil kartu yang jatuh tempo.
+ * Endpoint GET /api/koleksi/[id]/kartu: Mengambil semua kartu dalam koleksi.
  */
 export async function GET(
     req: Request,
-    context: { params: { id: string } } 
+    context: { params: { id: string } }
 ) {
     const koleksiId = context.params.id;
     const userId = getAuthenticatedUserId();
@@ -23,18 +23,14 @@ export async function GET(
     }
 
     try {
-        const now = new Date();
-        
-        // Query Prisma: Ambil Kartu yang jatuh tempo DAN milik pengguna
+        // Query Prisma: Ambil SEMUA Kartu dalam koleksi yang milik pengguna
         const kartuList = await prisma.kartu.findMany({
             where: {
                 koleksiId: koleksiId,
-                reviewDueAt: {
-                    lte: now, // Jatuh tempo hari ini atau sebelumnya
-                },
                 koleksi: {
                     userId: userId, // Kriteria Keamanan
                 },
+                isDeleted: false, // Hanya kartu yang belum dihapus
             },
             select: {
                 id: true,
@@ -44,7 +40,7 @@ export async function GET(
                 reviewDueAt: true,
             },
             orderBy: {
-                reviewDueAt: 'asc', 
+                createdAt: 'asc', // Urutkan berdasarkan waktu pembuatan
             }
         });
 
