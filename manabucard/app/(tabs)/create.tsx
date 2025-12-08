@@ -13,13 +13,13 @@ import {
     FlatList
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { API_BASE_URL } from '../../constants/apiConfig';
 
 // Import komponen UI yang sudah Anda buat
 import Button from '../../components/ui/Button'; 
 import Input from '../../components/ui/Input';
 
 // --- KONSTANTA API (DIBIARKAN SAMA) ---
-const API_BASE_URL = 'http://192.168.1.7:3000/api'; 
 const MOCK_AUTH_TOKEN = 'YOUR_AUTH_TOKEN_HERE'; 
 // MOCK_USER_ID tidak diperlukan jika backend Anda mengambil userId dari token
 

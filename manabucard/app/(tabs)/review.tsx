@@ -14,9 +14,9 @@ import { Link } from 'expo-router';
 // Import komponen yang sudah ada
 import FlipCard from '../../components/FlipCard';
 import Button from '../../components/ui/Button';
+import { API_BASE_URL } from '../../constants/apiConfig';
 
 // --- KONSTANTA API ---
-const API_BASE_URL = 'http://192.168.1.7:3000/api';
 const MOCK_AUTH_TOKEN = 'YOUR_AUTH_TOKEN_HERE';
 
 // --- Tipe Data ---

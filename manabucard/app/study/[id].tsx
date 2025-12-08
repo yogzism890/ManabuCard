@@ -6,10 +6,10 @@ import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 // ASUMSI: Import komponen FlipCard Anda
 import FlipCard from '../../components/FlipCard'; 
 import Button from '../../components/ui/Button'; 
+import { API_BASE_URL } from '../../constants/apiConfig';
 
 // --- KONSTANTA API ---
-// GANTI DENGAN IP DAN TOKEN ASLI ANDA
-const API_BASE_URL = 'http://192.168.100.9:3000/api'; 
+// GANTI DENGAN IP DAN TOKEN ASLI ANDA 
 const MOCK_AUTH_TOKEN = 'YOUR_AUTH_TOKEN_HERE'; 
 // ----------------------
 

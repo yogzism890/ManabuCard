@@ -39,6 +39,7 @@ export async function GET(
                 back: true,
                 difficulty: true,
                 reviewDueAt: true,
+                koleksiId: true,
             },
             orderBy: {
                 createdAt: 'asc', // Urutkan berdasarkan waktu pembuatan
