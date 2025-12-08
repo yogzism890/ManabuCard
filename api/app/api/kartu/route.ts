@@ -56,7 +56,45 @@ export async function POST(req: Request) {
     }
 }
 
-// Menonaktifkan GET untuk menghindari pengambilan semua kartu tanpa filter
-export async function GET() {
-    return NextResponse.json({ error: "Method Not Allowed" }, { status: 405 });
+/**
+ * Endpoint GET /api/kartu: Mengambil semua kartu pengguna (opsional, dengan filter koleksi).
+ */
+export async function GET(req: Request) {
+    const userId = getAuthenticatedUserId();
+
+    if (!userId) {
+        return NextResponse.json({ error: "UNAUTHORIZED: User not authenticated." }, { status: 401 });
+    }
+
+    try {
+        const url = new URL(req.url);
+        const koleksiId = url.searchParams.get('koleksiId');
+
+        const whereClause: any = {
+            koleksi: { userId: userId },
+            isDeleted: false,
+        };
+
+        if (koleksiId) {
+            whereClause.koleksiId = koleksiId;
+        }
+
+        const kartuList = await prisma.kartu.findMany({
+            where: whereClause,
+            select: {
+                id: true,
+                front: true,
+                back: true,
+                difficulty: true,
+                reviewDueAt: true,
+                koleksiId: true,
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        return NextResponse.json(kartuList, { status: 200 });
+    } catch (error) {
+        console.error("Error fetching cards:", error);
+        return NextResponse.json({ error: "SERVER_ERROR: Gagal mengambil kartu." }, { status: 500 });
+    }
 }

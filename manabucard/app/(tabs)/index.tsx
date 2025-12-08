@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Link } from 'expo-router'; // Penting untuk navigasi ke sesi belajar
 
-// --- Mock Data dan Tipe Data ---
+// --- Tipe Data ---
 interface KoleksiSummary {
   id: string;
   name: string;
@@ -18,16 +18,36 @@ interface KoleksiSummary {
   dueToday: number; // Jumlah kartu yang jatuh tempo hari ini
 }
 
-// Data tiruan yang akan diganti dengan API
-const MOCK_COLLECTIONS: KoleksiSummary[] = [
-  { id: '1', name: 'Daily Verbs', cardCount: 100, dueToday: 15 },
-  { id: '2', name: 'IT Terms', cardCount: 50, dueToday: 0 },
-  { id: '3', name: 'Phrasal Verbs', cardCount: 75, dueToday: 23 },
-  { id: '4', name: 'Basic Nouns', cardCount: 200, dueToday: 5 },
-];
+// --- KONSTANTA API ---
+const API_BASE_URL = 'http://192.168.100.9:3000/api';
+const MOCK_AUTH_TOKEN = 'YOUR_AUTH_TOKEN_HERE'; // Ganti dengan token asli
 
-const fetchMockCollections = (): Promise<KoleksiSummary[]> => {
-  return new Promise(resolve => setTimeout(() => resolve(MOCK_COLLECTIONS), 800));
+const fetchCollections = async (): Promise<KoleksiSummary[]> => {
+  const response = await fetch(`${API_BASE_URL}/koleksi`, {
+    headers: { 'Authorization': `Bearer ${MOCK_AUTH_TOKEN}` },
+  });
+  if (!response.ok) throw new Error('Gagal mengambil koleksi.');
+  const data = await response.json();
+
+  // Hitung cardCount dan dueToday untuk setiap koleksi
+  const collectionsWithStats = await Promise.all(
+    data.map(async (koleksi: any) => {
+      const cardsResponse = await fetch(`${API_BASE_URL}/kartu?koleksiId=${koleksi.id}`, {
+        headers: { 'Authorization': `Bearer ${MOCK_AUTH_TOKEN}` },
+      });
+      const cards = cardsResponse.ok ? await cardsResponse.json() : [];
+      const now = new Date();
+      const dueToday = cards.filter((card: any) => new Date(card.reviewDueAt) <= now).length;
+      return {
+        id: koleksi.id,
+        name: koleksi.nama,
+        cardCount: cards.length,
+        dueToday,
+      };
+    })
+  );
+
+  return collectionsWithStats;
 };
 // ------------------------------
 
@@ -67,7 +87,7 @@ const StudyHomeScreen = () => {
 
   const loadCollections = async () => {
     try {
-      const data = await fetchMockCollections();
+      const data = await fetchCollections();
       setCollections(data);
     } catch (error) {
       console.error("Failed to load collections:", error);

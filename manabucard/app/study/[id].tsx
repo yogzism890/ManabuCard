@@ -30,11 +30,25 @@ const MOCK_STUDY_CARDS: Kartu[] = [
   { id: 'c5', front: 'Exhausted', back: 'Sangat lelah', difficulty: 0 },
 ];
 
-/** Simulasi fungsi fetching kartu (Ganti dengan fetch API asli nanti) */
-const fetchStudyCardsMock = (koleksiId: string): Promise<Kartu[]> => {
-  console.log(`Fetching cards for Collection ID: ${koleksiId}`);
-  // NANTI: Ganti dengan panggilan fetch ke GET /api/koleksi/[id]/kartu
-  return new Promise(resolve => setTimeout(() => resolve(MOCK_STUDY_CARDS), 1000));
+/** Fungsi fetching kartu yang jatuh tempo dari API */
+const fetchStudyCards = async (koleksiId: string): Promise<Kartu[]> => {
+  console.log(`Fetching due cards for Collection ID: ${koleksiId}`);
+  const response = await fetch(`${API_BASE_URL}/kartu?koleksiId=${koleksiId}`, {
+    headers: { 'Authorization': `Bearer ${MOCK_AUTH_TOKEN}` },
+  });
+  if (!response.ok) throw new Error('Gagal mengambil kartu.');
+  const cards = await response.json();
+
+  // Filter kartu yang jatuh tempo (reviewDueAt <= sekarang)
+  const now = new Date();
+  const dueCards = cards.filter((card: any) => new Date(card.reviewDueAt) <= now);
+
+  return dueCards.map((card: any) => ({
+    id: card.id,
+    front: card.front,
+    back: card.back,
+    difficulty: card.difficulty,
+  }));
 };
 
 /** Memperbarui status SRS (difficulty dan reviewDueAt) di database */
@@ -113,7 +127,7 @@ const StudySessionScreen = () => {
             } else {
                 // Sesi selesai
                 Alert.alert("Sesi Selesai!", "Semua kartu yang jatuh tempo telah di-review.", [
-                    { text: "Kembali ke Home", onPress: () => router.push('/home') } 
+                    { text: "Kembali ke Home", onPress: () => router.push('/') }
                 ]);
             }
         } catch (error) {
