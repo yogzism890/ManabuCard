@@ -13,7 +13,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index" // Ini merujuk ke app/(tabs)/index.tsx (Home/Belajar)
         options={{
-          title: 'Belajar',
+          title: 'Manabucard',
           tabBarIcon: ({ color }) => <Ionicons name="school" size={24} color={color} />,
         }}
       />
