@@ -162,20 +162,26 @@ const ReviewScreen = () => {
     const currentCard = cards[currentIndex];
     let newDifficulty = currentCard.difficulty;
     let daysToAdd = 1;
+    let qualityMessage = '';
 
-    // Simple SRS calculation based on quality
+    // Enhanced SRS calculation with better intervals and feedback
     switch (quality) {
       case 'hard':
+        // Decrease difficulty, short interval for review
         newDifficulty = Math.max(0, newDifficulty - 1);
-        daysToAdd = 1;
+        daysToAdd = Math.max(1, Math.floor(newDifficulty * 0.5) + 1);
+        qualityMessage = 'Kartu akan muncul lagi besok untuk diperkuat';
         break;
       case 'good':
-        // Keep difficulty the same
-        daysToAdd = Math.max(1, Math.floor(newDifficulty * 1.5));
+        // Keep difficulty, moderate interval
+        daysToAdd = Math.max(1, Math.floor(newDifficulty * 1.3) + 1);
+        qualityMessage = `Kartu akan muncul lagi dalam ${daysToAdd} hari`;
         break;
       case 'easy':
+        // Increase difficulty, long interval
         newDifficulty = Math.min(5, newDifficulty + 1);
-        daysToAdd = Math.max(1, Math.floor(newDifficulty * 2.5));
+        daysToAdd = Math.max(1, Math.floor(newDifficulty * 2.2) + 3);
+        qualityMessage = `Kartu akan muncul lagi dalam ${daysToAdd} hari`;
         break;
     }
 
@@ -184,22 +190,68 @@ const ReviewScreen = () => {
 
     try {
       setIsUpdating(true);
+
+      // Add small delay for better UX feedback
+      await new Promise(resolve => setTimeout(resolve, 300));
+
       await updateCardSRS(currentCard.id, newDifficulty, newReviewDueAt);
 
-      // Move to next card or finish
-      if (currentIndex < cards.length - 1) {
-        setCurrentIndex(currentIndex + 1);
-        setIsFlipped(false);
-      } else {
-        // All cards reviewed, go back to collections
-        Alert.alert(
-          'Selesai!',
-          `Semua kartu dari koleksi "${selectedCollection?.nama}" telah direview.`,
-          [{ text: 'OK', onPress: backToCollections }]
-        );
-      }
+      // Show quality feedback briefly
+      Alert.alert(
+        'Progress Disimpan',
+        qualityMessage,
+        [{ text: 'Lanjut', style: 'default' }],
+        { cancelable: false }
+      );
+
+      // Move to next card or finish after a brief delay
+      setTimeout(() => {
+        if (currentIndex < cards.length - 1) {
+          setCurrentIndex(currentIndex + 1);
+          setIsFlipped(false);
+        } else {
+          // All cards reviewed, show completion summary
+          const completionMessage = `🎉 Selesai!\n\nSemua ${cards.length} kartu dari koleksi "${selectedCollection?.nama}" telah direview.\n\nKartu-kartu akan muncul lagi sesuai jadwal yang telah ditentukan.`;
+
+          Alert.alert(
+            'Review Selesai!',
+            completionMessage,
+            [
+              {
+                text: 'Review Lagi',
+                style: 'default',
+                onPress: () => {
+                  setCurrentIndex(0);
+                  setIsFlipped(false);
+                }
+              },
+              {
+                text: 'Kembali',
+                style: 'default',
+                onPress: backToCollections
+              }
+            ]
+          );
+        }
+      }, 500);
+
     } catch (error) {
-      Alert.alert('Error', 'Gagal menyimpan progress review');
+      console.error('SRS Update Error:', error);
+      Alert.alert(
+        'Gagal Menyimpan',
+        'Terjadi kesalahan saat menyimpan progress. Silakan coba lagi.',
+        [
+          { text: 'Coba Lagi', onPress: () => handleAnswer(quality) },
+          { text: 'Lewati', style: 'destructive', onPress: () => {
+            if (currentIndex < cards.length - 1) {
+              setCurrentIndex(currentIndex + 1);
+              setIsFlipped(false);
+            } else {
+              backToCollections();
+            }
+          }}
+        ]
+      );
     } finally {
       setIsUpdating(false);
     }
@@ -381,211 +433,300 @@ const ReviewScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#f8f9ff',
     padding: 20,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 20,
+    margin: 10,
   },
   header: {
     marginBottom: 30,
     alignItems: 'center',
+    backgroundColor: '#ffffff',
+    padding: 25,
+    borderRadius: 20,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 15,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(99, 102, 241, 0.1)',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#1e293b',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   headerSubtitle: {
-    fontSize: 16,
-    color: '#7f8c8d',
+    fontSize: 17,
+    color: '#64748b',
     textAlign: 'center',
     lineHeight: 24,
+    fontWeight: '500',
   },
   collectionsList: {
-    gap: 16,
-    paddingBottom: 20,
+    gap: 20,
+    paddingBottom: 30,
   },
   collectionCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 5,
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    padding: 25,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 8,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: 'rgba(99, 102, 241, 0.08)',
   },
   collectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 15,
   },
   collectionName: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#1e293b',
     flex: 1,
-    marginRight: 12,
+    marginRight: 15,
   },
   collectionCount: {
-    fontSize: 14,
-    color: '#3498db',
-    backgroundColor: '#e3f2fd',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    fontWeight: '600',
-    minWidth: 60,
+    fontSize: 15,
+    color: '#6366f1',
+    backgroundColor: '#eef2ff',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 25,
+    fontWeight: '700',
+    minWidth: 70,
     textAlign: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(99, 102, 241, 0.2)',
   },
   collectionDescription: {
-    fontSize: 15,
-    color: '#7f8c8d',
-    lineHeight: 22,
-    marginTop: 4,
+    fontSize: 16,
+    color: '#64748b',
+    lineHeight: 24,
+    marginTop: 5,
+    fontWeight: '400',
   },
   reviewHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
-    paddingTop: 10,
+    marginBottom: 25,
+    paddingTop: 15,
+    backgroundColor: '#ffffff',
+    padding: 20,
+    borderRadius: 15,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(99, 102, 241, 0.05)',
   },
   backButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginRight: 16,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginRight: 20,
+    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+    borderRadius: 12,
   },
   backButtonText: {
-    color: '#3498db',
-    fontSize: 16,
+    color: '#6366f1',
+    fontSize: 17,
     fontWeight: '600',
   },
   collectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#1e293b',
     flex: 1,
   },
   progressContainer: {
-    marginBottom: 20,
+    marginBottom: 25,
+    backgroundColor: '#ffffff',
+    padding: 20,
+    borderRadius: 15,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(99, 102, 241, 0.05)',
   },
   progressText: {
-    fontSize: 16,
-    color: '#7f8c8d',
-    marginBottom: 8,
+    fontSize: 17,
+    color: '#64748b',
+    marginBottom: 12,
     textAlign: 'center',
+    fontWeight: '600',
   },
   progressBar: {
-    height: 4,
-    backgroundColor: '#ecf0f1',
-    borderRadius: 2,
+    height: 6,
+    backgroundColor: 'rgba(99, 102, 241, 0.2)',
+    borderRadius: 3,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#3498db',
-    borderRadius: 2,
+    backgroundColor: '#6366f1',
+    borderRadius: 3,
   },
   cardContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 35,
   },
   cardTouchable: {
     width: '100%',
     aspectRatio: 16 / 9,
     maxWidth: 400,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 15,
+    elevation: 10,
   },
   tapHint: {
-    marginTop: 15,
-    color: '#3498db',
+    marginTop: 20,
+    color: '#6366f1',
     fontStyle: 'italic',
     textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '500',
+    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
     maxWidth: 400,
-    marginBottom: 20,
+    marginBottom: 25,
+    gap: 10,
   },
   srsButton: {
-    width: '32%',
+    flex: 1,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
   },
   updatingIndicator: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 15,
+    backgroundColor: '#ffffff',
+    borderRadius: 15,
+    marginHorizontal: 20,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(99, 102, 241, 0.05)',
   },
   updatingText: {
-    marginLeft: 10,
-    color: '#7f8c8d',
-    fontSize: 14,
+    marginLeft: 12,
+    color: '#6366f1',
+    fontSize: 15,
+    fontWeight: '600',
   },
   emptyState: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 20,
+    paddingVertical: 70,
+    paddingHorizontal: 25,
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    margin: 10,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 15,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(99, 102, 241, 0.05)',
   },
   emptyIcon: {
-    fontSize: 80,
-    marginBottom: 20,
+    fontSize: 90,
+    marginBottom: 25,
   },
   emptyTitle: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#1e293b',
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 18,
   },
   emptySubtitle: {
-    fontSize: 16,
-    color: '#7f8c8d',
+    fontSize: 17,
+    color: '#64748b',
     textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 40,
+    lineHeight: 26,
+    marginBottom: 45,
+    fontWeight: '400',
   },
   emptyActions: {
     width: '100%',
-    maxWidth: 300,
-    gap: 12,
+    maxWidth: 320,
+    gap: 15,
   },
   createButton: {
-    backgroundColor: '#3498db',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 30,
+    backgroundColor: '#6366f1',
+    paddingVertical: 18,
+    paddingHorizontal: 30,
+    borderRadius: 35,
     alignItems: 'center',
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
   },
   createButtonText: {
-    color: '#fff',
-    fontSize: 16,
+    color: '#ffffff',
+    fontSize: 17,
     fontWeight: 'bold',
   },
   refreshButton: {
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
     borderWidth: 2,
-    borderColor: '#3498db',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 30,
+    borderColor: '#6366f1',
+    paddingVertical: 18,
+    paddingHorizontal: 30,
+    borderRadius: 35,
     alignItems: 'center',
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
   refreshButtonText: {
-    color: '#3498db',
-    fontSize: 16,
+    color: '#6366f1',
+    fontSize: 17,
     fontWeight: 'bold',
   },
 });
