@@ -1,129 +1,133 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  FlatList, 
-  StyleSheet, 
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
-  RefreshControl
+  Dimensions
 } from 'react-native';
-import { Link } from 'expo-router'; // Penting untuk navigasi ke sesi belajar
+import { Link } from 'expo-router';
 
-// --- Tipe Data ---
-interface KoleksiSummary {
-  id: string;
-  name: string;
-  cardCount: number;
-  dueToday: number; // Jumlah kartu yang jatuh tempo hari ini
-}
+const { width } = Dimensions.get('window');
 
-// --- KONSTANTA API ---
-const API_BASE_URL = 'http://192.168.100.9:3000/api';
-const MOCK_AUTH_TOKEN = 'YOUR_AUTH_TOKEN_HERE'; // Ganti dengan token asli
-
-const fetchCollections = async (): Promise<KoleksiSummary[]> => {
-  const response = await fetch(`${API_BASE_URL}/koleksi`, {
-    headers: { 'Authorization': `Bearer ${MOCK_AUTH_TOKEN}` },
-  });
-  if (!response.ok) throw new Error('Gagal mengambil koleksi.');
-  const data = await response.json();
-
-  // Data sudah termasuk cardCount dan dueToday dari backend
-  return data.map((koleksi: any) => ({
-    id: koleksi.id,
-    name: koleksi.name,
-    cardCount: koleksi.cardCount,
-    dueToday: koleksi.dueToday,
-  }));
-};
-// ------------------------------
-
-/** Komponen Card untuk setiap Koleksi */
-const CollectionCard: React.FC<{ koleksi: KoleksiSummary }> = ({ koleksi }) => {
-  const isDue = koleksi.dueToday > 0;
-
+const LandingScreen = () => {
   return (
-    // Gunakan <Link> untuk navigasi ke rute dinamis study/[id].tsx
-    <Link href={`/study/${koleksi.id}`} asChild>
-      <TouchableOpacity style={styles.card}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.cardName}>{koleksi.name}</Text>
-          {/* Tampilkan tag jika ada kartu yang jatuh tempo */}
-          {isDue && (
-            <View style={styles.dueTag}>
-              <Text style={styles.dueText}>{koleksi.dueToday} Due</Text>
-            </View>
-          )}
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Hero Section */}
+      <View style={styles.heroSection}>
+        <View style={styles.heroIcon}>
+          <Text style={styles.heroIconText}>🧠</Text>
         </View>
-        <Text style={styles.cardInfo}>{koleksi.cardCount} total cards</Text>
-        
-        {/* Pesan Aksi */}
-        <Text style={[styles.cardAction, isDue ? styles.cardActionDue : {}]}>
-            {isDue ? 'START REVIEW NOW →' : 'Review Finished / Start New Session →'}
+        <Text style={styles.heroTitle}>Selamat Datang di Manabu</Text>
+        <Text style={styles.heroSubtitle}>
+          Platform pembelajaran cerdas dengan kartu pintar untuk meningkatkan daya ingat Anda
         </Text>
-      </TouchableOpacity>
-    </Link>
-  );
-};
-
-
-const StudyHomeScreen = () => {
-  const [collections, setCollections] = useState<KoleksiSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const loadCollections = async () => {
-    try {
-      const data = await fetchCollections();
-      setCollections(data);
-    } catch (error) {
-      console.error("Failed to load collections:", error);
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    loadCollections();
-  }, []);
-  
-  const onRefresh = () => {
-    setIsRefreshing(true);
-    loadCollections();
-  }
-
-  if (isLoading && !isRefreshing) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#3498db" />
-        <Text style={{ marginTop: 10 }}>Loading collections...</Text>
+        <TouchableOpacity style={styles.heroButton}>
+          <Link href="/review" asChild>
+            <Text style={styles.heroButtonText}>Mulai Belajar →</Text>
+          </Link>
+        </TouchableOpacity>
       </View>
-    );
-  }
 
-  return (
-    <View style={styles.container}>
-      <FlatList
-        data={collections}
-        renderItem={({ item }) => <CollectionCard koleksi={item} />}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-        refreshControl={
-            <RefreshControl 
-                refreshing={isRefreshing} 
-                onRefresh={onRefresh} 
-                tintColor="#3498db"
-            />
-        }
-        ListEmptyComponent={
-            <Text style={styles.emptyText}>
-                Belum ada koleksi. Buat koleksi baru di tab "Buat"!
+      {/* Features Section */}
+      <View style={styles.featuresSection}>
+        <Text style={styles.sectionTitle}>Fitur Utama</Text>
+
+        <View style={styles.featureGrid}>
+          <View style={styles.featureCard}>
+            <Text style={styles.featureIcon}>📚</Text>
+            <Text style={styles.featureTitle}>Koleksi Pintar</Text>
+            <Text style={styles.featureDescription}>
+              Kelompokkan kartu belajar Anda dalam koleksi yang terorganisir
             </Text>
-        }
-      />
-    </View>
+          </View>
+
+          <View style={styles.featureCard}>
+            <Text style={styles.featureIcon}>🔄</Text>
+            <Text style={styles.featureTitle}>Spaced Repetition</Text>
+            <Text style={styles.featureDescription}>
+              Algoritma cerdas untuk mengulang materi pada waktu yang tepat
+            </Text>
+          </View>
+
+          <View style={styles.featureCard}>
+            <Text style={styles.featureIcon}>📊</Text>
+            <Text style={styles.featureTitle}>Progress Tracking</Text>
+            <Text style={styles.featureDescription}>
+              Pantau perkembangan belajar Anda dengan statistik detail
+            </Text>
+          </View>
+
+          <View style={styles.featureCard}>
+            <Text style={styles.featureIcon}>🎯</Text>
+            <Text style={styles.featureTitle}>Personalized Learning</Text>
+            <Text style={styles.featureDescription}>
+              Sesuaikan kecepatan belajar dengan tingkat penguasaan Anda
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      {/* How It Works Section */}
+      <View style={styles.howItWorksSection}>
+        <Text style={styles.sectionTitle}>Cara Kerja</Text>
+
+        <View style={styles.stepContainer}>
+          <View style={styles.step}>
+            <View style={styles.stepNumber}>
+              <Text style={styles.stepNumberText}>1</Text>
+            </View>
+            <Text style={styles.stepTitle}>Buat Koleksi</Text>
+            <Text style={styles.stepDescription}>
+              Mulai dengan membuat koleksi kartu belajar untuk topik yang ingin Anda pelajari
+            </Text>
+          </View>
+
+          <View style={styles.step}>
+            <View style={styles.stepNumber}>
+              <Text style={styles.stepNumberText}>2</Text>
+            </View>
+            <Text style={styles.stepTitle}>Tambah Kartu</Text>
+            <Text style={styles.stepDescription}>
+              Buat kartu dengan pertanyaan di satu sisi dan jawaban di sisi lainnya
+            </Text>
+          </View>
+
+          <View style={styles.step}>
+            <View style={styles.stepNumber}>
+              <Text style={styles.stepNumberText}>3</Text>
+            </View>
+            <Text style={styles.stepTitle}>Belajar & Ulangi</Text>
+            <Text style={styles.stepDescription}>
+              Sistem akan menjadwalkan ulangan pada interval yang optimal untuk daya ingat maksimal
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      {/* CTA Section */}
+      <View style={styles.ctaSection}>
+        <Text style={styles.ctaTitle}>Siap Meningkatkan Daya Ingat Anda?</Text>
+        <Text style={styles.ctaSubtitle}>
+          Bergabunglah dengan ribuan pelajar yang telah berhasil menggunakan Manabu
+        </Text>
+
+        <View style={styles.ctaButtons}>
+          <TouchableOpacity style={styles.primaryButton}>
+            <Link href="/create" asChild>
+              <Text style={styles.primaryButtonText}>Buat Konten Baru</Text>
+            </Link>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.secondaryButton}>
+            <Link href="/review" asChild>
+              <Text style={styles.secondaryButtonText}>Mulai Belajar</Text>
+            </Link>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
   );
 };
 
@@ -132,140 +136,208 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f9fa',
   },
-  header: {
-    backgroundColor: '#fff',
-    paddingTop: 60,
-    paddingBottom: 20,
+  heroSection: {
+    alignItems: 'center',
+    paddingVertical: 60,
     paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    marginBottom: 5,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: '#6c757d',
-  },
-  listContent: {
-    padding: 20,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  card: {
     backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 6,
-    borderLeftWidth: 6,
-    borderLeftColor: '#3498db',
-    borderRightWidth: 1,
-    borderRightColor: '#e9ecef',
-    borderTopWidth: 1,
-    borderTopColor: '#e9ecef',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  heroIcon: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#3498db',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 30,
+    shadowColor: '#3498db',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 12,
   },
-  cardName: {
-    fontSize: 22,
+  heroIconText: {
+    fontSize: 60,
+  },
+  heroTitle: {
+    fontSize: 32,
     fontWeight: 'bold',
     color: '#2c3e50',
-    flex: 1,
-  },
-  cardInfo: {
-    fontSize: 15,
-    color: '#6c757d',
-    marginBottom: 12,
-    fontWeight: '500',
-  },
-  cardAction: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#3498db',
-    marginTop: 8,
-  },
-  cardActionDue: {
-    color: '#e74c3c',
-  },
-  dueTag: {
-    backgroundColor: '#e74c3c',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    marginLeft: 10,
-  },
-  dueText: {
-    color: '#fff',
-    fontSize: 13,
-    fontWeight: 'bold',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-  },
-  emptyIcon: {
-    fontSize: 60,
-    color: '#dee2e6',
-    marginBottom: 20,
-  },
-  emptyText: {
     textAlign: 'center',
+    marginBottom: 16,
+  },
+  heroSubtitle: {
     fontSize: 18,
-    color: '#6c757d',
-    marginBottom: 10,
-    fontWeight: '500',
-  },
-  emptySubtext: {
+    color: '#7f8c8d',
     textAlign: 'center',
-    fontSize: 14,
-    color: '#adb5bd',
-    lineHeight: 20,
+    lineHeight: 26,
+    marginBottom: 40,
+    paddingHorizontal: 20,
   },
-  fab: {
-    position: 'absolute',
-    bottom: 30,
-    right: 30,
+  heroButton: {
     backgroundColor: '#3498db',
-    width: 60,
-    height: 60,
+    paddingHorizontal: 40,
+    paddingVertical: 16,
     borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#3498db',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 8,
+    elevation: 6,
   },
-  fabText: {
+  heroButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  featuresSection: {
+    paddingVertical: 60,
+    paddingHorizontal: 20,
+  },
+  sectionTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+    textAlign: 'center',
+    marginBottom: 40,
+  },
+  featureGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  featureCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 20,
+    width: (width - 60) / 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 6,
+    alignItems: 'center',
+  },
+  featureIcon: {
+    fontSize: 40,
+    marginBottom: 16,
+  },
+  featureTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  featureDescription: {
+    fontSize: 14,
+    color: '#7f8c8d',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  howItWorksSection: {
+    backgroundColor: '#fff',
+    paddingVertical: 60,
+    paddingHorizontal: 20,
+  },
+  stepContainer: {
+    marginTop: 40,
+  },
+  step: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 40,
+  },
+  stepNumber: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#3498db',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 20,
+    shadowColor: '#3498db',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  stepNumberText: {
     color: '#fff',
     fontSize: 24,
     fontWeight: 'bold',
-  }
+  },
+  stepTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+    marginBottom: 8,
+  },
+  stepDescription: {
+    fontSize: 16,
+    color: '#7f8c8d',
+    lineHeight: 24,
+    flex: 1,
+  },
+  ctaSection: {
+    paddingVertical: 60,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  ctaTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  ctaSubtitle: {
+    fontSize: 18,
+    color: '#7f8c8d',
+    textAlign: 'center',
+    lineHeight: 26,
+    marginBottom: 40,
+    paddingHorizontal: 20,
+  },
+  ctaButtons: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  primaryButton: {
+    backgroundColor: '#3498db',
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    borderRadius: 30,
+    shadowColor: '#3498db',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  primaryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  secondaryButton: {
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#3498db',
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    borderRadius: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  secondaryButtonText: {
+    color: '#3498db',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
-export default StudyHomeScreen;
+export default LandingScreen;

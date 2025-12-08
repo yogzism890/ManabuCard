@@ -177,43 +177,78 @@ const CreateScreen = () => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
             <ScrollView contentContainerStyle={styles.container}>
-                
+
+                {/* Header Section */}
+                <View style={styles.headerSection}>
+                    <View style={styles.headerIcon}>
+                        <Text style={styles.headerIconText}>📚</Text>
+                    </View>
+                    <Text style={styles.headerTitle}>Buat Konten Belajar</Text>
+                    <Text style={styles.headerSubtitle}>
+                        Mulai dengan membuat koleksi kartu pintar Anda
+                    </Text>
+                </View>
+
                 {/* --- Bagian 1: Buat Koleksi Baru --- */}
                 <View style={styles.section}>
-                    <Text style={styles.header}>Tambahkan Koleksi Baru</Text>
-                    <Input 
-                        label="Nama Koleksi" 
-                        placeholder="Contoh: Vocabulary Harian"
-                        value={newCollectionName}
-                        onChangeText={setNewCollectionName}
-                    />
-                    <Input 
-                        label="Deskripsi (Opsional)" 
-                        placeholder="Kumpulan kata kerja dasar..."
-                        value={collectionDesc}
-                        onChangeText={setCollectionDesc}
-                        multiline
-                    />
-                    <Button 
-                        title="Buat Koleksi" 
-                        onPress={handleCreateCollection} 
-                        style={styles.buttonSpacing}
-                        isLoading={isPosting} // Gunakan state loading
-                    />
+                    <View style={styles.sectionHeader}>
+                        <Text style={styles.sectionIcon}>📁</Text>
+                        <Text style={styles.sectionTitle}>Koleksi Baru</Text>
+                    </View>
+                    <Text style={styles.sectionDescription}>
+                        Buat wadah untuk mengorganisir kartu-kartu belajar Anda
+                    </Text>
+
+                    <View style={styles.formContainer}>
+                        <Input
+                            label="Nama Koleksi"
+                            placeholder="Contoh: Vocabulary Harian"
+                            value={newCollectionName}
+                            onChangeText={setNewCollectionName}
+                        />
+                        <Input
+                            label="Deskripsi (Opsional)"
+                            placeholder="Kumpulan kata kerja dasar..."
+                            value={collectionDesc}
+                            onChangeText={setCollectionDesc}
+                            multiline
+                        />
+                        <Button
+                            title="Buat Koleksi"
+                            onPress={handleCreateCollection}
+                            style={styles.primaryButton}
+                            isLoading={isPosting}
+                        />
+                    </View>
                 </View>
 
                 <View style={styles.separator} />
 
                 {/* --- Bagian 2: Buat Kartu Baru --- */}
                 <View style={styles.section}>
-                    <Text style={styles.header}>Tambahkan Kartu ke Koleksi</Text>
+                    <View style={styles.sectionHeader}>
+                        <Text style={styles.sectionIcon}>🃏</Text>
+                        <Text style={styles.sectionTitle}>Kartu Baru</Text>
+                    </View>
+                    <Text style={styles.sectionDescription}>
+                        Tambahkan kartu belajar baru ke dalam koleksi Anda
+                    </Text>
 
                     {/* Implementasi Pilihan Koleksi (Masih sederhana) */}
                     <Text style={styles.label}>Pilih Koleksi Target:</Text>
                     {isCollectionsLoading ? (
-                         <ActivityIndicator size="small" color="#3498db" />
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="small" color="#3498db" />
+                            <Text style={styles.loadingText}>Memuat koleksi...</Text>
+                        </View>
                     ) : collections.length === 0 ? (
-                        <Text style={{ color: '#e74c3c' }}>Harap buat Koleksi terlebih dahulu.</Text>
+                        <View style={styles.emptyState}>
+                            <Text style={styles.emptyIcon}>📁</Text>
+                            <Text style={styles.emptyText}>Belum ada koleksi</Text>
+                            <Text style={styles.emptySubtext}>
+                                Buat koleksi terlebih dahulu untuk menambahkan kartu
+                            </Text>
+                        </View>
                     ) : (
                         <View style={styles.collectionPicker}>
                             <Picker
@@ -232,31 +267,34 @@ const CreateScreen = () => {
                             </Picker>
                         </View>
                     )}
-                    
-                    <Input 
-                        label="Sisi Depan (Front)" 
-                        placeholder="Contoh: To hesitate"
-                        value={cardFront}
-                        onChangeText={setCardFront}
-                        editable={!isPosting}
-                    />
-                    <Input 
-                        label="Sisi Belakang (Back)" 
-                        placeholder="Contoh: Ragu-ragu / Definition"
-                        value={cardBack}
-                        onChangeText={setCardBack}
-                        multiline
-                        numberOfLines={4}
-                        editable={!isPosting}
-                    />
-                    
-                    <Button 
-                        title="Simpan Kartu" 
-                        onPress={handleCreateCard} 
-                        variant="secondary"
-                        isLoading={isPosting}
-                        disabled={collections.length === 0 || isPosting}
-                    />
+
+                    <View style={styles.formContainer}>
+                        <Input
+                            label="Sisi Depan (Front)"
+                            placeholder="Contoh: To hesitate"
+                            value={cardFront}
+                            onChangeText={setCardFront}
+                            editable={!isPosting}
+                        />
+                        <Input
+                            label="Sisi Belakang (Back)"
+                            placeholder="Contoh: Ragu-ragu / Definition"
+                            value={cardBack}
+                            onChangeText={setCardBack}
+                            multiline
+                            numberOfLines={4}
+                            editable={!isPosting}
+                        />
+
+                        <Button
+                            title="Simpan Kartu"
+                            onPress={handleCreateCard}
+                            variant="secondary"
+                            isLoading={isPosting}
+                            disabled={collections.length === 0 || isPosting}
+                            style={styles.secondaryButton}
+                        />
+                    </View>
                 </View>
             </ScrollView>
 
@@ -301,7 +339,105 @@ const CreateScreen = () => {
 const styles = StyleSheet.create({
     container: {
         padding: 20,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#f8f9fa',
+    },
+    headerSection: {
+        alignItems: 'center',
+        marginBottom: 30,
+        paddingVertical: 20,
+    },
+    headerIcon: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: '#3498db',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 15,
+        shadowColor: '#3498db',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 6,
+    },
+    headerIconText: {
+        fontSize: 40,
+    },
+    headerTitle: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#2c3e50',
+        textAlign: 'center',
+        marginBottom: 8,
+    },
+    headerSubtitle: {
+        fontSize: 16,
+        color: '#7f8c8d',
+        textAlign: 'center',
+        lineHeight: 24,
+        paddingHorizontal: 20,
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    sectionIcon: {
+        fontSize: 24,
+        marginRight: 10,
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#2c3e50',
+    },
+    sectionDescription: {
+        fontSize: 14,
+        color: '#7f8c8d',
+        lineHeight: 20,
+        marginBottom: 20,
+    },
+    formContainer: {
+        gap: 15,
+    },
+    primaryButton: {
+        marginTop: 10,
+    },
+    loadingContainer: {
+        alignItems: 'center',
+        paddingVertical: 20,
+    },
+    loadingText: {
+        marginTop: 10,
+        fontSize: 14,
+        color: '#7f8c8d',
+    },
+    emptyState: {
+        alignItems: 'center',
+        paddingVertical: 30,
+        backgroundColor: '#f8f9fa',
+        borderRadius: 8,
+        marginBottom: 15,
+    },
+    emptyIcon: {
+        fontSize: 48,
+        marginBottom: 10,
+    },
+    emptyText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#2c3e50',
+        marginBottom: 5,
+    },
+    emptySubtext: {
+        fontSize: 14,
+        color: '#7f8c8d',
+        textAlign: 'center',
+        lineHeight: 20,
+        paddingHorizontal: 20,
+    },
+    secondaryButton: {
+        marginTop: 15,
     },
     section: {
         marginBottom: 25,
