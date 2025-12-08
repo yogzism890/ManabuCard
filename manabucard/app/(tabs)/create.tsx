@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-    View, 
-    Text, 
-    StyleSheet, 
-    ScrollView, 
-    KeyboardAvoidingView, 
+import {
+    View,
+    Text,
+    StyleSheet,
+    ScrollView,
+    KeyboardAvoidingView,
     Platform,
     Alert, // Diperlukan untuk notifikasi
-    ActivityIndicator // Diperlukan untuk loading state
+    ActivityIndicator, // Diperlukan untuk loading state
+    TouchableOpacity // Diperlukan untuk tombol yang dapat disentuh
 } from 'react-native';
 
 // Import komponen UI yang sudah Anda buat
