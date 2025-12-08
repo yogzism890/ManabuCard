@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 // GANTI UUID INI DENGAN USER ID YANG ADA DI DATABASE ANDA
-const MOCK_USER_ID = 'isi_dengan_id_pengguna_yang_valid'; 
+const MOCK_USER_ID = '550e8400-e29b-41d4-a716-446655440000';
 // Asumsi: Fungsi ini akan mengambil ID dari otentikasi (token)
 const getAuthenticatedUserId = () => MOCK_USER_ID; 
 

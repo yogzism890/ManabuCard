@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-const MOCK_USER_ID = 'isi_dengan_id_pengguna_yang_valid'; 
+const MOCK_USER_ID = '550e8400-e29b-41d4-a716-446655440000';
 const getAuthenticatedUserId = () => MOCK_USER_ID; 
 
 /**
