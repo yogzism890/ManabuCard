@@ -9,9 +9,10 @@ const getAuthenticatedUserId = () => MOCK_USER_ID;
  */
 export async function PUT(
     req: Request,
-    context: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
-    const koleksiId = context.params.id;
+    const params = await context.params;
+    const koleksiId = params.id;
     const userId = getAuthenticatedUserId();
 
     if (!userId) {
@@ -52,9 +53,10 @@ export async function PUT(
  */
 export async function DELETE(
     req: Request,
-    context: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
-    const koleksiId = context.params.id;
+    const params = await context.params;
+    const koleksiId = params.id;
     const userId = getAuthenticatedUserId();
 
     if (!userId) {

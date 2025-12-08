@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 // Perbaikan 1: Impor 'useRouter' untuk navigasi kembali ke home
-import { useLocalSearchParams, Stack, useRouter } from 'expo-router'; 
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 
 // ASUMSI: Import komponen FlipCard Anda
-import FlipCard from '../../components/FlipCard'; 
-import Button from '../../components/ui/Button'; 
-import { API_BASE_URL } from '../../constants/apiConfig';
+import FlipCard from '../../components/FlipCard';
+import Button from '../../components/ui/Button';
+import { useAuth } from '../../contexts/AuthContext';
 
 // --- KONSTANTA API ---
 // GANTI DENGAN IP DAN TOKEN ASLI ANDA 
@@ -14,6 +14,7 @@ const MOCK_AUTH_TOKEN = 'YOUR_AUTH_TOKEN_HERE';
 // ----------------------
 
 // --- Tipe Data ---
+
 interface Kartu {
   id: string;
   front: string;
@@ -31,13 +32,9 @@ const MOCK_STUDY_CARDS: Kartu[] = [
 ];
 
 /** Fungsi fetching kartu berdasarkan studyMode dari API */
-const fetchStudyCards = async (koleksiId: string, studyMode: 'due' | 'new' | 'all' = 'due'): Promise<Kartu[]> => {
+const fetchStudyCards = async (apiRequest: any, koleksiId: string, studyMode: 'due' | 'new' | 'all' = 'due'): Promise<Kartu[]> => {
   console.log(`Fetching cards for Collection ID: ${koleksiId} with mode: ${studyMode}`);
-  const response = await fetch(`${API_BASE_URL}/koleksi/${koleksiId}/kartu?mode=${studyMode}`, {
-    headers: { 'Authorization': `Bearer ${MOCK_AUTH_TOKEN}` },
-  });
-  if (!response.ok) throw new Error('Gagal mengambil kartu.');
-  const cards = await response.json();
+  const cards = await apiRequest(`/koleksi/${koleksiId}/kartu?mode=${studyMode}`);
 
   let filteredCards: any[];
 
@@ -66,25 +63,15 @@ const fetchStudyCards = async (koleksiId: string, studyMode: 'due' | 'new' | 'al
 };
 
 /** Memperbarui status SRS (difficulty dan reviewDueAt) di database */
-async function updateKartuSRSData(cardId: string, newDifficulty: number, newReviewDueAt: Date): Promise<void> {
-  // ... (Fungsi ini tidak diubah dan sudah benar)
-  const response = await fetch(`${API_BASE_URL}/kartu/${cardId}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`, 
-    },
-    body: JSON.stringify({ 
-      newDifficulty: newDifficulty, 
-      newReviewDueAt: newReviewDueAt.toISOString() 
-    }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.json().catch(() => ({ message: 'Gagal update SRS: No error body.' }));
-    console.error('Update SRS failed for card:', cardId, 'Status:', response.status, 'Body:', errorBody);
-    throw new Error('Gagal memperbarui status kartu di server.');
-  }
+async function updateKartuSRSData(apiRequest: any, cardId: string, newDifficulty: number, newReviewDueAt: Date): Promise<void> {
+  // ... (Fungsi ini tidak diubah dan sudah benar)
+  await apiRequest(`/kartu/${cardId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      newDifficulty: newDifficulty,
+      newReviewDueAt: newReviewDueAt.toISOString()
+    }),
+  });
 }
 
 
@@ -92,6 +79,7 @@ const StudySessionScreen = () => {
     // Perbaikan 2: Inisialisasi useRouter
     const router = useRouter();
     const { id: koleksiId } = useLocalSearchParams();
+    const { apiRequest } = useAuth();
     const [cards, setCards] = useState<Kartu[]>([]);
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
@@ -136,19 +124,19 @@ const StudySessionScreen = () => {
     // Perbaikan 3: Hapus definisi handleAnswer yang redundant (di akhir kode asli)
     const handleAnswer = useCallback(async (grade: 'hard' | 'good' | 'easy') => {
         if (!currentCard) return;
-        
+
         // 1. Hitung data SRS baru
-        const { diff: newDifficulty, nextDate: newReviewDueAt } = 
+        const { diff: newDifficulty, nextDate: newReviewDueAt } =
             calculateNextReviewDate(currentCard.difficulty, grade);
 
         try {
             // 2. Panggil API untuk memperbarui status kartu
-            await updateKartuSRSData(currentCard.id, newDifficulty, newReviewDueAt);
-            
+            await updateKartuSRSData(apiRequest, currentCard.id, newDifficulty, newReviewDueAt);
+
             // 3. Pindah ke kartu berikutnya (Hanya jika update sukses)
             if (currentCardIndex < totalCards - 1) {
                 setCurrentCardIndex(prev => prev + 1);
-                setIsFlipped(false); 
+                setIsFlipped(false);
             } else {
                 // Sesi selesai
                 Alert.alert("Sesi Selesai!", "Semua kartu yang jatuh tempo telah di-review.", [
@@ -158,8 +146,8 @@ const StudySessionScreen = () => {
         } catch (error) {
             Alert.alert("Error", "Gagal menyimpan hasil review. Cek koneksi atau server log.");
         }
-        
-    }, [currentCard, currentCardIndex, totalCards, calculateNextReviewDate, router]);
+
+    }, [currentCard, currentCardIndex, totalCards, calculateNextReviewDate, router, apiRequest]);
 
 
     // Memuat Kartu

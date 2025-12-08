@@ -1,14 +1,17 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-
-const MOCK_USER_ID = 'isi_dengan_id_pengguna_yang_valid'; 
-const getAuthenticatedUserId = () => MOCK_USER_ID; 
+import { getUserFromRequest } from "@/lib/auth";
 
 /**
  * Endpoint POST /api/kartu: Menambahkan kartu baru ke koleksi tertentu.
  */
 export async function POST(req: Request) {
-    const userId = getAuthenticatedUserId();
+    const user = getUserFromRequest(req);
+    if (!user) {
+        return NextResponse.json({ error: "UNAUTHORIZED: User not authenticated." }, { status: 401 });
+    }
+
+    const userId = user.userId;
 
     try {
         const body = await req.json();
@@ -56,20 +59,21 @@ export async function POST(req: Request) {
  * Endpoint GET /api/kartu: Mengambil semua kartu pengguna (opsional, dengan filter koleksi).
  */
 export async function GET(req: Request) {
-    const userId = getAuthenticatedUserId();
-
-    if (!userId) {
+    const user = getUserFromRequest(req);
+    if (!user) {
         return NextResponse.json({ error: "UNAUTHORIZED: User not authenticated." }, { status: 401 });
     }
+
+    const userId = user.userId;
 
     try {
         const url = new URL(req.url);
         const koleksiId = url.searchParams.get('koleksiId');
 
-        const whereClause: any = {
+        const whereClause = {
             koleksi: { userId: userId },
             isDeleted: false,
-        };
+        } as any;
 
         if (koleksiId) {
             whereClause.koleksiId = koleksiId;

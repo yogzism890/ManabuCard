@@ -1,20 +1,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getUserFromRequest } from "@/lib/auth";
 
-// GANTI UUID INI DENGAN USER ID YANG ADA DI DATABASE ANDA
-const MOCK_USER_ID = '550e8400-e29b-41d4-a716-446655440000';
-// Asumsi: Fungsi ini akan mengambil ID dari otentikasi (token)
-const getAuthenticatedUserId = () => MOCK_USER_ID; 
+
 
 /**
  * Endpoint GET /api/koleksi: Mengambil daftar koleksi pengguna beserta jumlah kartu.
  */
-export async function GET() {
-    const userId = getAuthenticatedUserId();
+export async function GET(req: Request) {
+    const user = getUserFromRequest(req);
 
-    if (!userId) {
+    if (!user) {
         return NextResponse.json({ error: "UNAUTHORIZED: User not authenticated." }, { status: 401 });
     }
+
+    const userId = user.userId;
 
     try {
         const koleksiList = await prisma.koleksi.findMany({
@@ -34,7 +34,7 @@ export async function GET() {
 
         // Format data: Backend belum bisa menghitung 'dueToday' dengan efisien di Prisma findMany.
         // Frontend harus menghitung ini di tempat lain, atau kita kembalikan 0.
-        const formattedKoleksi = koleksiList.map(k => ({
+        const formattedKoleksi = koleksiList.map((k: any) => ({
             id: k.id,
             name: k.nama,
             cardCount: k._count.kartu,
@@ -53,10 +53,12 @@ export async function GET() {
  * Endpoint POST /api/koleksi: Membuat koleksi baru.
  */
 export async function POST(req: Request) {
-    const userId = getAuthenticatedUserId();
-    if (!userId) {
+    const user = getUserFromRequest(req);
+    if (!user) {
         return NextResponse.json({ error: "UNAUTHORIZED: User not authenticated." }, { status: 401 });
     }
+
+    const userId = user.userId;
     
     try {
         const body = await req.json();

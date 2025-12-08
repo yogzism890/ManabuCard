@@ -3,7 +3,6 @@ import { View, Text, ScrollView, StyleSheet, Dimensions, Alert, TouchableOpacity
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
-import { API_BASE_URL } from '../../constants/apiConfig';
 import Button from '../../components/ui/Button';
 
 // --- Tipe Data ---
@@ -19,7 +18,7 @@ const isTablet = width > 768;
 
 const ProfileScreen = () => {
   const router = useRouter();
-  const { user, logout, token } = useAuth();
+  const { user, logout, apiRequest } = useAuth();
   const [stats, setStats] = useState<UserStats>({
     totalCollections: 0,
     totalCards: 0,
@@ -33,26 +32,16 @@ const ProfileScreen = () => {
 
   const loadUserStats = async () => {
     try {
-      const collectionsResponse = await fetch(`${API_BASE_URL}/koleksi`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const collections = collectionsResponse.ok ? await collectionsResponse.json() : [];
+      const collections = await apiRequest('/koleksi');
 
       let totalCards = 0;
       let cardsDueToday = 0;
       const now = new Date();
 
       for (const collection of collections) {
-        const cardsResponse = await fetch(
-          `${API_BASE_URL}/koleksi/${collection.id}/kartu`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        if (cardsResponse.ok) {
-          const cards = await cardsResponse.json();
-          totalCards += cards.length;
-          cardsDueToday += cards.filter((card: any) => new Date(card.reviewDueAt) <= now).length;
-        }
+        const cards = await apiRequest(`/koleksi/${collection.id}/kartu`);
+        totalCards += cards.length;
+        cardsDueToday += cards.filter((card: any) => new Date(card.reviewDueAt) <= now).length;
       }
 
       setStats({

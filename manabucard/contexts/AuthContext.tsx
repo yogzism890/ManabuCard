@@ -14,6 +14,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; message: string }>;
   register: (email: string, password: string) => Promise<{ success: boolean; message: string }>;
   logout: () => Promise<void>;
+  apiRequest: (endpoint: string, options?: RequestInit) => Promise<any>;
   isAuthenticated: boolean;
 }
 
@@ -67,9 +68,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         body: JSON.stringify({ email, password }),
       });
 
+      if (!response.ok) {
+        return { success: false, message: `Login gagal: ${response.status} ${response.statusText}` };
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        return { success: false, message: 'Server mengembalikan respons yang tidak valid' };
+      }
+
       const data = await response.json();
 
-      if (response.ok && data.token) {
+      if (data.token) {
         // Store auth data
         await AsyncStorage.setItem('auth_token', data.token);
         await AsyncStorage.setItem('auth_user', JSON.stringify(data.user));
@@ -97,9 +107,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         body: JSON.stringify({ email, password }),
       });
 
+      if (!response.ok) {
+        return { success: false, message: `Registrasi gagal: ${response.status} ${response.statusText}` };
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        return { success: false, message: 'Server mengembalikan respons yang tidak valid' };
+      }
+
       const data = await response.json();
 
-      if (response.ok && data.success) {
+      if (data.success) {
         return { success: true, message: data.message || 'Registrasi berhasil' };
       } else {
         return { success: false, message: data.message || 'Registrasi gagal' };
@@ -121,6 +140,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const apiRequest = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
+    const headers: any = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  };
+
   const value: AuthContextType = {
     user,
     token,
@@ -128,6 +169,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
+    apiRequest,
     isAuthenticated: !!token && !!user,
   };
 

@@ -13,15 +13,12 @@ import {
     FlatList
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { useAuth } from '../../contexts/AuthContext';
 import { API_BASE_URL } from '../../constants/apiConfig';
 
 // Import komponen UI yang sudah Anda buat
 import Button from '../../components/ui/Button'; 
 import Input from '../../components/ui/Input';
-
-// --- KONSTANTA API (DIBIARKAN SAMA) ---
-const MOCK_AUTH_TOKEN = 'YOUR_AUTH_TOKEN_HERE'; 
-// MOCK_USER_ID tidak diperlukan jika backend Anda mengambil userId dari token
 
 // --- Tipe Data ---
 interface Koleksi {
@@ -30,55 +27,43 @@ interface Koleksi {
 }
 
 // ----------------------------------------------------
-// FUNGSI API (DIBIARKAN SAMA, HANYA DITEMPATKAN DI ATAS KOMPONEN)
+// FUNGSI API (UPDATED TO USE apiRequest)
 // ----------------------------------------------------
 
-async function fetchUserCollections(): Promise<Koleksi[]> {
-    const response = await fetch(`${API_BASE_URL}/koleksi`, {
-        headers: { 'Authorization': `Bearer ${MOCK_AUTH_TOKEN}` },
-    });
-    if (!response.ok) throw new Error('Gagal mengambil daftar koleksi.');
-    const data = await response.json();
+async function fetchUserCollections(apiRequest: (url: string, options?: RequestInit) => Promise<any>): Promise<Koleksi[]> {
+    const data = await apiRequest('/koleksi');
     return data.map((item: any) => ({ id: item.id, nama: item.name }));
 }
 
-async function postNewCollection(nama: string): Promise<Koleksi> {
-    const response = await fetch(`${API_BASE_URL}/koleksi`, {
+async function postNewCollection(apiRequest: (url: string, options?: RequestInit) => Promise<any>, nama: string): Promise<Koleksi> {
+    const response = await apiRequest('/koleksi', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
         },
-        body: JSON.stringify({ 
-            nama: nama, 
+        body: JSON.stringify({
+            nama: nama,
             // Deskripsi tidak dikirim karena tidak ada di skema Prisma yang Anda berikan
         }),
     });
-    if (!response.ok) {
-        const errorBody = await response.json().catch(() => ({ message: 'No error body' }));
-        throw new Error(`Gagal membuat koleksi. Status: ${response.status}. Pesan: ${errorBody.message}`);
-    }
-    return response.json();
+    return response;
 }
 
-async function postNewCard(koleksiId: string, front: string, back: string): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/kartu`, {
+async function postNewCard(apiRequest: (url: string, options?: RequestInit) => Promise<any>, koleksiId: string, front: string, back: string): Promise<void> {
+    await apiRequest('/kartu', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify({ koleksiId, front, back }),
     });
-    if (!response.ok) {
-        const errorBody = await response.json().catch(() => ({ message: 'No error body' }));
-        throw new Error(`Gagal membuat kartu. Status: ${response.status}. Pesan: ${errorBody.message}`);
-    }
 }
 
 
 
 const CreateScreen = () => {
+    const { apiRequest } = useAuth();
+
     // State Data
     const [collections, setCollections] = useState<Koleksi[]>([]);
     const [selectedCollectionId, setSelectedCollectionId] = useState('');
@@ -100,11 +85,11 @@ const CreateScreen = () => {
     const loadCollections = useCallback(async () => {
         setIsCollectionsLoading(true);
         try {
-            const data = await fetchUserCollections();
+            const data = await fetchUserCollections(apiRequest);
             setCollections(data);
             if (data.length > 0 && !selectedCollectionId) {
                 // Set default selection ke koleksi pertama jika belum ada yang terpilih
-                setSelectedCollectionId(data[0].id); 
+                setSelectedCollectionId(data[0].id);
             }
         } catch (e) {
             console.error(e);
@@ -112,7 +97,7 @@ const CreateScreen = () => {
         } finally {
             setIsCollectionsLoading(false);
         }
-    }, [selectedCollectionId]);
+    }, [selectedCollectionId, apiRequest]);
 
     // Muat saat komponen pertama kali dirender
     useEffect(() => {
