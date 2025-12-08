@@ -7,33 +7,43 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Image,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  
-
-
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) {
-      alert("Email & password wajib diisi");
+      Alert.alert("Gagal", "Email dan password wajib diisi!");
       return;
     }
 
-    // Dummy login
-    if (email === "test@mail.com" && password === "123456") {
-      alert("Login berhasil!");
-      router.replace("/(tabs)");
-    } else {
-      alert("Email atau password salah (dummy)");
+    setIsLoading(true);
+    try {
+      const result = await login(email, password);
+
+      if (result.success) {
+        Alert.alert("Sukses", result.message, [
+          { text: "OK", onPress: () => router.replace("/(tabs)") }
+        ]);
+      } else {
+        Alert.alert("Gagal", result.message);
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      Alert.alert("Error", "Terjadi kesalahan tak terduga");
+    } finally {
+      setIsLoading(false);
     }
   };
 

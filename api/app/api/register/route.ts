@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma'; // Pastikan path ini sesuai dengan file prisma.ts kamu
+import { prisma } from '../../../lib/prisma';
+import bcrypt from 'bcryptjs';
 
 export async function POST(request: Request) {
   try {
@@ -7,26 +8,53 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { email, password } = body;
 
-    // 2. Simpan ke Database
+    // Validasi input
+    if (!email || !password) {
+      return NextResponse.json({
+        success: false,
+        message: "Email dan password wajib diisi"
+      }, { status: 400 });
+    }
+
+    if (password.length < 6) {
+      return NextResponse.json({
+        success: false,
+        message: "Password minimal 6 karakter"
+      }, { status: 400 });
+    }
+
+    // 2. Hash password sebelum simpan ke database
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // 3. Simpan ke Database
     const newUser = await prisma.user.create({
       data: {
         email: email,
-        password: password, // Note: Nanti sebaiknya di-hash pakai bcrypt
+        password: hashedPassword,
       },
     });
 
-    // 3. Kirim balasan sukses ke HP
+    // 4. Kirim balasan sukses ke HP (jangan kirim password)
     return NextResponse.json({
       success: true,
       message: "User berhasil dibuat!",
-      data: newUser
+      data: { id: newUser.id, email: newUser.email }
     }, { status: 201 });
 
   } catch (error) {
     console.error("Error register:", error);
+
+    // Handle specific Prisma errors
+    if (error.code === 'P2002') {
+      return NextResponse.json({
+        success: false,
+        message: "Email sudah terdaftar"
+      }, { status: 409 });
+    }
+
     return NextResponse.json({
       success: false,
-      message: "Gagal membuat user (Email mungkin sudah ada)"
+      message: "Gagal membuat user"
     }, { status: 500 });
   }
 }

@@ -1,21 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Alert,
-  TouchableOpacity,
-  Image,
-  Dimensions,
-} from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Dimensions, Alert, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Button from '../../components/ui/Button';
+import { useAuth } from '../../contexts/AuthContext';
 import { API_BASE_URL } from '../../constants/apiConfig';
-
-// --- KONSTANTA API ---
-const MOCK_AUTH_TOKEN = 'YOUR_AUTH_TOKEN_HERE';
+import Button from '../../components/ui/Button';
 
 // --- Tipe Data ---
 interface UserStats {
@@ -30,6 +19,7 @@ const isTablet = width > 768;
 
 const ProfileScreen = () => {
   const router = useRouter();
+  const { user, logout, token } = useAuth();
   const [stats, setStats] = useState<UserStats>({
     totalCollections: 0,
     totalCards: 0,
@@ -44,7 +34,7 @@ const ProfileScreen = () => {
   const loadUserStats = async () => {
     try {
       const collectionsResponse = await fetch(`${API_BASE_URL}/koleksi`, {
-        headers: { Authorization: `Bearer ${MOCK_AUTH_TOKEN}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       const collections = collectionsResponse.ok ? await collectionsResponse.json() : [];
 
@@ -55,7 +45,7 @@ const ProfileScreen = () => {
       for (const collection of collections) {
         const cardsResponse = await fetch(
           `${API_BASE_URL}/koleksi/${collection.id}/kartu`,
-          { headers: { Authorization: `Bearer ${MOCK_AUTH_TOKEN}` } }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         if (cardsResponse.ok) {
@@ -81,7 +71,13 @@ const ProfileScreen = () => {
   const handleLogout = () => {
     Alert.alert('Logout', 'Apakah Anda yakin ingin logout?', [
       { text: 'Batal', style: 'cancel' },
-      { text: 'Logout', onPress: () => router.replace('/auth/login') },
+      {
+        text: 'Logout',
+        onPress: async () => {
+          await logout();
+          router.replace('/auth/login');
+        },
+      },
     ]);
   };
 
@@ -95,15 +91,14 @@ const ProfileScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-
       {/* HEADER PREMIUM */}
       <View style={styles.headerCard}>
         <Image
-          source={{ uri: "https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff" }}
+          source={{ uri: `https://ui-avatars.com/api/?name=${user?.email || 'User'}&background=0D8ABC&color=fff` }}
           style={styles.avatar}
         />
         <View>
-          <Text style={styles.headerTitle}>Halo, Pengguna</Text>
+          <Text style={styles.headerTitle}>Halo, {user?.email || 'Pengguna'}</Text>
           <Text style={styles.headerSubtitle}>Selamat datang kembali 👋</Text>
         </View>
       </View>

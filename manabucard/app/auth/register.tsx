@@ -8,20 +8,20 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-  ActivityIndicator, // Tambahan untuk loading
+  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { register } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // State loading
-
-  const API_URL = "http://192.168.100.9:3000/api/register"; 
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async () => {
     // 1. Validasi Input
@@ -43,35 +43,21 @@ export default function RegisterScreen() {
     // 2. Mulai Proses Register
     setIsLoading(true);
     try {
-      console.log("Mencoba connect ke:", API_URL);
-      
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-      });
+      const result = await register(email, password);
 
-      const result = await response.json();
-
-      if (response.ok) {
+      if (result.success) {
         // SUKSES
-        Alert.alert("Sukses", "Akun berhasil dibuat! Silakan login.", [
+        Alert.alert("Sukses", result.message, [
           { text: "OK", onPress: () => router.replace("/auth/login") }
         ]);
       } else {
-        // GAGAL (misal email sudah ada)
-        Alert.alert("Gagal", result.message || "Terjadi kesalahan saat mendaftar");
+        // GAGAL
+        Alert.alert("Gagal", result.message);
       }
 
     } catch (error) {
-      // ERROR KONEKSI (Network request failed)
       console.error("Register Error:", error);
-      Alert.alert("Error Koneksi", "Pastikan backend Next.js jalan dan IP Address benar.");
+      Alert.alert("Error", "Terjadi kesalahan tak terduga");
     } finally {
       setIsLoading(false);
     }
