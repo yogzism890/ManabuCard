@@ -115,7 +115,7 @@ const LandingScreen = () => {
 
         <View style={styles.ctaButtons}>
           <TouchableOpacity style={styles.primaryButton}>
-            <Link href="/create" asChild>
+            <Link href="/review" asChild>
               <Text style={styles.primaryButtonText}>Buat Konten Baru</Text>
             </Link>
           </TouchableOpacity>

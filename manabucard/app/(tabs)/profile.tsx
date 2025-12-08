@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import Button from '../../components/ui/Button';
 
 // --- KONSTANTA API ---
-const API_BASE_URL = 'http://192.168.100.9:3000/api';
+const API_BASE_URL = 'http://192.168.1.7:3000/api';
 const MOCK_AUTH_TOKEN = 'YOUR_AUTH_TOKEN_HERE';
 
 // --- Tipe Data ---
@@ -16,7 +16,11 @@ interface UserStats {
 
 const ProfileScreen = () => {
   const router = useRouter();
-  const [stats, setStats] = useState<UserStats>({ totalCollections: 0, totalCards: 0, cardsDueToday: 0 });
+  const [stats, setStats] = useState<UserStats>({
+    totalCollections: 0,
+    totalCards: 0,
+    cardsDueToday: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -25,21 +29,21 @@ const ProfileScreen = () => {
 
   const loadUserStats = async () => {
     try {
-      // Ambil koleksi
       const collectionsResponse = await fetch(`${API_BASE_URL}/koleksi`, {
-        headers: { 'Authorization': `Bearer ${MOCK_AUTH_TOKEN}` },
+        headers: { Authorization: `Bearer ${MOCK_AUTH_TOKEN}` },
       });
       const collections = collectionsResponse.ok ? await collectionsResponse.json() : [];
 
-      // Hitung total kartu dan kartu jatuh tempo
       let totalCards = 0;
       let cardsDueToday = 0;
       const now = new Date();
 
       for (const collection of collections) {
-        const cardsResponse = await fetch(`${API_BASE_URL}/koleksi/${collection.id}/kartu`, {
-          headers: { 'Authorization': `Bearer ${MOCK_AUTH_TOKEN}` },
-        });
+        const cardsResponse = await fetch(
+          `${API_BASE_URL}/koleksi/${collection.id}/kartu`,
+          { headers: { Authorization: `Bearer ${MOCK_AUTH_TOKEN}` } }
+        );
+
         if (cardsResponse.ok) {
           const cards = await cardsResponse.json();
           totalCards += cards.length;
@@ -61,54 +65,57 @@ const ProfileScreen = () => {
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Apakah Anda yakin ingin logout?',
-      [
-        { text: 'Batal', style: 'cancel' },
-        {
-          text: 'Logout',
-          onPress: () => {
-            // Reset token atau navigasi ke login
-            router.replace('/auth/login');
-          },
-        },
-      ]
-    );
+    Alert.alert('Logout', 'Apakah Anda yakin ingin logout?', [
+      { text: 'Batal', style: 'cancel' },
+      {
+        text: 'Logout',
+        onPress: () => router.replace('/auth/login'),
+      },
+    ]);
   };
 
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <Text>Loading...</Text>
+        <Text style={{ fontSize: 18, color: '#444' }}>Loading...</Text>
       </View>
     );
   }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Profil Pengguna</Text>
         <Text style={styles.subtitle}>Statistik Belajar Anda</Text>
       </View>
 
+      {/* Statistik */}
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>{stats.totalCollections}</Text>
           <Text style={styles.statLabel}>Koleksi</Text>
         </View>
+
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>{stats.totalCards}</Text>
           <Text style={styles.statLabel}>Kartu Total</Text>
         </View>
+
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>{stats.cardsDueToday}</Text>
           <Text style={styles.statLabel}>Kartu Jatuh Tempo</Text>
         </View>
       </View>
 
+      {/* Tombol Aksi */}
       <View style={styles.actionsContainer}>
-        <Button title="Refresh Statistik" onPress={loadUserStats} variant="secondary" />
+        <Button
+          title="Refresh Statistik"
+          onPress={loadUserStats}
+          variant="secondary"
+        />
+
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
@@ -117,73 +124,99 @@ const ProfileScreen = () => {
   );
 };
 
+export default ProfileScreen;
+
+/* ===============================
+          STYLING BARU
+   =============================== */
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 20,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#F5F7FA',
+    paddingBottom: 40,
   },
+
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   header: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 35,
+    marginTop: 10,
   },
+
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    marginBottom: 5,
+    fontSize: 26,
+    fontWeight: '800',
+    color: '#1E2A38',
+    marginBottom: 6,
   },
+
   subtitle: {
-    fontSize: 16,
-    color: '#7f8c8d',
+    fontSize: 15,
+    color: '#7A8C9A',
   },
+
   statsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 30,
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 35,
   },
+
   statCard: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 25,
+    borderRadius: 18,
     alignItems: 'center',
+
+    // Soft shadow
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    minWidth: 80,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
   },
+
   statNumber: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#3498db',
-    marginBottom: 5,
+    fontSize: 32,
+    fontWeight: '900',
+    color: '#2D9CDB',
+    marginBottom: 6,
   },
+
   statLabel: {
     fontSize: 14,
-    color: '#7f8c8d',
+    color: '#6F7F8F',
     textAlign: 'center',
   },
+
   actionsContainer: {
     gap: 15,
+    marginTop: 10,
   },
+
   logoutButton: {
-    backgroundColor: '#e74c3c',
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: '#E63946',
+    paddingVertical: 16,
+    borderRadius: 14,
     alignItems: 'center',
+
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 5,
+    elevation: 3,
   },
+
   logoutText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 17,
+    fontWeight: '700',
   },
 });
-
-export default ProfileScreen;

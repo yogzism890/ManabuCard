@@ -19,7 +19,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 
 // --- KONSTANTA API (DIBIARKAN SAMA) ---
-const API_BASE_URL = 'http://192.168.100.9:3000/api'; 
+const API_BASE_URL = 'http://192.168.1.7:3000/api'; 
 const MOCK_AUTH_TOKEN = 'YOUR_AUTH_TOKEN_HERE'; 
 // MOCK_USER_ID tidak diperlukan jika backend Anda mengambil userId dari token
 
@@ -75,7 +75,7 @@ async function postNewCard(koleksiId: string, front: string, back: string): Prom
         throw new Error(`Gagal membuat kartu. Status: ${response.status}. Pesan: ${errorBody.message}`);
     }
 }
-// ----------------------------------------------------
+
 
 
 const CreateScreen = () => {
