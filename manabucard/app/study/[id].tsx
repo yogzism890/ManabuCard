@@ -76,12 +76,13 @@ async function updateKartuSRSData(cardId: string, newDifficulty: number, newRevi
 
 const StudySessionScreen = () => {
     // Perbaikan 2: Inisialisasi useRouter
-    const router = useRouter(); 
+    const router = useRouter();
     const { id: koleksiId } = useLocalSearchParams();
     const [cards, setCards] = useState<Kartu[]>([]);
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [showWelcome, setShowWelcome] = useState(true);
 
     const idString = Array.isArray(koleksiId) ? koleksiId[0] : koleksiId;
     const currentCard = cards[currentCardIndex];
@@ -154,120 +155,402 @@ const StudySessionScreen = () => {
     }, [idString]);
 
 
-    // --- Tampilan Loading / Kosong ---
+    // --- Tampilan Welcome ---
+    if (showWelcome) {
+        return (
+            <View style={styles.welcomeContainer}>
+                <Stack.Screen options={{
+                    title: 'Mulai Belajar',
+                    headerStyle: { backgroundColor: '#3498db' },
+                    headerTintColor: '#fff',
+                    headerTitleStyle: { fontWeight: 'bold', fontSize: 18 }
+                }} />
+
+                <View style={styles.welcomeContent}>
+                    <Text style={styles.welcomeIcon}>🎯</Text>
+                    <Text style={styles.welcomeTitle}>Siap Belajar?</Text>
+                    <Text style={styles.welcomeSubtitle}>
+                        Koleksi ini memiliki {totalCards} kartu yang siap di-review
+                    </Text>
+
+                    <View style={styles.welcomeStats}>
+                        <View style={styles.statItem}>
+                            <Text style={styles.statNumber}>{totalCards}</Text>
+                            <Text style={styles.statLabel}>Kartu</Text>
+                        </View>
+                        <View style={styles.statItem}>
+                            <Text style={styles.statNumber}>⏱️</Text>
+                            <Text style={styles.statLabel}>SRS</Text>
+                        </View>
+                        <View style={styles.statItem}>
+                            <Text style={styles.statNumber}>📈</Text>
+                            <Text style={styles.statLabel}>Progress</Text>
+                        </View>
+                    </View>
+
+                    <Text style={styles.welcomeDescription}>
+                        Sistem ulangan berbasis interval akan membantu Anda mengingat materi lebih lama.
+                        Jawab dengan jujur untuk hasil terbaik!
+                    </Text>
+
+                    <View style={styles.welcomeActions}>
+                        <Button
+                            title="Mulai Belajar"
+                            onPress={() => setShowWelcome(false)}
+                            style={styles.startButton}
+                        />
+                        <TouchableOpacity
+                            onPress={() => router.back()}
+                            style={styles.backButton}
+                        >
+                            <Text style={styles.backButtonText}>Kembali</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+        );
+    }
+
+    // --- Tampilan Loading ---
     if (isLoading) {
         return (
-            <View style={styles.center}>
+            <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#3498db" />
-                <Text style={{ marginTop: 10 }}>Memuat kartu sesi belajar...</Text>
+                <Text style={styles.loadingText}>Memuat kartu sesi belajar...</Text>
             </View>
         );
     }
 
+    // --- Tampilan Kosong ---
     if (totalCards === 0) {
         return (
-            <View style={styles.center}>
-                <Text style={styles.emptyText}>Tidak ada kartu yang jatuh tempo di koleksi ini!</Text>
+            <View style={styles.emptyContainer}>
+                <Text style={styles.emptyIcon}>📚</Text>
+                <Text style={styles.emptyText}>Tidak ada kartu yang jatuh tempo!</Text>
+                <Text style={styles.emptySubtext}>
+                    Semua kartu dalam koleksi ini sudah di-review atau belum ada kartu sama sekali.
+                </Text>
             </View>
         );
     }
-    
+
     // --- Tampilan Sesi Belajar ---
+    const progressPercentage = ((currentCardIndex + 1) / totalCards) * 100;
+
     return (
         <View style={styles.container}>
-            <Stack.Screen options={{ title: `Sesi Belajar: ${idString}` }} />
+            <Stack.Screen options={{
+                title: `Belajar - ${idString}`,
+                headerStyle: { backgroundColor: '#3498db' },
+                headerTintColor: '#fff',
+                headerTitleStyle: { fontWeight: 'bold', fontSize: 18 }
+            }} />
 
-            <Text style={styles.progressText}>
-                Progress: Card {currentCardIndex + 1} / {totalCards}
-            </Text>
-
-            {/* Area Kartu FlipCard yang bisa di-tap */}
-            <TouchableOpacity 
-                onPress={() => setIsFlipped(prev => !prev)} 
-                activeOpacity={1}
-                style={styles.cardContainer}
-            >
-                <FlipCard
-                    frontText={currentCard.front}
-                    backText={isFlipped ? currentCard.back : 'Ketuk untuk melihat jawaban'} 
-                    isFlipped={isFlipped}
-                />
-            </TouchableOpacity>
-            
-            {/* Tombol Penilaian (SRS Buttons) */}
-            {isFlipped && (
-                <View style={styles.buttonContainer}>
-                    <Button 
-                        title="Hard (Sulit)" 
-                        onPress={() => handleAnswer('hard')} 
-                        variant="srs_hard"
-                        style={styles.srsButton}
-                    />
-                    <Button 
-                        title="Good (Bisa)" 
-                        onPress={() => handleAnswer('good')} 
-                        variant="secondary"
-                        style={styles.srsButton}
-                    />
-                    <Button 
-                        title="Easy (Mudah)" 
-                        onPress={() => handleAnswer('easy')} 
-                        variant="srs_easy"
-                        style={styles.srsButton}
-                    />
+            {/* Progress Section */}
+            <View style={styles.progressSection}>
+                <View style={styles.progressContainer}>
+                    <Text style={styles.progressText}>
+                        Kartu {currentCardIndex + 1} dari {totalCards}
+                    </Text>
+                    <View style={styles.progressBar}>
+                        <View style={[styles.progressFill, { width: `${progressPercentage}%` }]} />
+                    </View>
                 </View>
-            )}
+            </View>
 
-            {!isFlipped && (
-                <Text style={styles.tapToFlip}>Ketuk kartu untuk mengungkapkan jawaban</Text>
+            {/* Card Section */}
+            <View style={styles.cardSection}>
+                <View style={styles.cardWrapper}>
+                    <TouchableOpacity
+                        onPress={() => setIsFlipped(prev => !prev)}
+                        activeOpacity={0.9}
+                        style={styles.cardTouchable}
+                    >
+                        <FlipCard
+                            frontText={currentCard.front}
+                            backText={isFlipped ? currentCard.back : 'Ketuk untuk melihat jawaban'}
+                            isFlipped={isFlipped}
+                        />
+                    </TouchableOpacity>
+
+                    {!isFlipped && (
+                        <View style={styles.instructionContainer}>
+                            <Text style={styles.tapInstruction}>👆 Ketuk kartu untuk melihat jawaban</Text>
+                        </View>
+                    )}
+                </View>
+            </View>
+
+            {/* Answer Buttons Section */}
+            {isFlipped && (
+                <View style={styles.buttonsSection}>
+                    <View style={styles.buttonsContainer}>
+                        <Text style={styles.buttonsTitle}>Seberapa mudah mengingat kartu ini?</Text>
+                        <View style={styles.buttonsRow}>
+                            <Button
+                                title="Sulit"
+                                onPress={() => handleAnswer('hard')}
+                                variant="srs_hard"
+                                style={styles.answerButton}
+                            />
+                            <Button
+                                title="Bisa"
+                                onPress={() => handleAnswer('good')}
+                                variant="secondary"
+                                style={styles.answerButton}
+                            />
+                            <Button
+                                title="Mudah"
+                                onPress={() => handleAnswer('easy')}
+                                variant="srs_easy"
+                                style={styles.answerButton}
+                            />
+                        </View>
+                    </View>
+                </View>
             )}
         </View>
     );
 };
 
-// ... (Gaya/Stylesheets tetap sama) ...
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#f8f9fa',
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#f8f9fa',
+    },
+    loadingText: {
+        marginTop: 20,
+        fontSize: 16,
+        color: '#6c757d',
+        fontWeight: '500',
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f8f9fa',
+        paddingHorizontal: 40,
+    },
+    emptyIcon: {
+        fontSize: 80,
+        marginBottom: 20,
+        opacity: 0.7,
+    },
+    emptyText: {
+        fontSize: 22,
+        color: '#495057',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 10,
+    },
+    emptySubtext: {
+        fontSize: 16,
+        color: '#6c757d',
+        textAlign: 'center',
+        lineHeight: 24,
+    },
+    progressContainer: {
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e9ecef',
+    },
+    progressText: {
+        fontSize: 18,
+        color: '#2c3e50',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 8,
+    },
+    progressBar: {
+        height: 6,
+        backgroundColor: '#e9ecef',
+        borderRadius: 3,
+        overflow: 'hidden',
+    },
+    progressFill: {
+        height: '100%',
+        backgroundColor: '#3498db',
+        borderRadius: 3,
+    },
+    mainCardArea: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    cardTouchable: {
+        width: '100%',
+        aspectRatio: 16 / 9,
+        maxWidth: 350,
+        marginBottom: 20,
+    },
+    tapInstruction: {
+        textAlign: 'center',
+        fontSize: 16,
+        color: '#3498db',
+        fontStyle: 'italic',
+        marginTop: 10,
+    },
+    answerButtonsContainer: {
+        padding: 20,
+        backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderTopColor: '#e9ecef',
+    },
+    answerButtonsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        maxWidth: 350,
+        gap: 12,
+    },
+    answerButton: {
+        flex: 1,
+        height: 50,
+    },
+    progressSection: {
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e9ecef',
+    },
+    cardSection: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+    },
+    cardWrapper: {
+        width: '100%',
+        maxWidth: 350,
+        alignItems: 'center',
+    },
+    instructionContainer: {
+        marginTop: 15,
+        alignItems: 'center',
+    },
+    buttonsSection: {
+        backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderTopColor: '#e9ecef',
+        paddingBottom: 30,
+    },
+    buttonsContainer: {
+        paddingHorizontal: 20,
+        paddingTop: 20,
+    },
+    buttonsTitle: {
+        fontSize: 16,
+        color: '#2c3e50',
+        fontWeight: '600',
+        textAlign: 'center',
+        marginBottom: 15,
+    },
+    buttonsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        gap: 12,
+    },
+    welcomeContainer: {
+        flex: 1,
+        backgroundColor: '#f8f9fa',
+    },
+    welcomeContent: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 30,
+        paddingVertical: 20,
+    },
+    welcomeIcon: {
+        fontSize: 80,
+        marginBottom: 20,
+    },
+    welcomeTitle: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#2c3e50',
+        textAlign: 'center',
+        marginBottom: 10,
+    },
+    welcomeSubtitle: {
+        fontSize: 16,
+        color: '#7f8c8d',
+        textAlign: 'center',
+        marginBottom: 30,
+        lineHeight: 24,
+    },
+    welcomeStats: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        width: '100%',
+        marginBottom: 30,
+        paddingHorizontal: 20,
+    },
+    statItem: {
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        padding: 15,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+        minWidth: 70,
+    },
+    statNumber: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#3498db',
+        marginBottom: 5,
+    },
+    statLabel: {
+        fontSize: 12,
+        color: '#7f8c8d',
+        fontWeight: '600',
+    },
+    welcomeDescription: {
+        fontSize: 16,
+        color: '#34495e',
+        textAlign: 'center',
+        lineHeight: 24,
+        marginBottom: 40,
+        paddingHorizontal: 20,
+    },
+    welcomeActions: {
+        width: '100%',
+        gap: 15,
+        paddingHorizontal: 20,
+    },
+    startButton: {
+        height: 50,
+    },
+    backButton: {
+        backgroundColor: '#ecf0f1',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    backButtonText: {
+        color: '#3498db',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     center: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    progressText: {
-        fontSize: 16,
-        color: '#888',
-        marginBottom: 20,
-        alignSelf: 'flex-start'
-    },
-    cardContainer: {
-        width: '100%',
-        aspectRatio: 16 / 9, 
-        marginBottom: 30,
-        maxWidth: 400,
-    },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-        maxWidth: 400,
-    },
-    srsButton: {
-        width: '32%', 
-    },
-    tapToFlip: {
-        marginTop: 10,
-        color: '#3498db',
-        fontStyle: 'italic',
-    },
-    emptyText: {
-        fontSize: 18,
-        color: '#7f8c8d',
-    }
 });
 
 export default StudySessionScreen;
