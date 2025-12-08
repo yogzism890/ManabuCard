@@ -37,7 +37,7 @@ const ProfileScreen = () => {
       const now = new Date();
 
       for (const collection of collections) {
-        const cardsResponse = await fetch(`${API_BASE_URL}/kartu?koleksiId=${collection.id}`, {
+        const cardsResponse = await fetch(`${API_BASE_URL}/koleksi/${collection.id}/kartu`, {
           headers: { 'Authorization': `Bearer ${MOCK_AUTH_TOKEN}` },
         });
         if (cardsResponse.ok) {
