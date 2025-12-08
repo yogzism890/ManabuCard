@@ -29,25 +29,13 @@ const fetchCollections = async (): Promise<KoleksiSummary[]> => {
   if (!response.ok) throw new Error('Gagal mengambil koleksi.');
   const data = await response.json();
 
-  // Hitung cardCount dan dueToday untuk setiap koleksi
-  const collectionsWithStats = await Promise.all(
-    data.map(async (koleksi: any) => {
-      const cardsResponse = await fetch(`${API_BASE_URL}/kartu?koleksiId=${koleksi.id}`, {
-        headers: { 'Authorization': `Bearer ${MOCK_AUTH_TOKEN}` },
-      });
-      const cards = cardsResponse.ok ? await cardsResponse.json() : [];
-      const now = new Date();
-      const dueToday = cards.filter((card: any) => new Date(card.reviewDueAt) <= now).length;
-      return {
-        id: koleksi.id,
-        name: koleksi.nama,
-        cardCount: cards.length,
-        dueToday,
-      };
-    })
-  );
-
-  return collectionsWithStats;
+  // Data sudah termasuk cardCount dan dueToday dari backend
+  return data.map((koleksi: any) => ({
+    id: koleksi.id,
+    name: koleksi.name,
+    cardCount: koleksi.cardCount,
+    dueToday: koleksi.dueToday,
+  }));
 };
 // ------------------------------
 
