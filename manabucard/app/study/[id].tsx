@@ -30,20 +30,34 @@ const MOCK_STUDY_CARDS: Kartu[] = [
   { id: 'c5', front: 'Exhausted', back: 'Sangat lelah', difficulty: 0 },
 ];
 
-/** Fungsi fetching kartu yang jatuh tempo dari API */
-const fetchStudyCards = async (koleksiId: string): Promise<Kartu[]> => {
-  console.log(`Fetching due cards for Collection ID: ${koleksiId}`);
-  const response = await fetch(`${API_BASE_URL}/koleksi/${koleksiId}/kartu`, {
+/** Fungsi fetching kartu berdasarkan studyMode dari API */
+const fetchStudyCards = async (koleksiId: string, studyMode: 'due' | 'new' | 'all' = 'due'): Promise<Kartu[]> => {
+  console.log(`Fetching cards for Collection ID: ${koleksiId} with mode: ${studyMode}`);
+  const response = await fetch(`${API_BASE_URL}/koleksi/${koleksiId}/kartu?mode=${studyMode}`, {
     headers: { 'Authorization': `Bearer ${MOCK_AUTH_TOKEN}` },
   });
   if (!response.ok) throw new Error('Gagal mengambil kartu.');
   const cards = await response.json();
 
-  // Filter kartu yang jatuh tempo (reviewDueAt <= sekarang)
-  const now = new Date();
-  const dueCards = cards.filter((card: any) => new Date(card.reviewDueAt) <= now);
+  let filteredCards: any[];
 
-  return dueCards.map((card: any) => ({
+  if (studyMode === 'due') {
+    // Filter kartu yang jatuh tempo (reviewDueAt <= sekarang)
+    const now = new Date();
+    filteredCards = cards.filter((card: any) => new Date(card.reviewDueAt) <= now);
+  } else if (studyMode === 'new') {
+    // Hanya kartu dengan difficulty = 0
+    filteredCards = cards.filter((card: any) => card.difficulty === 0);
+  } else if (studyMode === 'all') {
+    // Semua kartu dalam koleksi, mengabaikan reviewDueAt
+    filteredCards = cards;
+  } else {
+    // Default ke 'due'
+    const now = new Date();
+    filteredCards = cards.filter((card: any) => new Date(card.reviewDueAt) <= now);
+  }
+
+  return filteredCards.map((card: any) => ({
     id: card.id,
     front: card.front,
     back: card.back,
@@ -91,23 +105,33 @@ const StudySessionScreen = () => {
     // --- Logika SRS (Hanya didefinisikan sekali di dalam komponen) ---
     const calculateNextReviewDate = useCallback((currentDiff: number, grade: 'hard' | 'good' | 'easy'): { diff: number, nextDate: Date } => {
         let nextDifficulty = currentDiff;
-        let daysToAdd = 1; 
+        let daysToAdd = 1;
 
         if (grade === 'easy') {
+            // Naikkan difficulty (ease factor) untuk 'easy', max 5
             nextDifficulty = Math.min(5, currentDiff + 1);
-            daysToAdd = Math.max(7, nextDifficulty * 4); 
+            // Hitung daysToAdd dengan faktor pengulangan eksponensial
+            daysToAdd = Math.max(7, nextDifficulty * 4);
+            if (nextDifficulty > 2) {
+                daysToAdd *= nextDifficulty; // Pengulangan eksponensial
+            }
         } else if (grade === 'good') {
-            daysToAdd = Math.max(3, currentDiff * 2); 
+            // Difficulty tetap untuk 'good'
+            daysToAdd = Math.max(3, currentDiff * 2);
+            if (currentDiff > 2) {
+                daysToAdd *= currentDiff; // Pengulangan eksponensial
+            }
         } else if (grade === 'hard') {
+            // Turunkan difficulty (ease factor) untuk 'hard', min 0
             nextDifficulty = Math.max(0, currentDiff - 1);
-            daysToAdd = 1;
+            daysToAdd = 1; // Review cepat untuk 'hard'
         }
 
         const nextDate = new Date();
-        nextDate.setDate(nextDate.getDate() + daysToAdd); 
+        nextDate.setDate(nextDate.getDate() + daysToAdd);
 
         return { diff: nextDifficulty, nextDate: nextDate };
-    }, []); 
+    }, []);
 
     // Perbaikan 3: Hapus definisi handleAnswer yang redundant (di akhir kode asli)
     const handleAnswer = useCallback(async (grade: 'hard' | 'good' | 'easy') => {
@@ -141,9 +165,9 @@ const StudySessionScreen = () => {
     // Memuat Kartu
     useEffect(() => {
         if (!idString) return;
-        const loadCards = async () => {
+        const loadCards = async (studyMode: 'due' | 'new' | 'all' = 'due') => {
             try {
-                const fetchedCards = await fetchStudyCards(idString);
+                const fetchedCards = await fetchStudyCards(idString, studyMode);
                 setCards(fetchedCards);
             } catch (error) {
                 console.error("Error loading study session:", error);
@@ -151,7 +175,7 @@ const StudySessionScreen = () => {
                 setIsLoading(false);
             }
         };
-        loadCards();
+        loadCards(); // Default menggunakan 'due'
     }, [idString]);
 
 
