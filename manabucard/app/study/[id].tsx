@@ -39,7 +39,11 @@ const fetchStudyCards = async (koleksiId: string): Promise<Kartu[]> => {
   if (!response.ok) throw new Error('Gagal mengambil kartu.');
   const cards = await response.json();
 
-  return cards.map((card: any) => ({
+  // Filter kartu yang jatuh tempo (reviewDueAt <= sekarang)
+  const now = new Date();
+  const dueCards = cards.filter((card: any) => new Date(card.reviewDueAt) <= now);
+
+  return dueCards.map((card: any) => ({
     id: card.id,
     front: card.front,
     back: card.back,

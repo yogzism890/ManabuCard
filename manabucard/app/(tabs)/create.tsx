@@ -8,7 +8,9 @@ import {
     Platform,
     Alert, // Diperlukan untuk notifikasi
     ActivityIndicator, // Diperlukan untuk loading state
-    TouchableOpacity // Diperlukan untuk tombol yang dapat disentuh
+    TouchableOpacity, // Diperlukan untuk tombol yang dapat disentuh
+    Modal,
+    FlatList
 } from 'react-native';
 
 // Import komponen UI yang sudah Anda buat
@@ -77,9 +79,9 @@ async function postNewCard(koleksiId: string, front: string, back: string): Prom
 
 const CreateScreen = () => {
     // State Data
-    const [collections, setCollections] = useState<Koleksi[]>([]); 
-    const [selectedCollectionId, setSelectedCollectionId] = useState(''); 
-    
+    const [collections, setCollections] = useState<Koleksi[]>([]);
+    const [selectedCollectionId, setSelectedCollectionId] = useState('');
+
     // State Form
     const [newCollectionName, setNewCollectionName] = useState('');
     const [collectionDesc, setCollectionDesc] = useState('');
@@ -89,6 +91,9 @@ const CreateScreen = () => {
     // State Loading
     const [isCollectionsLoading, setIsCollectionsLoading] = useState(true);
     const [isPosting, setIsPosting] = useState(false);
+
+    // State Modal
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
     // Fungsi untuk memuat koleksi
     const loadCollections = useCallback(async () => {
@@ -246,6 +251,40 @@ const CreateScreen = () => {
                     />
                 </View>
             </ScrollView>
+
+            {/* Modal untuk memilih koleksi */}
+            <Modal
+                visible={isModalVisible}
+                transparent={true}
+                animationType="slide"
+                onRequestClose={() => setIsModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalHeader}>Pilih Koleksi</Text>
+                        <FlatList
+                            data={collections}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={styles.modalItem}
+                                    onPress={() => {
+                                        setSelectedCollectionId(item.id);
+                                        setIsModalVisible(false);
+                                    }}
+                                >
+                                    <Text style={styles.modalItemText}>{item.nama}</Text>
+                                </TouchableOpacity>
+                            )}
+                        />
+                        <Button
+                            title="Tutup"
+                            onPress={() => setIsModalVisible(false)}
+                            style={styles.modalCloseButton}
+                        />
+                    </View>
+                </View>
+            </Modal>
         </KeyboardAvoidingView>
     );
 };
@@ -296,6 +335,38 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         marginBottom: 15,
         backgroundColor: '#fff',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 20,
+        width: '80%',
+        maxHeight: '60%',
+    },
+    modalHeader: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#2c3e50',
+        marginBottom: 15,
+        textAlign: 'center',
+    },
+    modalItem: {
+        paddingVertical: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ecf0f1',
+    },
+    modalItemText: {
+        fontSize: 16,
+        color: '#34495e',
+    },
+    modalCloseButton: {
+        marginTop: 15,
     }
 });
 

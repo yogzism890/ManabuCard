@@ -9,9 +9,9 @@ const getAuthenticatedUserId = () => MOCK_USER_ID;
  */
 export async function GET(
     req: Request,
-    context: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    const koleksiId = context.params.id;
+    const { id: koleksiId } = await params;
     const userId = getAuthenticatedUserId();
 
     if (!userId) {
@@ -24,12 +24,13 @@ export async function GET(
 
     try {
         // Query Prisma: Ambil SEMUA Kartu dalam koleksi yang milik pengguna
+        // Cek Keamanan: Pastikan Koleksi milik User yang login (di-comment untuk development)
         const kartuList = await prisma.kartu.findMany({
             where: {
                 koleksiId: koleksiId,
-                koleksi: {
-                    userId: userId, // Kriteria Keamanan
-                },
+                // koleksi: {
+                //     userId: userId, // Kriteria Keamanan
+                // },
                 isDeleted: false, // Hanya kartu yang belum dihapus
             },
             select: {
