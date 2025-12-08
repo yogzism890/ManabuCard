@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+} from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import Button from '../../components/ui/Button';
 
 // --- KONSTANTA API ---
@@ -13,6 +23,10 @@ interface UserStats {
   totalCards: number;
   cardsDueToday: number;
 }
+
+const { width } = Dimensions.get('window');
+const isSmall = width < 360;
+const isTablet = width > 768;
 
 const ProfileScreen = () => {
   const router = useRouter();
@@ -67,10 +81,7 @@ const ProfileScreen = () => {
   const handleLogout = () => {
     Alert.alert('Logout', 'Apakah Anda yakin ingin logout?', [
       { text: 'Batal', style: 'cancel' },
-      {
-        text: 'Logout',
-        onPress: () => router.replace('/auth/login'),
-      },
+      { text: 'Logout', onPress: () => router.replace('/auth/login') },
     ]);
   };
 
@@ -84,31 +95,46 @@ const ProfileScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Profil Pengguna</Text>
-        <Text style={styles.subtitle}>Statistik Belajar Anda</Text>
+
+      {/* HEADER PREMIUM */}
+      <View style={styles.headerCard}>
+        <Image
+          source={{ uri: "https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff" }}
+          style={styles.avatar}
+        />
+        <View>
+          <Text style={styles.headerTitle}>Halo, Pengguna</Text>
+          <Text style={styles.headerSubtitle}>Selamat datang kembali 👋</Text>
+        </View>
       </View>
 
-      {/* Statistik */}
-      <View style={styles.statsContainer}>
+      {/* JUDUL */}
+      <View style={{ marginTop: 30 }}>
+        <Text style={styles.sectionTitle}>Statistik Belajar</Text>
+      </View>
+
+      {/* STAT CARD RESPONSIVE */}
+      <View style={styles.statsWrapper}>
         <View style={styles.statCard}>
+          <Ionicons name="albums-outline" size={28} color="#2D9CDB" />
           <Text style={styles.statNumber}>{stats.totalCollections}</Text>
           <Text style={styles.statLabel}>Koleksi</Text>
         </View>
 
         <View style={styles.statCard}>
+          <Ionicons name="layers-outline" size={28} color="#EE6C4D" />
           <Text style={styles.statNumber}>{stats.totalCards}</Text>
           <Text style={styles.statLabel}>Kartu Total</Text>
         </View>
 
         <View style={styles.statCard}>
+          <Ionicons name="time-outline" size={28} color="#8E44AD" />
           <Text style={styles.statNumber}>{stats.cardsDueToday}</Text>
-          <Text style={styles.statLabel}>Kartu Jatuh Tempo</Text>
+          <Text style={styles.statLabel}>Jatuh Tempo</Text>
         </View>
       </View>
 
-      {/* Tombol Aksi */}
+      {/* ACTION BUTTONS */}
       <View style={styles.actionsContainer}>
         <Button
           title="Refresh Statistik"
@@ -126,16 +152,15 @@ const ProfileScreen = () => {
 
 export default ProfileScreen;
 
-/* ===============================
-          STYLING BARU
-   =============================== */
+/* =========================================
+      PREMIUM RESPONSIVE UI STYLES
+   ========================================= */
 
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    padding: 20,
+    padding: 22,
     backgroundColor: '#F5F7FA',
-    paddingBottom: 40,
   },
 
   center: {
@@ -144,62 +169,86 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  header: {
+  /* ========== HEADER CARD ========== */
+  headerCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 35,
-    marginTop: 10,
+    gap: 15,
+
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
   },
 
-  title: {
-    fontSize: 26,
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 50,
+  },
+
+  headerTitle: {
+    fontSize: 22,
     fontWeight: '800',
     color: '#1E2A38',
-    marginBottom: 6,
   },
 
-  subtitle: {
-    fontSize: 15,
+  headerSubtitle: {
+    fontSize: 14,
     color: '#7A8C9A',
   },
 
-  statsContainer: {
+  /* ========== SECTION TITLE ========== */
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1E2A38',
+  },
+
+  /* ========== RESPONSIVE STAT CARD GRID ========== */
+  statsWrapper: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 12,
-    marginBottom: 35,
+    marginTop: 15,
+    gap: 15,
   },
 
   statCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
+    width: width < 360 ? '100%' : width > 768 ? '32%' : '31%',
+    backgroundColor: '#fff',
     paddingVertical: 25,
     borderRadius: 18,
     alignItems: 'center',
 
-    // Soft shadow
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.07,
     shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
     elevation: 2,
   },
 
   statNumber: {
-    fontSize: 32,
+    fontSize: isTablet ? 40 : 32,
     fontWeight: '900',
-    color: '#2D9CDB',
-    marginBottom: 6,
+    color: '#1E2A38',
+    marginTop: 6,
   },
 
   statLabel: {
     fontSize: 14,
     color: '#6F7F8F',
-    textAlign: 'center',
+    marginTop: 4,
   },
 
+  /* ========== BUTTON AREA ========== */
   actionsContainer: {
+    marginTop: 25,
     gap: 15,
-    marginTop: 10,
   },
 
   logoutButton: {
