@@ -9,9 +9,9 @@ const getAuthenticatedUserId = () => MOCK_USER_ID;
  */
 export async function PATCH(
     req: Request,
-    context: { params: { id: string } } // ID Kartu
+    { params }: { params: Promise<{ id: string }> } // ID Kartu
 ) {
-    const kartuId = context.params.id;
+    const { id: kartuId } = await params;
     const userId = getAuthenticatedUserId();
 
     if (!userId) {
@@ -72,9 +72,9 @@ export async function PATCH(
  */
 export async function DELETE(
     req: Request,
-    context: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    const kartuId = context.params.id;
+    const { id: kartuId } = await params;
     const userId = getAuthenticatedUserId();
 
     if (!userId) {

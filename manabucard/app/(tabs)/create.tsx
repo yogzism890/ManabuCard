@@ -12,6 +12,7 @@ import {
     Modal,
     FlatList
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
 // Import komponen UI yang sudah Anda buat
 import Button from '../../components/ui/Button'; 
@@ -214,15 +215,22 @@ const CreateScreen = () => {
                     ) : collections.length === 0 ? (
                         <Text style={{ color: '#e74c3c' }}>Harap buat Koleksi terlebih dahulu.</Text>
                     ) : (
-                        // Ganti ini dengan Picker/Dropdown di aplikasi nyata. Untuk saat ini, hanya menampilkan yang terpilih.
-                        <TouchableOpacity 
-                            onPress={() => Alert.alert("Pilih Koleksi", "Di sini akan ada komponen Dropdown atau Modal Picker.")}
-                            style={styles.collectionPicker}
-                        >
-                            <Text style={{color: '#3498db', fontWeight: 'bold'}}>
-                                {selectedCollectionName || 'PILIH KOLEKSI...'}
-                            </Text>
-                        </TouchableOpacity>
+                        <View style={styles.collectionPicker}>
+                            <Picker
+                                selectedValue={selectedCollectionId}
+                                onValueChange={(itemValue: string) => setSelectedCollectionId(itemValue)}
+                                style={{ color: '#3498db', fontWeight: 'bold' }}
+                            >
+                                <Picker.Item label="PILIH KOLEKSI..." value="" />
+                                {collections.map((collection) => (
+                                    <Picker.Item
+                                        key={collection.id}
+                                        label={collection.nama}
+                                        value={collection.id}
+                                    />
+                                ))}
+                            </Picker>
+                        </View>
                     )}
                     
                     <Input 
