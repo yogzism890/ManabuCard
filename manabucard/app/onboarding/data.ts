@@ -2,7 +2,7 @@ export const onboardingData = [
   {
     id: 1,
     title: "Belajar Jadi Lebih Seru",
-    description: "Tingkatkan semangat belajar dengan kartu memori interaktif.",
+    description: "Tingkatkan hafalan dengan flipcard interaktif.",
     animation: require("../../assets/lottie/study.json"),
   },
   {
