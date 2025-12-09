@@ -155,7 +155,7 @@ export default function WelcomeScreen() {
         {/* Title with playful wave emoji */}
         <Animated.View entering={FadeInDown.delay(200).duration(600)} style={styles.titleContainer}>
           <Text style={styles.waveEmoji}>👋</Text>
-          <Text style={styles.title}>Hi Faiz</Text>
+          <Text style={styles.title}>Hi Sobat</Text>
         </Animated.View>
         
         {/* Subtitle - lebih playful */}
