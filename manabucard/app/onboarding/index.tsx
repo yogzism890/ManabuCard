@@ -4,15 +4,26 @@ import PagerView from "react-native-pager-view";
 import LottieView from "lottie-react-native";
 import { onboardingData } from "./data";
 import { useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
   interpolate,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
   SharedValue,
+  withSpring,
 } from "react-native-reanimated";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
+
+// Floating decorative elements
+function FloatingEmoji({ emoji, style }: { emoji: string; style: any }) {
+  return (
+    <Animated.Text style={[styles.floatingEmoji, style]}>
+      {emoji}
+    </Animated.Text>
+  );
+}
 
 function OnboardingPage({
   item,
@@ -24,35 +35,103 @@ function OnboardingPage({
   progress: SharedValue<number>;
 }) {
   const animStyle = useAnimatedStyle(() => {
-    const translateX = interpolate(progress.value, [index - 1, index, index + 1], [width * 0.4, 0, -width * 0.4]);
-    const opacity = interpolate(progress.value, [index - 1, index, index + 1], [0, 1, 0]);
+    const translateX = interpolate(
+      progress.value,
+      [index - 1, index, index + 1],
+      [width * 0.4, 0, -width * 0.4]
+    );
+    const opacity = interpolate(
+      progress.value,
+      [index - 1, index, index + 1],
+      [0, 1, 0]
+    );
+    const scale = interpolate(
+      progress.value,
+      [index - 1, index, index + 1],
+      [0.8, 1, 0.8]
+    );
 
-    return { transform: [{ translateX }], opacity };
+    return {
+      transform: [{ translateX }, { scale }],
+      opacity,
+    };
+  });
+
+  // Animation untuk lottie
+  const lottieAnimStyle = useAnimatedStyle(() => {
+    const scale = interpolate(
+      progress.value,
+      [index - 1, index, index + 1],
+      [0.7, 1, 0.7]
+    );
+    const translateY = interpolate(
+      progress.value,
+      [index - 1, index, index + 1],
+      [50, 0, -50]
+    );
+
+    return {
+      transform: [{ scale }, { translateY }],
+    };
   });
 
   return (
     <View style={styles.page}>
-      <Animated.View style={[styles.animationContainer, animStyle]}>
-        <LottieView
-          source={item.animation}
-          autoPlay
-          loop
-          style={{ width: width * 0.75, height: width * 0.75 }}
-        />
+      {/* Decorative background circles */}
+      <View style={[styles.decorativeCircle, styles.circle1, { backgroundColor: item.circleColor1 || '#FFE8E8' }]} />
+      <View style={[styles.decorativeCircle, styles.circle2, { backgroundColor: item.circleColor2 || '#E8F5FF' }]} />
+
+      {/* Lottie Animation with bubble effect */}
+      <Animated.View style={[styles.animationContainer, lottieAnimStyle]}>
+        <View style={styles.animationBubble}>
+          <LottieView
+            source={item.animation}
+            autoPlay
+            loop
+            style={{ width: width * 0.7, height: width * 0.7 }}
+          />
+        </View>
       </Animated.View>
 
-      <Animated.Text style={[styles.title, animStyle]}>{item.title}</Animated.Text>
-      <Animated.Text style={[styles.desc, animStyle]}>{item.description}</Animated.Text>
+      {/* Title with emoji */}
+      <Animated.View style={[styles.contentContainer, animStyle]}>
+        <View style={styles.titleWrapper}>
+          <Text style={styles.titleEmoji}>{item.emoji || "✨"}</Text>
+          <Text style={styles.title}>{item.title}</Text>
+        </View>
+
+        {/* Description with card background */}
+        <View style={styles.descriptionCard}>
+          <Text style={styles.desc}>{item.description}</Text>
+        </View>
+      </Animated.View>
     </View>
   );
 }
 
 function Dot({ i, progress }: { i: number; progress: SharedValue<number> }) {
   const style = useAnimatedStyle(() => {
-    const widthDot = interpolate(progress.value, [i - 1, i, i + 1], [8, 22, 8]);
-    const opacity = interpolate(progress.value, [i - 1, i, i + 1], [0.5, 1, 0.5]);
+    const widthDot = interpolate(
+      progress.value,
+      [i - 1, i, i + 1],
+      [10, 30, 10]
+    );
+    const opacity = interpolate(
+      progress.value,
+      [i - 1, i, i + 1],
+      [0.3, 1, 0.3]
+    );
+    const scale = interpolate(
+      progress.value,
+      [i - 1, i, i + 1],
+      [1, 1.2, 1]
+    );
 
-    return { width: widthDot, opacity };
+    return {
+      width: widthDot,
+      opacity,
+      transform: [{ scale }],
+    };
   });
 
   return <Animated.View style={[styles.dot, style]} />;
@@ -75,14 +154,26 @@ export default function Onboarding() {
   const handleSkip = () => router.replace("/auth/login");
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={["#FFF8E7", "#FFF0F5", "#E8F4FF"]}
+      style={styles.container}
+    >
+      {/* Floating decorative emojis */}
+      <FloatingEmoji emoji="⭐" style={styles.floatingEmoji1} />
+      <FloatingEmoji emoji="🎨" style={styles.floatingEmoji2} />
+      <FloatingEmoji emoji="🚀" style={styles.floatingEmoji3} />
+      <FloatingEmoji emoji="💡" style={styles.floatingEmoji4} />
+
       <PagerView
         style={{ flex: 1 }}
         ref={pagerRef}
         onPageSelected={(e) => {
           const idx = e.nativeEvent.position;
           setPage(idx);
-          progress.value = withTiming(idx, { duration: 350 });
+          progress.value = withSpring(idx, {
+            damping: 20,
+            stiffness: 90,
+          });
         }}
       >
         {onboardingData.map((item, index) => (
@@ -92,96 +183,266 @@ export default function Onboarding() {
         ))}
       </PagerView>
 
-      <View style={styles.dotsContainer}>
-        {onboardingData.map((_, i) => (
-          <Dot key={i} i={i} progress={progress} />
-        ))}
+      {/* Dots Indicator with bubble container */}
+      <View style={styles.dotsWrapper}>
+        <View style={styles.dotsContainer}>
+          {onboardingData.map((_, i) => (
+            <Dot key={i} i={i} progress={progress} />
+          ))}
+        </View>
       </View>
 
+      {/* Bottom Buttons */}
       <View style={styles.bottomButtons}>
         {page < onboardingData.length - 1 ? (
           <>
-            <TouchableOpacity onPress={handleSkip}>
-              <Text style={styles.skip}>Skip</Text>
+            <TouchableOpacity onPress={handleSkip} style={styles.skipBtn}>
+              <Text style={styles.skip}>Lewati 👉</Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={handleNext} style={styles.nextBtn}>
-              <Text style={styles.nextText}>Next</Text>
+              <LinearGradient
+                colors={["#3A7DFF", "#5B93FF"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.nextGradient}
+              >
+                <Text style={styles.nextText}>Lanjut</Text>
+                <Text style={styles.nextArrow}>→</Text>
+              </LinearGradient>
             </TouchableOpacity>
           </>
         ) : (
-          <TouchableOpacity onPress={handleNext} style={styles.startBtn}>
-            <Text style={styles.startText}>Get Started</Text>
+          <TouchableOpacity onPress={handleNext} style={styles.startBtnWrapper}>
+            <LinearGradient
+              colors={["#3A7DFF", "#5B93FF", "#7DA9FF"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.startBtn}
+            >
+              <Text style={styles.startText}>Ayo Mulai!</Text>
+              <Text style={styles.startEmoji}>🚀</Text>
+            </LinearGradient>
           </TouchableOpacity>
         )}
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F8FAF4" },
-  page: { alignItems: "center", justifyContent: "center", paddingHorizontal: 26, height: "100%" },
-  animationContainer: { marginBottom: 8 },
-  title: { fontSize: 32, fontFamily: "FredokaBold", textAlign: "center", color: "#222" },
-  desc: { fontSize: 16, fontFamily: "Fredoka", textAlign: "center", marginTop: 10, color: "#555" },
+  container: {
+    flex: 1,
+  },
 
+  // Floating emojis
+  floatingEmoji: {
+    position: "absolute",
+    fontSize: 28,
+    opacity: 0.4,
+    zIndex: 1,
+  },
+  floatingEmoji1: {
+    top: height * 0.12,
+    left: width * 0.08,
+  },
+  floatingEmoji2: {
+    top: height * 0.18,
+    right: width * 0.08,
+  },
+  floatingEmoji3: {
+    top: height * 0.08,
+    right: width * 0.25,
+  },
+  floatingEmoji4: {
+    top: height * 0.25,
+    left: width * 0.15,
+  },
+
+  // Page styles
+  page: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 26,
+    height: "100%",
+    position: "relative",
+  },
+
+  // Decorative circles
+  decorativeCircle: {
+    position: "absolute",
+    borderRadius: 1000,
+    opacity: 0.15,
+  },
+  circle1: {
+    width: 200,
+    height: 200,
+    top: height * 0.15,
+    left: -50,
+  },
+  circle2: {
+    width: 250,
+    height: 250,
+    bottom: height * 0.2,
+    right: -80,
+  },
+
+  // Animation container
+  animationContainer: {
+    marginBottom: 20,
+  },
+  animationBubble: {
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    borderRadius: 40,
+    padding: 20,
+    borderWidth: 4,
+    borderColor: "rgba(255, 255, 255, 0.8)",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    shadowOffset: { height: 10, width: 0 },
+    elevation: 8,
+  },
+
+  // Content
+  contentContainer: {
+    alignItems: "center",
+    width: "100%",
+  },
+  titleWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  titleEmoji: {
+    fontSize: 36,
+    marginRight: 10,
+  },
+  title: {
+    fontSize: 28,
+    fontFamily: "FredokaBold",
+    textAlign: "center",
+    color: "#2D2D2D",
+    textShadowColor: "rgba(58, 125, 255, 0.1)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+
+  descriptionCard: {
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    borderRadius: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.9)",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { height: 4, width: 0 },
+    elevation: 3,
+  },
+  desc: {
+    fontSize: 16,
+    fontFamily: "Fredoka",
+    textAlign: "center",
+    color: "#666",
+    lineHeight: 24,
+  },
+
+  // Dots
+  dotsWrapper: {
+    position: "absolute",
+    bottom: 110,
+    alignSelf: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.8)",
+  },
   dotsContainer: {
     flexDirection: "row",
-    alignSelf: "center",
-    position: "absolute",
-    bottom: 92,
+    alignItems: "center",
   },
-  dot: { height: 8, marginHorizontal: 6, borderRadius: 10, backgroundColor: "#3A7DFF" },
+  dot: {
+    height: 10,
+    marginHorizontal: 4,
+    borderRadius: 10,
+    backgroundColor: "#3A7DFF",
+  },
 
+  // Bottom buttons
   bottomButtons: {
     position: "absolute",
-    bottom: 18,
-    left: 20,
-    right: 20,
+    bottom: 30,
+    left: 24,
+    right: 24,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
 
+  skipBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
   skip: {
     fontSize: 16,
     fontFamily: "FredokaBold",
-    color: "#777",
-    marginBottom: 20,
-  },
-  nextBtn: {
-    backgroundColor: "#3A7DFF",
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 24,
-    marginBottom: 24,
+    color: "#888",
   },
 
+  nextBtn: {
+    borderRadius: 25,
+    overflow: "hidden",
+    shadowColor: "#3A7DFF",
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { height: 4, width: 0 },
+    elevation: 6,
+  },
+  nextGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 28,
+    paddingVertical: 12,
+  },
   nextText: {
     color: "#fff",
     fontFamily: "FredokaBold",
     fontSize: 16,
-    textAlign: "center",
-    textAlignVertical: "center",
+    marginRight: 6,
+  },
+  nextArrow: {
+    color: "#fff",
+    fontSize: 18,
+    fontFamily: "FredokaBold",
   },
 
-
-    startBtn: {
-    backgroundColor: "#3A7DFF",
-    width: "100%",
-    paddingVertical: 8,
-    borderRadius: 28,
-    justifyContent: "center",
+  startBtnWrapper: {
+    flex: 1,
+    borderRadius: 30,
+    overflow: "hidden",
+    shadowColor: "#3A7DFF",
+    shadowOpacity: 0.4,
+    shadowRadius: 15,
+    shadowOffset: { height: 8, width: 0 },
+    elevation: 10,
+  },
+  startBtn: {
+    flexDirection: "row",
     alignItems: "center",
-    marginBottom: 24,
+    justifyContent: "center",
+    paddingVertical: 16,
   },
-
   startText: {
     color: "#fff",
     fontFamily: "FredokaBold",
-    fontSize: 18,
-    textAlign: "center",
-    textAlignVertical: "center",
+    fontSize: 20,
+    marginRight: 8,
+  },
+  startEmoji: {
+    fontSize: 24,
   },
 });
