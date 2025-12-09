@@ -208,7 +208,6 @@ export default function Onboarding() {
                 style={styles.nextGradient}
               >
                 <Text style={styles.nextText}>Lanjut</Text>
-                <Text style={styles.nextArrow}>→</Text>
               </LinearGradient>
             </TouchableOpacity>
           </>
