@@ -1,7 +1,7 @@
 export const onboardingData = [
   {
     id: 1,
-    title: "Belajar Jadi Lebih Seru",
+    title: "hafalan lebih simpel",
     description: "Tingkatkan hafalan dengan flipcard interaktif.",
     animation: require("../../assets/lottie/study.json"),
   },
