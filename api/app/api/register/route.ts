@@ -62,13 +62,16 @@ export async function POST(request: Request) {
 // GET endpoint to create a test user for development
 export async function GET() {
   try {
+    // Hash the password for security
+    const hashedPassword = await bcrypt.hash('password123', 12);
+
     const testUser = await prisma.user.upsert({
       where: { id: '550e8400-e29b-41d4-a716-446655440000' },
       update: {},
       create: {
         id: '550e8400-e29b-41d4-a716-446655440000',
         email: 'test@example.com',
-        password: 'password123'
+        password: hashedPassword
       }
     });
 

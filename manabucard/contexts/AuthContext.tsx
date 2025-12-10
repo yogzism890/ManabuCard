@@ -59,6 +59,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
+    // Temporary mock authentication for testing
+    if (email === 'dummy@example.com' && password === 'password123') {
+      const mockUser = { id: 'dummy-user-1', email: 'dummy@example.com' };
+      const mockToken = 'mock-jwt-token-for-testing';
+
+      setToken(mockToken);
+      setUser(mockUser);
+      await AsyncStorage.setItem('auth_token', mockToken);
+      await AsyncStorage.setItem('auth_user', JSON.stringify(mockUser));
+
+      return { success: true, message: 'Login berhasil!' };
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
@@ -141,6 +154,64 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const apiRequest = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
+    // Mock API responses for testing
+    if (endpoint === '/koleksi') {
+      return [
+        {
+          id: 'sample-collection-1',
+          nama: 'Sample Collection',
+          deskripsi: 'A sample collection for testing',
+          createdAt: new Date().toISOString(),
+        }
+      ];
+    }
+
+    if (endpoint.startsWith('/koleksi/') && endpoint.endsWith('/kartu')) {
+      const collectionId = endpoint.split('/')[2];
+      return [
+        {
+          id: 'card-1',
+          front: 'Hello',
+          back: 'Halo',
+          difficulty: 1,
+          reviewDueAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 'card-2',
+          front: 'Thank you',
+          back: 'Terima kasih',
+          difficulty: 1,
+          reviewDueAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 'card-3',
+          front: 'Good morning',
+          back: 'Selamat pagi',
+          difficulty: 2,
+          reviewDueAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 'card-4',
+          front: 'Goodbye',
+          back: 'Selamat tinggal',
+          difficulty: 1,
+          reviewDueAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 'card-5',
+          front: 'How are you?',
+          back: 'Apa kabar?',
+          difficulty: 2,
+          reviewDueAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+        },
+      ];
+    }
+
     const headers: any = {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -150,16 +221,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers,
+      });
 
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error('API request error:', error);
+      throw error;
     }
-
-    return response.json();
   };
 
   const value: AuthContextType = {

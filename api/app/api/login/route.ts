@@ -20,24 +20,25 @@ export async function POST(req: Request) {
         });
 
         if (!user) {
-            return NextResponse.json({ error: "Email atau password salah." }, { status: 401 });
+            return NextResponse.json({ success: false, message: "Email atau password salah." }, { status: 401 });
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return NextResponse.json({ error: "Email atau password salah." }, { status: 401 });
+            return NextResponse.json({ success: false, message: "Email atau password salah." }, { status: 401 });
         }
 
         // Generate JWT token (gunakan secret dari env)
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '7d' });
 
         return NextResponse.json({
+            success: true,
             message: "Login berhasil.",
             token,
             user: { id: user.id, email: user.email },
         }, { status: 200 });
     } catch (error) {
         console.error("Error logging in:", error);
-        return NextResponse.json({ error: "SERVER_ERROR: Gagal login." }, { status: 500 });
+        return NextResponse.json({ success: false, message: "SERVER_ERROR: Gagal login." }, { status: 500 });
     }
 }
