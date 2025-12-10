@@ -21,6 +21,6 @@ export function getUserFromRequest(req: Request): AuthUser | null {
     return null;
   }
 
-  const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+  const token = authHeader.substring(7);
   return verifyToken(token);
 }
