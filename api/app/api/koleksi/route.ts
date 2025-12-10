@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getUserFromRequest } from "@/lib/auth";
+import { getUserFromAuthHeader } from "@/lib/auth";
+import { headers } from "next/headers";
 
 
 
@@ -8,7 +9,8 @@ import { getUserFromRequest } from "@/lib/auth";
  * Endpoint GET /api/koleksi: Mengambil daftar koleksi pengguna beserta jumlah kartu.
  */
 export async function GET(req: Request) {
-    const user = getUserFromRequest(req);
+    const authHeader = headers().get('authorization');
+    const user = getUserFromAuthHeader(authHeader);
 
     if (!user) {
         return NextResponse.json({ error: "UNAUTHORIZED: User not authenticated." }, { status: 401 });
@@ -53,7 +55,9 @@ export async function GET(req: Request) {
  * Endpoint POST /api/koleksi: Membuat koleksi baru.
  */
 export async function POST(req: Request) {
-    const user = getUserFromRequest(req);
+    const authHeader = headers().get('authorization');
+    const user = getUserFromAuthHeader(authHeader);
+
     if (!user) {
         return NextResponse.json({ error: "UNAUTHORIZED: User not authenticated." }, { status: 401 });
     }

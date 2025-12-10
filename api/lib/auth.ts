@@ -6,6 +6,9 @@ export interface AuthUser {
 }
 
 export function verifyToken(token: string): AuthUser | null {
+  if (!token) {
+    return null;
+  }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_secret') as AuthUser;
     return decoded;
@@ -15,12 +18,10 @@ export function verifyToken(token: string): AuthUser | null {
   }
 }
 
-export function getUserFromRequest(req: Request): AuthUser | null {
-  const authHeader = req.headers.get('authorization');
+export function getUserFromAuthHeader(authHeader: string | null): AuthUser | null {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null;
   }
-
   const token = authHeader.substring(7);
   return verifyToken(token);
 }
