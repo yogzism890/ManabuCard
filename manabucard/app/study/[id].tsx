@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 
 import FlipCard from '../../components/FlipCard';
 import Button from '../../components/ui/Button';
+import CustomModal from '../../components/ui/CustomModal';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface Kartu {
@@ -22,8 +24,41 @@ const StudySessionScreen = () => {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
   const [showWelcome, setShowWelcome] = useState(true);
   const [collectionName, setCollectionName] = useState<string>('');
+
+  // Modal State
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
+  const [showConfirmButton, setShowConfirmButton] = useState(false);
+  const [modalConfirmText, setModalConfirmText] = useState("OK");
+  const [onModalConfirm, setOnModalConfirm] = useState<(() => void) | undefined>();
+
+  // Helper function to show modal
+  const showModal = (
+    title: string,
+    message: string,
+    type: 'success' | 'error' | 'info' | 'warning' = 'info',
+    showConfirm: boolean = false,
+    confirmText: string = "OK",
+    onConfirm?: () => void
+  ) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setModalType(type);
+    setShowConfirmButton(showConfirm);
+    setModalConfirmText(confirmText);
+    setOnModalConfirm(onConfirm);
+    setModalVisible(true);
+  };
+
+  // Helper function to hide modal
+  const hideModal = () => {
+    setModalVisible(false);
+  };
 
   const idString = Array.isArray(koleksiId) ? koleksiId[0] : koleksiId;
   const currentCard = cards[currentCardIndex];
@@ -113,21 +148,26 @@ const StudySessionScreen = () => {
 
       await updateKartuSRSData(currentCard.id, newDifficulty, newReviewDueAt);
 
+
       if (currentCardIndex < totalCards - 1) {
         setCurrentCardIndex(prev => prev + 1);
         setIsFlipped(false);
       } else {
-
-
-        Alert.alert("Sesi Selesai!", "Semua kartu telah di-review.", [
-          { text: "Kembali ke Home", onPress: () => router.push('/(tabs)/review') }
-        ]);
+        showModal(
+          "Sesi Selesai!",
+          "Semua kartu telah di-review.",
+          'success',
+          true,
+          "Kembali ke Home",
+          () => router.push('/(tabs)/review')
+        );
       }
     } catch (error) {
-      Alert.alert("Error", "Gagal menyimpan hasil review.");
+      showModal("Error", "Gagal menyimpan hasil review.", 'error');
       console.error('Error updating card:', error);
     }
-  }, [currentCard, currentCardIndex, totalCards, calculateNextReviewDate, updateKartuSRSData, router]);
+
+  }, [currentCard, currentCardIndex, totalCards, calculateNextReviewDate, updateKartuSRSData, router, showModal]);
 
   // Load data
   useEffect(() => {
@@ -307,9 +347,28 @@ const StudySessionScreen = () => {
                 style={styles.answerButton}
               />
             </View>
+
           </View>
         </View>
       )}
+
+
+      {/* CustomModal */}
+      <CustomModal
+        visible={modalVisible}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        showConfirmButton={showConfirmButton}
+        confirmButtonText={modalConfirmText}
+        onConfirm={() => {
+          hideModal();
+          if (onModalConfirm) {
+            onModalConfirm();
+          }
+        }}
+        onClose={hideModal}
+      />
     </View>
   );
 };

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -5,7 +6,6 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
-  Alert,
   ScrollView,
   FlatList,
 } from 'react-native';
@@ -14,6 +14,7 @@ import { Link } from 'expo-router';
 // Import komponen yang sudah ada
 import FlipCard from '../../components/FlipCard';
 import Button from '../../components/ui/Button';
+import CustomModal from '../../components/ui/CustomModal';
 import { useAuth } from '../../contexts/AuthContext';
 
 // --- Tipe Data ---
@@ -35,6 +36,7 @@ interface Kartu {
 }
 
 // --- KOMPONEN UTAMA ---
+
 const ReviewScreen = () => {
   const { apiRequest, isAuthenticated } = useAuth();
   const [collections, setCollections] = useState<Koleksi[]>([]);
@@ -45,10 +47,43 @@ const ReviewScreen = () => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // Modal State
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
+  const [showConfirmButton, setShowConfirmButton] = useState(false);
+  const [modalConfirmText, setModalConfirmText] = useState("OK");
+  const [onModalConfirm, setOnModalConfirm] = useState<(() => void) | undefined>();
+
+  // Helper function to show modal
+  const showModal = (
+    title: string,
+    message: string,
+    type: 'success' | 'error' | 'info' | 'warning' = 'info',
+    showConfirm: boolean = false,
+    confirmText: string = "OK",
+    onConfirm?: () => void
+  ) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setModalType(type);
+    setShowConfirmButton(showConfirm);
+    setModalConfirmText(confirmText);
+    setOnModalConfirm(onConfirm);
+    setModalVisible(true);
+  };
+
+  // Helper function to hide modal
+  const hideModal = () => {
+    setModalVisible(false);
+  };
+
   // Load collections on component mount
   useEffect(() => {
     loadCollections();
   }, []);
+
 
   const loadCollections = async () => {
     try {
@@ -64,11 +99,12 @@ const ReviewScreen = () => {
       setCollections(userCollections);
     } catch (error) {
       console.error('Error fetching collections:', error);
-      Alert.alert('Error', 'Gagal memuat koleksi');
+      showModal('Error', 'Gagal memuat koleksi', 'error');
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const selectCollection = async (collection: Koleksi) => {
     try {
@@ -88,7 +124,7 @@ const ReviewScreen = () => {
       setIsFlipped(false);
     } catch (error) {
       console.error('Error fetching collection cards:', error);
-      Alert.alert('Error', 'Gagal memuat kartu koleksi');
+      showModal('Error', 'Gagal memuat kartu koleksi', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -150,13 +186,9 @@ const ReviewScreen = () => {
         }),
       });
 
+
       // Show quality feedback briefly
-      Alert.alert(
-        'Progress Disimpan',
-        qualityMessage,
-        [{ text: 'Lanjut', style: 'default' }],
-        { cancelable: false }
-      );
+      showModal('Progress Disimpan', qualityMessage, 'success');
 
       // Move to next card or finish after a brief delay
       setTimeout(() => {
@@ -164,47 +196,31 @@ const ReviewScreen = () => {
           setCurrentIndex(currentIndex + 1);
           setIsFlipped(false);
         } else {
+
           // All cards reviewed, show completion summary
           const completionMessage = `🎉 Selesai!\n\nSemua ${cards.length} kartu dari koleksi "${selectedCollection?.nama}" telah direview.\n\nKartu-kartu akan muncul lagi sesuai jadwal yang telah ditentukan.`;
 
-          Alert.alert(
+          showModal(
             'Review Selesai!',
             completionMessage,
-            [
-              {
-                text: 'Review Lagi',
-                style: 'default',
-                onPress: () => {
-                  setCurrentIndex(0);
-                  setIsFlipped(false);
-                }
-              },
-              {
-                text: 'Kembali',
-                style: 'default',
-                onPress: backToCollections
-              }
-            ]
+            'success',
+            true,
+            'Kembali',
+            backToCollections
           );
         }
       }, 500);
 
+
     } catch (error) {
       console.error('SRS Update Error:', error);
-      Alert.alert(
+      showModal(
         'Gagal Menyimpan',
         'Terjadi kesalahan saat menyimpan progress. Silakan coba lagi.',
-        [
-          { text: 'Coba Lagi', onPress: () => handleAnswer(quality) },
-          { text: 'Lewati', style: 'destructive', onPress: () => {
-            if (currentIndex < cards.length - 1) {
-              setCurrentIndex(currentIndex + 1);
-              setIsFlipped(false);
-            } else {
-              backToCollections();
-            }
-          }}
-        ]
+        'error',
+        true,
+        'Coba Lagi',
+        () => handleAnswer(quality)
       );
     } finally {
       setIsUpdating(false);
@@ -371,12 +387,31 @@ const ReviewScreen = () => {
         </View>
       )}
 
+
       {isUpdating && (
         <View style={styles.updatingIndicator}>
           <ActivityIndicator size="small" color="#3498db" />
           <Text style={styles.updatingText}>Menyimpan progress...</Text>
         </View>
       )}
+
+
+      {/* Custom Modal */}
+      <CustomModal
+        visible={modalVisible}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        showConfirmButton={showConfirmButton}
+        confirmButtonText={modalConfirmText}
+        onConfirm={() => {
+          hideModal();
+          if (onModalConfirm) {
+            onModalConfirm();
+          }
+        }}
+        onClose={hideModal}
+      />
     </View>
   );
 };

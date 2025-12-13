@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   View,
@@ -7,13 +8,14 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useAuth } from "../../contexts/AuthContext";
+import CustomModal from "../../components/ui/CustomModal";
+
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -23,20 +25,53 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Modal State
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
+  const [showConfirmButton, setShowConfirmButton] = useState(false);
+  const [modalConfirmText, setModalConfirmText] = useState("OK");
+  const [onModalConfirm, setOnModalConfirm] = useState<(() => void) | undefined>();
+
+  // Helper function to show modal
+  const showModal = (
+    title: string,
+    message: string,
+    type: 'success' | 'error' | 'info' | 'warning' = 'info',
+    showConfirm: boolean = false,
+    confirmText: string = "OK",
+    onConfirm?: () => void
+  ) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setModalType(type);
+    setShowConfirmButton(showConfirm);
+    setModalConfirmText(confirmText);
+    setOnModalConfirm(onConfirm);
+    setModalVisible(true);
+  };
+
+  // Helper function to hide modal
+  const hideModal = () => {
+    setModalVisible(false);
+  };
+
+
   const handleRegister = async () => {
     // 1. Validasi Input
     if (!email || !password || !confirmPassword) {
-      Alert.alert("Gagal", "Semua field wajib diisi!");
+      showModal("Gagal", "Semua field wajib diisi!", "error");
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert("Gagal", "Password minimal 6 karakter!");
+      showModal("Gagal", "Password minimal 6 karakter!", "error");
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert("Gagal", "Password konfirmasi tidak sama!");
+      showModal("Gagal", "Password konfirmasi tidak sama!", "error");
       return;
     }
 
@@ -46,18 +81,23 @@ export default function RegisterScreen() {
       const result = await register(email, password);
 
       if (result.success) {
-        // SUKSES
-        Alert.alert("Sukses", result.message, [
-          { text: "OK", onPress: () => router.replace("/auth/login") }
-        ]);
+        // SUKSES dengan confirm button
+        showModal(
+          "Sukses", 
+          result.message, 
+          "success", 
+          true, 
+          "OK", 
+          () => router.replace("/auth/login")
+        );
       } else {
         // GAGAL
-        Alert.alert("Gagal", result.message);
+        showModal("Gagal", result.message, "error");
       }
 
     } catch (error) {
       console.error("Register Error:", error);
-      Alert.alert("Error", "Terjadi kesalahan tak terduga");
+      showModal("Error", "Terjadi kesalahan tak terduga", "error");
     } finally {
       setIsLoading(false);
     }
@@ -138,8 +178,21 @@ export default function RegisterScreen() {
               Log in
             </Text>
           </Text>
+
         </Animated.View>
       </KeyboardAvoidingView>
+
+      {/* Custom Modal */}
+      <CustomModal
+        visible={modalVisible}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        onClose={hideModal}
+        showConfirmButton={showConfirmButton}
+        confirmButtonText={modalConfirmText}
+        onConfirm={onModalConfirm}
+      />
     </LinearGradient>
   );
 }

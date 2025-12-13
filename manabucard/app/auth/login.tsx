@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   View,
@@ -7,15 +8,16 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import Animated, { FadeInDown, FadeIn } from "react-native-reanimated";
 import { useAuth } from "../../contexts/AuthContext";
+import CustomModal from "../../components/ui/CustomModal";
 
 const { width, height } = Dimensions.get("window");
+
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -25,9 +27,42 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Modal State
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalType, setModalType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
+  const [showConfirmButton, setShowConfirmButton] = useState(false);
+  const [modalConfirmText, setModalConfirmText] = useState("OK");
+  const [onModalConfirm, setOnModalConfirm] = useState<(() => void) | undefined>();
+
+  // Helper function to show modal
+  const showModal = (
+    title: string,
+    message: string,
+    type: 'success' | 'error' | 'info' | 'warning' = 'info',
+    showConfirm: boolean = false,
+    confirmText: string = "OK",
+    onConfirm?: () => void
+  ) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setModalType(type);
+    setShowConfirmButton(showConfirm);
+    setModalConfirmText(confirmText);
+    setOnModalConfirm(onConfirm);
+    setModalVisible(true);
+  };
+
+  // Helper function to hide modal
+  const hideModal = () => {
+    setModalVisible(false);
+  };
+
+
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert("Gagal", "Email dan password wajib diisi!");
+      showModal("Gagal", "Email dan password wajib diisi!", "error");
       return;
     }
 
@@ -36,15 +71,20 @@ export default function LoginScreen() {
       const result = await login(email, password);
 
       if (result.success) {
-        Alert.alert("Sukses", result.message, [
-          { text: "OK", onPress: () => router.replace("/(tabs)") }
-        ]);
+        showModal(
+          "Sukses", 
+          result.message, 
+          "success", 
+          true, 
+          "OK", 
+          () => router.replace("/(tabs)")
+        );
       } else {
-        Alert.alert("Gagal", result.message);
+        showModal("Gagal", result.message, "error");
       }
     } catch (error) {
       console.error("Login Error:", error);
-      Alert.alert("Error", "Terjadi kesalahan tak terduga");
+      showModal("Error", "Terjadi kesalahan tak terduga", "error");
     } finally {
       setIsLoading(false);
     }
@@ -190,8 +230,21 @@ export default function LoginScreen() {
               <Text style={styles.link}>Daftar di sini! ✨</Text>
             </TouchableOpacity>
           </Animated.View>
+
         </Animated.View>
       </KeyboardAvoidingView>
+
+      {/* Custom Modal */}
+      <CustomModal
+        visible={modalVisible}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        onClose={hideModal}
+        showConfirmButton={showConfirmButton}
+        confirmButtonText={modalConfirmText}
+        onConfirm={onModalConfirm}
+      />
     </LinearGradient>
   );
 }
