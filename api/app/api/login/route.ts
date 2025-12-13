@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 
 /**
  * Endpoint POST /api/login: Login pengguna.
@@ -28,13 +27,13 @@ export async function POST(req: Request) {
             return NextResponse.json({ success: false, message: "Email atau password salah." }, { status: 401 });
         }
 
-        // Generate JWT token (gunakan secret dari env)
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '7d' });
+        // Return simple token format: userId:email (sesuai dengan simple-auth system)
+        const simpleToken = `${user.id}:${user.email}`;
 
         return NextResponse.json({
             success: true,
             message: "Login berhasil.",
-            token,
+            userId: user.id,
             user: { id: user.id, email: user.email },
         }, { status: 200 });
     } catch (error) {

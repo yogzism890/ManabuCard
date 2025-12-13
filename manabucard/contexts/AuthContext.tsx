@@ -59,19 +59,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
-    // Temporary mock authentication for testing
-    if (email === 'dummy@example.com' && password === 'password123') {
-      const mockUser = { id: 'dummy-user-1', email: 'dummy@example.com' };
-      const mockToken = 'mock-jwt-token-for-testing';
-
-      setToken(mockToken);
-      setUser(mockUser);
-      await AsyncStorage.setItem('auth_token', mockToken);
-      await AsyncStorage.setItem('auth_user', JSON.stringify(mockUser));
-
-      return { success: true, message: 'Login berhasil!' };
-    }
-
     try {
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
@@ -92,13 +79,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       const data = await response.json();
 
-      if (data.token) {
+      if (data.user && data.userId) {
+        // Create simple token format: userId:email
+        const simpleToken = `${data.userId}:${email}`;
+        
         // Store auth data
-        await AsyncStorage.setItem('auth_token', data.token);
-        await AsyncStorage.setItem('auth_user', JSON.stringify(data.user));
+        await AsyncStorage.setItem('auth_token', simpleToken);
+        await AsyncStorage.setItem('auth_user', JSON.stringify({
+          id: data.userId,
+          email: email
+        }));
 
-        setToken(data.token);
-        setUser(data.user);
+        setToken(simpleToken);
+        setUser({ id: data.userId, email: email });
 
         return { success: true, message: data.message || 'Login berhasil' };
       } else {
@@ -154,69 +147,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const apiRequest = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
-    // Mock API responses for testing
-    if (endpoint === '/koleksi') {
-      return [
-        {
-          id: 'sample-collection-1',
-          nama: 'Sample Collection',
-          deskripsi: 'A sample collection for testing',
-          createdAt: new Date().toISOString(),
-        }
-      ];
-    }
-
-    if (endpoint.startsWith('/koleksi/') && endpoint.endsWith('/kartu')) {
-      const collectionId = endpoint.split('/')[2];
-      return [
-        {
-          id: 'card-1',
-          front: 'Hello',
-          back: 'Halo',
-          difficulty: 1,
-          reviewDueAt: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: 'card-2',
-          front: 'Thank you',
-          back: 'Terima kasih',
-          difficulty: 1,
-          reviewDueAt: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: 'card-3',
-          front: 'Good morning',
-          back: 'Selamat pagi',
-          difficulty: 2,
-          reviewDueAt: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: 'card-4',
-          front: 'Goodbye',
-          back: 'Selamat tinggal',
-          difficulty: 1,
-          reviewDueAt: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: 'card-5',
-          front: 'How are you?',
-          back: 'Apa kabar?',
-          difficulty: 2,
-          reviewDueAt: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-        },
-      ];
-    }
-
     const headers: any = {
       'Content-Type': 'application/json',
       ...options.headers,
     };
 
+    // Use simple token format: userId:email
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -228,7 +164,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || `API request failed: ${response.status} ${response.statusText}`);
       }
 
       return response.json();

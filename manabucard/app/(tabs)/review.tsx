@@ -14,10 +14,7 @@ import { Link } from 'expo-router';
 // Import komponen yang sudah ada
 import FlipCard from '../../components/FlipCard';
 import Button from '../../components/ui/Button';
-import { API_BASE_URL } from '../../constants/apiConfig';
-
-// --- KONSTANTA API ---
-const MOCK_AUTH_TOKEN = 'YOUR_AUTH_TOKEN_HERE';
+import { useAuth } from '../../contexts/AuthContext';
 
 // --- Tipe Data ---
 interface Koleksi {
@@ -37,78 +34,9 @@ interface Kartu {
   koleksiId: string;
 }
 
-// --- FUNGSI API ---
-async function fetchUserCollections(): Promise<Koleksi[]> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/koleksi`, {
-      headers: { 'Authorization': `Bearer ${MOCK_AUTH_TOKEN}` },
-    });
-
-    if (!response.ok) throw new Error('Gagal mengambil daftar koleksi.');
-
-    const data = await response.json();
-    return data.map((item: any) => ({
-      id: item.id,
-      nama: item.name,
-      _count: {
-        kartu: item.cardCount || 0,
-      },
-    }));
-  } catch (error) {
-    console.error('Error fetching collections:', error);
-    throw error;
-  }
-}
-
-async function fetchCollectionCards(collectionId: string): Promise<Kartu[]> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/koleksi/${collectionId}/kartu`, {
-      headers: { 'Authorization': `Bearer ${MOCK_AUTH_TOKEN}` },
-    });
-
-    if (!response.ok) throw new Error('Gagal mengambil kartu koleksi.');
-
-    const data = await response.json();
-    return data.map((card: any) => ({
-      id: card.id,
-      front: card.front,
-      back: card.back,
-      difficulty: card.difficulty,
-      reviewDueAt: card.reviewDueAt,
-      koleksiId: card.koleksiId,
-    }));
-  } catch (error) {
-    console.error('Error fetching collection cards:', error);
-    throw error;
-  }
-}
-
-async function updateCardSRS(cardId: string, newDifficulty: number, newReviewDueAt: Date): Promise<void> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/kartu/${cardId}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
-      },
-      body: JSON.stringify({
-        newDifficulty: newDifficulty,
-        newReviewDueAt: newReviewDueAt.toISOString()
-      }),
-    });
-
-    if (!response.ok) {
-      const errorBody = await response.json().catch(() => ({ message: 'Unknown error' }));
-      throw new Error(`Gagal update SRS: ${errorBody.message}`);
-    }
-  } catch (error) {
-    console.error('Error updating card SRS:', error);
-    throw error;
-  }
-}
-
 // --- KOMPONEN UTAMA ---
 const ReviewScreen = () => {
+  const { apiRequest, isAuthenticated } = useAuth();
   const [collections, setCollections] = useState<Koleksi[]>([]);
   const [selectedCollection, setSelectedCollection] = useState<Koleksi | null>(null);
   const [cards, setCards] = useState<Kartu[]>([]);
@@ -125,9 +53,17 @@ const ReviewScreen = () => {
   const loadCollections = async () => {
     try {
       setIsLoading(true);
-      const userCollections = await fetchUserCollections();
+      const data = await apiRequest('/koleksi');
+      const userCollections = data.map((item: any) => ({
+        id: item.id,
+        nama: item.name,
+        _count: {
+          kartu: item.cardCount || 0,
+        },
+      }));
       setCollections(userCollections);
     } catch (error) {
+      console.error('Error fetching collections:', error);
       Alert.alert('Error', 'Gagal memuat koleksi');
     } finally {
       setIsLoading(false);
@@ -137,12 +73,21 @@ const ReviewScreen = () => {
   const selectCollection = async (collection: Koleksi) => {
     try {
       setIsLoading(true);
-      const collectionCards = await fetchCollectionCards(collection.id);
+      const data = await apiRequest(`/koleksi/${collection.id}/kartu`);
+      const collectionCards = data.map((card: any) => ({
+        id: card.id,
+        front: card.front,
+        back: card.back,
+        difficulty: card.difficulty,
+        reviewDueAt: card.reviewDueAt,
+        koleksiId: card.koleksiId,
+      }));
       setSelectedCollection(collection);
       setCards(collectionCards);
       setCurrentIndex(0);
       setIsFlipped(false);
     } catch (error) {
+      console.error('Error fetching collection cards:', error);
       Alert.alert('Error', 'Gagal memuat kartu koleksi');
     } finally {
       setIsLoading(false);
@@ -194,7 +139,16 @@ const ReviewScreen = () => {
       // Add small delay for better UX feedback
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      await updateCardSRS(currentCard.id, newDifficulty, newReviewDueAt);
+      await apiRequest(`/kartu/${currentCard.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          newDifficulty: newDifficulty,
+          newReviewDueAt: newReviewDueAt.toISOString()
+        }),
+      });
 
       // Show quality feedback briefly
       Alert.alert(
@@ -291,7 +245,7 @@ const ReviewScreen = () => {
               Buat koleksi dan kartu terlebih dahulu untuk mulai belajar
             </Text>
 
-            <Link href="/create" asChild>
+            <Link href="/(tabs)/create" asChild>
               <TouchableOpacity style={styles.createButton}>
                 <Text style={styles.createButtonText}>Buat Koleksi Baru</Text>
               </TouchableOpacity>
@@ -340,7 +294,7 @@ const ReviewScreen = () => {
             Koleksi ini belum memiliki kartu. Tambahkan kartu terlebih dahulu.
           </Text>
 
-          <Link href="/create" asChild>
+          <Link href="/(tabs)/create" asChild>
             <TouchableOpacity style={styles.createButton}>
               <Text style={styles.createButtonText}>Tambah Kartu</Text>
             </TouchableOpacity>
@@ -398,7 +352,6 @@ const ReviewScreen = () => {
           <Button
             title="Sulit"
             onPress={() => handleAnswer('hard')}
-            variant="srs_hard"
             style={styles.srsButton}
             disabled={isUpdating}
           />
@@ -412,7 +365,6 @@ const ReviewScreen = () => {
           <Button
             title="Mudah"
             onPress={() => handleAnswer('easy')}
-            variant="srs_easy"
             style={styles.srsButton}
             disabled={isUpdating}
           />

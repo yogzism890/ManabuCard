@@ -24,7 +24,7 @@ const LandingScreen = () => {
           Platform pembelajaran cerdas dengan kartu pintar untuk meningkatkan daya ingat Anda
         </Text>
         <TouchableOpacity style={styles.heroButton}>
-          <Link href="/review" asChild>
+          <Link href="/(tabs)/review" asChild>
             <Text style={styles.heroButtonText}>Mulai Belajar →</Text>
           </Link>
         </TouchableOpacity>
@@ -115,13 +115,13 @@ const LandingScreen = () => {
 
         <View style={styles.ctaButtons}>
           <TouchableOpacity style={styles.primaryButton}>
-            <Link href="/review" asChild>
+            <Link href="/(tabs)/create" asChild>
               <Text style={styles.primaryButtonText}>Buat Konten Baru</Text>
             </Link>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.secondaryButton}>
-            <Link href="/review" asChild>
+            <Link href="/(tabs)/review" asChild>
               <Text style={styles.secondaryButtonText}>Mulai Belajar</Text>
             </Link>
           </TouchableOpacity>

@@ -6,63 +6,37 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
-    Alert, // Diperlukan untuk notifikasi
-    ActivityIndicator, // Diperlukan untuk loading state
-    TouchableOpacity, // Diperlukan untuk tombol yang dapat disentuh
+    Alert,
+    ActivityIndicator,
+    TouchableOpacity,
     Modal,
     FlatList
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useAuth } from '../../contexts/AuthContext';
-import { API_BASE_URL } from '../../constants/apiConfig';
 
-// Import komponen UI yang sudah Anda buat
+
+// Import komponen UI
 import Button from '../../components/ui/Button'; 
 import Input from '../../components/ui/Input';
 
 // --- Tipe Data ---
 interface Koleksi {
-  id: string;
-  nama: string;
+    id: string;
+    name: string;
+    cardCount: number;
+    dueToday: number;
 }
 
-// ----------------------------------------------------
-// FUNGSI API (UPDATED TO USE apiRequest)
-// ----------------------------------------------------
-
-async function fetchUserCollections(apiRequest: (url: string, options?: RequestInit) => Promise<any>): Promise<Koleksi[]> {
-    const data = await apiRequest('/koleksi');
-    return data.map((item: any) => ({ id: item.id, nama: item.name }));
+interface ApiKoleksi {
+    id: string;
+    name: string;
+    cardCount: number;
+    dueToday: number;
 }
-
-async function postNewCollection(apiRequest: (url: string, options?: RequestInit) => Promise<any>, nama: string): Promise<Koleksi> {
-    const response = await apiRequest('/koleksi', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            nama: nama,
-            // Deskripsi tidak dikirim karena tidak ada di skema Prisma yang Anda berikan
-        }),
-    });
-    return response;
-}
-
-async function postNewCard(apiRequest: (url: string, options?: RequestInit) => Promise<any>, koleksiId: string, front: string, back: string): Promise<void> {
-    await apiRequest('/kartu', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ koleksiId, front, back }),
-    });
-}
-
-
 
 const CreateScreen = () => {
-    const { apiRequest } = useAuth();
+    const { apiRequest, isAuthenticated } = useAuth();
 
     // State Data
     const [collections, setCollections] = useState<Koleksi[]>([]);
@@ -83,45 +57,85 @@ const CreateScreen = () => {
 
     // Fungsi untuk memuat koleksi
     const loadCollections = useCallback(async () => {
+        if (!isAuthenticated) return;
+        
         setIsCollectionsLoading(true);
         try {
-            const data = await fetchUserCollections(apiRequest);
-            setCollections(data);
-            if (data.length > 0 && !selectedCollectionId) {
-                // Set default selection ke koleksi pertama jika belum ada yang terpilih
-                setSelectedCollectionId(data[0].id);
+            console.log('Loading collections...');
+            const data = await apiRequest('/koleksi');
+            console.log('Collections data:', data);
+            
+            if (Array.isArray(data)) {
+                const formattedData = data.map((item: any) => ({
+                    id: item.id,
+                    name: item.name || item.nama,
+                    cardCount: item.cardCount || 0,
+                    dueToday: item.dueToday || 0
+                }));
+                
+                setCollections(formattedData);
+                
+                if (formattedData.length > 0 && !selectedCollectionId) {
+                    setSelectedCollectionId(formattedData[0].id);
+                }
+            } else {
+                console.error('Expected array but got:', typeof data);
+                setCollections([]);
             }
         } catch (e) {
-            console.error(e);
+            console.error('Error loading collections:', e);
             Alert.alert("Error", e instanceof Error ? e.message : "Gagal memuat koleksi.");
         } finally {
             setIsCollectionsLoading(false);
         }
-    }, [selectedCollectionId, apiRequest]);
+    }, [selectedCollectionId, apiRequest, isAuthenticated]);
 
     // Muat saat komponen pertama kali dirender
     useEffect(() => {
-        loadCollections();
-    }, [loadCollections]);
-
+        if (isAuthenticated) {
+            loadCollections();
+        }
+    }, [loadCollections, isAuthenticated]);
 
     // --- HANDLER INTEGRASI API ---
 
     const handleCreateCollection = async () => {
+        if (!isAuthenticated) {
+            Alert.alert("Error", "Anda belum login. Silakan login terlebih dahulu.");
+            return;
+        }
+
         if (newCollectionName.trim() === '') {
             Alert.alert("Perhatian", "Nama Koleksi wajib diisi!");
             return;
         }
+        
         setIsPosting(true);
         try {
-            await postNewCollection(newCollectionName); // Deskripsi diabaikan (karena tidak ada di skema Anda)
+            console.log('Creating collection:', { nama: newCollectionName, deskripsi: collectionDesc });
+            
+            const response = await apiRequest('/koleksi', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nama: newCollectionName,
+                    deskripsi: collectionDesc,
+                }),
+            });
+            
+            console.log('Collection created successfully:', response);
+            
             Alert.alert("Sukses!", `Koleksi "${newCollectionName}" berhasil dibuat.`);
             
-            // Refresh daftar koleksi dan reset form
+            // Reset form dan refresh daftar
             setNewCollectionName('');
             setCollectionDesc('');
-            await loadCollections(); // Muat ulang daftar koleksi
+            await loadCollections();
+            
         } catch (e) {
+            console.error('Error creating collection:', e);
             Alert.alert("Error", e instanceof Error ? e.message : "Gagal membuat koleksi.");
         } finally {
             setIsPosting(false);
@@ -129,31 +143,58 @@ const CreateScreen = () => {
     };
 
     const handleCreateCard = async () => {
+        if (!isAuthenticated) {
+            Alert.alert("Error", "Anda belum login. Silakan login terlebih dahulu.");
+            return;
+        }
+
         if (!selectedCollectionId) {
             Alert.alert("Perhatian", "Pilih Koleksi target terlebih dahulu.");
             return;
         }
+        
         if (cardFront.trim() === '' || cardBack.trim() === '') {
             Alert.alert("Perhatian", "Sisi depan dan belakang kartu wajib diisi!");
             return;
         }
+        
         setIsPosting(true);
         try {
-            await postNewCard(selectedCollectionId, cardFront, cardBack);
+            console.log('Creating card:', { 
+                koleksiId: selectedCollectionId, 
+                front: cardFront, 
+                back: cardBack 
+            });
+            
+            const response = await apiRequest('/kartu', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    koleksiId: selectedCollectionId, 
+                    front: cardFront, 
+                    back: cardBack 
+                }),
+            });
+            
+            console.log('Card created successfully:', response);
             Alert.alert("Sukses!", "Kartu baru berhasil ditambahkan.");
 
             // Reset form kartu
             setCardFront('');
             setCardBack('');
+            
         } catch (e) {
+            console.error('Error creating card:', e);
             Alert.alert("Error", e instanceof Error ? e.message : "Gagal membuat kartu.");
         } finally {
             setIsPosting(false);
         }
     };
     
-    // Temukan nama koleksi yang dipilih untuk ditampilkan (jika ada)
-    const selectedCollectionName = collections.find(c => c.id === selectedCollectionId)?.nama;
+    // Temukan nama koleksi yang dipilih untuk ditampilkan
+    const selectedCollectionName = collections.find(c => c.id === selectedCollectionId)?.name;
 
     // --- TAMPILAN ---
     return (
@@ -172,6 +213,13 @@ const CreateScreen = () => {
                     <Text style={styles.headerSubtitle}>
                         Mulai dengan membuat koleksi kartu pintar Anda
                     </Text>
+                    {!isAuthenticated && (
+                        <View style={styles.warningBox}>
+                            <Text style={styles.warningText}>
+                                ⚠️ Anda belum login. Silakan login terlebih dahulu untuk menggunakan fitur ini.
+                            </Text>
+                        </View>
+                    )}
                 </View>
 
                 {/* --- Bagian 1: Buat Koleksi Baru --- */}
@@ -190,6 +238,7 @@ const CreateScreen = () => {
                             placeholder="Contoh: Vocabulary Harian"
                             value={newCollectionName}
                             onChangeText={setNewCollectionName}
+                            editable={!isPosting && isAuthenticated}
                         />
                         <Input
                             label="Deskripsi (Opsional)"
@@ -197,12 +246,14 @@ const CreateScreen = () => {
                             value={collectionDesc}
                             onChangeText={setCollectionDesc}
                             multiline
+                            editable={!isPosting && isAuthenticated}
                         />
                         <Button
                             title="Buat Koleksi"
                             onPress={handleCreateCollection}
                             style={styles.primaryButton}
                             isLoading={isPosting}
+                            disabled={!isAuthenticated || isPosting}
                         />
                     </View>
                 </View>
@@ -219,9 +270,17 @@ const CreateScreen = () => {
                         Tambahkan kartu belajar baru ke dalam koleksi Anda
                     </Text>
 
-                    {/* Implementasi Pilihan Koleksi (Masih sederhana) */}
+                    {/* Implementasi Pilihan Koleksi */}
                     <Text style={styles.label}>Pilih Koleksi Target:</Text>
-                    {isCollectionsLoading ? (
+                    {!isAuthenticated ? (
+                        <View style={styles.emptyState}>
+                            <Text style={styles.emptyIcon}>🔒</Text>
+                            <Text style={styles.emptyText}>Login Diperlukan</Text>
+                            <Text style={styles.emptySubtext}>
+                                Anda harus login untuk melihat dan memilih koleksi
+                            </Text>
+                        </View>
+                    ) : isCollectionsLoading ? (
                         <View style={styles.loadingContainer}>
                             <ActivityIndicator size="small" color="#3498db" />
                             <Text style={styles.loadingText}>Memuat koleksi...</Text>
@@ -240,12 +299,13 @@ const CreateScreen = () => {
                                 selectedValue={selectedCollectionId}
                                 onValueChange={(itemValue: string) => setSelectedCollectionId(itemValue)}
                                 style={{ color: '#3498db', fontWeight: 'bold' }}
+                                enabled={isAuthenticated && !isPosting}
                             >
                                 <Picker.Item label="PILIH KOLEKSI..." value="" />
                                 {collections.map((collection) => (
                                     <Picker.Item
                                         key={collection.id}
-                                        label={collection.nama}
+                                        label={`${collection.name} (${collection.cardCount} kartu)`}
                                         value={collection.id}
                                     />
                                 ))}
@@ -259,7 +319,7 @@ const CreateScreen = () => {
                             placeholder="Contoh: To hesitate"
                             value={cardFront}
                             onChangeText={setCardFront}
-                            editable={!isPosting}
+                            editable={!isPosting && isAuthenticated}
                         />
                         <Input
                             label="Sisi Belakang (Back)"
@@ -268,7 +328,7 @@ const CreateScreen = () => {
                             onChangeText={setCardBack}
                             multiline
                             numberOfLines={4}
-                            editable={!isPosting}
+                            editable={!isPosting && isAuthenticated}
                         />
 
                         <Button
@@ -276,7 +336,7 @@ const CreateScreen = () => {
                             onPress={handleCreateCard}
                             variant="secondary"
                             isLoading={isPosting}
-                            disabled={collections.length === 0 || isPosting}
+                            disabled={collections.length === 0 || !isAuthenticated || isPosting}
                             style={styles.secondaryButton}
                         />
                     </View>
@@ -304,7 +364,7 @@ const CreateScreen = () => {
                                         setIsModalVisible(false);
                                     }}
                                 >
-                                    <Text style={styles.modalItemText}>{item.nama}</Text>
+                                    <Text style={styles.modalItemText}>{item.name}</Text>
                                 </TouchableOpacity>
                             )}
                         />
@@ -320,7 +380,6 @@ const CreateScreen = () => {
     );
 };
 
-// ... (Stylesheets tetap sama) ...
 const styles = StyleSheet.create({
     container: {
         padding: 20,
@@ -361,6 +420,19 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         lineHeight: 24,
         paddingHorizontal: 20,
+    },
+    warningBox: {
+        marginTop: 15,
+        padding: 12,
+        backgroundColor: '#fff3cd',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#ffeaa7',
+    },
+    warningText: {
+        fontSize: 14,
+        color: '#856404',
+        textAlign: 'center',
     },
     sectionHeader: {
         flexDirection: 'row',
@@ -435,20 +507,11 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
-    header: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#2c3e50',
-        marginBottom: 15,
-    },
     separator: {
         height: 1,
         backgroundColor: '#ecf0f1',
         marginVertical: 10,
         marginHorizontal: -20,
-    },
-    buttonSpacing: {
-        marginTop: 10,
     },
     label: {
         fontSize: 14,
