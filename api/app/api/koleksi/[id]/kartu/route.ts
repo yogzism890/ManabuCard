@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getUserFromAuthHeader } from "@/lib/auth";
+import { getUserOrDefault } from "@/lib/simple-auth";
 import { headers } from "next/headers";
 
 /**
@@ -11,12 +11,7 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     const authHeader = (await headers()).get('authorization');
-    const user = getUserFromAuthHeader(authHeader);
-
-    if (!user) {
-        return NextResponse.json({ error: "UNAUTHORIZED: User not authenticated." }, { status: 401 });
-    }
-
+    const user = getUserOrDefault(authHeader);
     const userId = user.userId;
     const { id: koleksiId } = await params;
 
@@ -26,17 +21,12 @@ export async function GET(
 
     try {
         // Cek Keamanan: Pastikan Koleksi milik User yang login
-        const existingKoleksi = await prisma.koleksi.findFirst({
-            where: { 
-                id: koleksiId, 
-                userId: userId 
-            },
+        const koleksi = await prisma.koleksi.findFirst({
+            where: { id: koleksiId, userId: userId },
         });
 
-        if (!existingKoleksi) {
-            return NextResponse.json({ 
-                error: "FORBIDDEN: Koleksi tidak ditemukan atau bukan milik user ini." 
-            }, { status: 403 });
+        if (!koleksi) {
+            return NextResponse.json({ error: "FORBIDDEN: Koleksi tidak ditemukan atau bukan milik user ini." }, { status: 403 });
         }
 
         // Query Prisma: Ambil SEMUA Kartu dalam koleksi yang milik pengguna
@@ -52,6 +42,7 @@ export async function GET(
                 difficulty: true,
                 reviewDueAt: true,
                 koleksiId: true,
+                createdAt: true,
             },
             orderBy: {
                 createdAt: 'asc', // Urutkan berdasarkan waktu pembuatan

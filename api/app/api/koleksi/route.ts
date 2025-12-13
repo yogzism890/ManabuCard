@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getUserFromAuthHeader } from "@/lib/auth";
+import { getUserOrDefault } from "@/lib/simple-auth";
 import { headers } from "next/headers";
 
 /**
@@ -8,12 +8,7 @@ import { headers } from "next/headers";
  */
 export async function GET(req: Request) {
     const authHeader = (await headers()).get('authorization');
-    const user = getUserFromAuthHeader(authHeader);
-
-    if (!user) {
-        return NextResponse.json({ error: "UNAUTHORIZED: User not authenticated." }, { status: 401 });
-    }
-
+    const user = getUserOrDefault(authHeader);
     const userId = user.userId;
 
     try {
@@ -24,7 +19,7 @@ export async function GET(req: Request) {
                 nama: true,
                 createdAt: true,
                 _count: {
-                    select: { kartu: true } // Hitung jumlah kartu
+                    select: { kartu: true }
                 }
             },
             orderBy: {
@@ -32,13 +27,35 @@ export async function GET(req: Request) {
             }
         });
 
-        // Format data dengan proper typing
-        const formattedKoleksi = koleksiList.map((k) => ({
-            id: k.id,
-            name: k.nama,
-            cardCount: k._count.kartu,
-            dueToday: 0, // Implementasi dueToday memerlukan query tambahan. Diberi 0 sementara.
-        }));
+
+        // Format data: Hitung dueToday cards
+        const formattedKoleksi = await Promise.all(
+            koleksiList.map(async (k) => {
+                // Hitung kartu yang due today
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+
+                const dueTodayCount = await prisma.kartu.count({
+                    where: {
+                        koleksiId: k.id,
+                        isDeleted: false,
+                        reviewDueAt: {
+                            gte: today,
+                            lt: tomorrow
+                        }
+                    }
+                });
+
+                return {
+                    id: k.id,
+                    name: k.nama,
+                    cardCount: k._count.kartu,
+                    dueToday: dueTodayCount,
+                };
+            })
+        );
         
         return NextResponse.json(formattedKoleksi, { status: 200 });
 
@@ -53,17 +70,12 @@ export async function GET(req: Request) {
  */
 export async function POST(req: Request) {
     const authHeader = (await headers()).get('authorization');
-    const user = getUserFromAuthHeader(authHeader);
-
-    if (!user) {
-        return NextResponse.json({ error: "UNAUTHORIZED: User not authenticated." }, { status: 401 });
-    }
-
+    const user = getUserOrDefault(authHeader);
     const userId = user.userId;
     
     try {
         const body = await req.json();
-        const { nama } = body;
+        const { nama, deskripsi } = body;
 
         if (!nama) {
             return NextResponse.json(
@@ -73,7 +85,7 @@ export async function POST(req: Request) {
         }
 
         const newKoleksi = await prisma.koleksi.create({
-            data: { nama, userId },
+            data: { nama, deskripsi, userId },
         });
 
         return NextResponse.json(newKoleksi, { status: 201 });

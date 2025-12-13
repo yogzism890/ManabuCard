@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getUserFromAuthHeader } from "@/lib/auth";
+import { getUserOrDefault } from "@/lib/simple-auth";
 import { headers } from "next/headers";
 
 /**
@@ -8,12 +8,7 @@ import { headers } from "next/headers";
  */
 export async function POST(req: Request) {
     const authHeader = (await headers()).get('authorization');
-    const user = getUserFromAuthHeader(authHeader);
-
-    if (!user) {
-        return NextResponse.json({ error: "UNAUTHORIZED: User not authenticated." }, { status: 401 });
-    }
-
+    const user = getUserOrDefault(authHeader);
     const userId = user.userId;
 
     try {
@@ -63,20 +58,12 @@ export async function POST(req: Request) {
  */
 export async function GET(req: Request) {
     const authHeader = (await headers()).get('authorization');
-    const user = getUserFromAuthHeader(authHeader);
-
-    if (!user) {
-        return NextResponse.json({ error: "UNAUTHORIZED: User not authenticated." }, { status: 401 });
-    }
-
+    const user = getUserOrDefault(authHeader);
     const userId = user.userId;
 
     try {
         const url = new URL(req.url);
         const koleksiId = url.searchParams.get('koleksiId');
-
-
-
 
         interface WhereClause {
             koleksi: { userId: string };
