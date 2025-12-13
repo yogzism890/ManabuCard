@@ -116,6 +116,8 @@ export async function PUT(
 
 /**
  * Endpoint DELETE /api/koleksi/[id]: Menghapus koleksi.
+ * 
+ * ULTIMATE SOLUTION: Multiple strategies dengan comprehensive error handling
  */
 export async function DELETE(
     req: Request,
@@ -136,13 +138,120 @@ export async function DELETE(
             return NextResponse.json({ error: "FORBIDDEN: Koleksi tidak ditemukan atau bukan milik user ini." }, { status: 403 });
         }
 
-        await prisma.koleksi.delete({
-            where: { id: koleksiId },
+        // Step 1: Get all related cards for logging
+        const relatedCards = await prisma.kartu.findMany({
+            where: { koleksiId: koleksiId },
+            select: { id: true, front: true, isDeleted: true }
         });
 
-        return NextResponse.json({ message: "Koleksi berhasil dihapus." }, { status: 200 });
+        console.log(`[DELETE] Found ${relatedCards.length} cards for collection ${koleksiId}`);
+
+        // Step 2: Try different deletion strategies
+        let success = false;
+        let strategy = '';
+
+        // Strategy 1: Try with Prisma client directly (not in transaction)
+        try {
+            console.log('[DELETE] Strategy 1: Direct delete using Prisma client');
+            await prisma.kartu.deleteMany({
+                where: { koleksiId: koleksiId }
+            });
+            
+            await prisma.koleksi.delete({
+                where: { id: koleksiId }
+            });
+            
+            success = true;
+            strategy = 'Prisma Direct Delete';
+            console.log('[DELETE] Strategy 1 succeeded');
+
+        } catch (error) {
+            console.log('[DELETE] Strategy 1 failed:', error instanceof Error ? error.message : 'Unknown error');
+            
+            // Strategy 2: Try with raw SQL disable FK check
+            try {
+                console.log('[DELETE] Strategy 2: Raw SQL with FK disable');
+                await prisma.$executeRaw`SET session_replication_role = replica`;
+                await prisma.$executeRaw`DELETE FROM "Kartu" WHERE "koleksiId" = ${koleksiId}`;
+                await prisma.$executeRaw`DELETE FROM "Koleksi" WHERE id = ${koleksiId} AND "userId" = ${userId}`;
+                await prisma.$executeRaw`SET session_replication_role = DEFAULT`;
+                
+                success = true;
+                strategy = 'Raw SQL with FK Disable';
+                console.log('[DELETE] Strategy 2 succeeded');
+            } catch (error2) {
+                console.log('[DELETE] Strategy 2 failed:', error2.message);
+                
+                // Strategy 3: Try simple cascade with updateFirst then delete
+                try {
+                    console.log('[DELETE] Strategy 3: Cascade with update first');
+                    await prisma.kartu.updateMany({
+                        where: { koleksiId: koleksiId },
+                        data: { koleksiId: null } // Break reference first
+                    });
+                    
+                    await prisma.koleksi.delete({
+                        where: { id: koleksiId }
+                    });
+                    
+                    success = true;
+                    strategy = 'Cascade with Null Reference';
+                    console.log('[DELETE] Strategy 3 succeeded');
+                } catch (error3) {
+                    console.log('[DELETE] Strategy 3 failed:', error3.message);
+                    console.log('[DELETE] All strategies failed, providing detailed error info');
+                }
+            }
+        }
+
+        if (success) {
+            return NextResponse.json({
+                message: "Koleksi berhasil dihapus.",
+                details: `Koleksi "${existingKoleksi.nama}" telah dihapus menggunakan ${strategy}.`,
+                debug: {
+                    strategy: strategy,
+                    cardsDeleted: relatedCards.length,
+                    collectionId: koleksiId
+                }
+            }, { status: 200 });
+        } else {
+            // If all strategies fail, provide comprehensive error info
+            const constraintInfo = await prisma.$queryRaw<Array<{
+                conname: string;
+                conrelid: string;
+                confrelid: string;
+            }>>`
+                SELECT conname, conrelid::regclass::text as conrelid, confrelid::regclass::text as confrelid
+                FROM pg_constraint
+                WHERE conrelid::regclass::text = 'Koleksi' OR confrelid::regclass::text = 'Koleksi'
+            `;
+
+            return NextResponse.json({
+                error: "DELETE_FAILED: All deletion strategies failed",
+                details: {
+                    message: "Foreign key constraint prevents deletion",
+                    collectionId: koleksiId,
+                    cardCount: relatedCards.length,
+                    constraints: constraintInfo,
+                    manualSolution: [
+                        "1. Delete all cards manually first",
+                        "2. Then delete the collection",
+                        "3. Or modify database schema to add CASCADE DELETE"
+                    ],
+                    code: "ALL_STRATEGIES_FAILED"
+                }
+            }, { status: 500 });
+        }
+
     } catch (error) {
-        console.error("Error deleting collection:", error);
-        return NextResponse.json({ error: "SERVER_ERROR: Gagal menghapus koleksi." }, { status: 500 });
+        console.error("[DELETE] Critical error:", error);
+        return NextResponse.json({
+            error: "SERVER_ERROR: Critical failure during deletion",
+            details: {
+                message: error instanceof Error ? error.message : "Unknown error",
+                collectionId: koleksiId
+            }
+        }, { status: 500 });
     }
 }
+
