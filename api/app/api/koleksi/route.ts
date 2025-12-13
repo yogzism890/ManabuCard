@@ -3,13 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { getUserFromAuthHeader } from "@/lib/auth";
 import { headers } from "next/headers";
 
-
-
 /**
  * Endpoint GET /api/koleksi: Mengambil daftar koleksi pengguna beserta jumlah kartu.
  */
 export async function GET(req: Request) {
-    const authHeader = headers().get('authorization');
+    const authHeader = (await headers()).get('authorization');
     const user = getUserFromAuthHeader(authHeader);
 
     if (!user) {
@@ -34,9 +32,8 @@ export async function GET(req: Request) {
             }
         });
 
-        // Format data: Backend belum bisa menghitung 'dueToday' dengan efisien di Prisma findMany.
-        // Frontend harus menghitung ini di tempat lain, atau kita kembalikan 0.
-        const formattedKoleksi = koleksiList.map((k: any) => ({
+        // Format data dengan proper typing
+        const formattedKoleksi = koleksiList.map((k) => ({
             id: k.id,
             name: k.nama,
             cardCount: k._count.kartu,
@@ -55,7 +52,7 @@ export async function GET(req: Request) {
  * Endpoint POST /api/koleksi: Membuat koleksi baru.
  */
 export async function POST(req: Request) {
-    const authHeader = headers().get('authorization');
+    const authHeader = (await headers()).get('authorization');
     const user = getUserFromAuthHeader(authHeader);
 
     if (!user) {

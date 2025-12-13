@@ -7,7 +7,7 @@ import { headers } from "next/headers";
  * Endpoint POST /api/kartu: Menambahkan kartu baru ke koleksi tertentu.
  */
 export async function POST(req: Request) {
-    const authHeader = headers().get('authorization');
+    const authHeader = (await headers()).get('authorization');
     const user = getUserFromAuthHeader(authHeader);
 
     if (!user) {
@@ -27,17 +27,17 @@ export async function POST(req: Request) {
             );
         }
 
-        // Cek Keamanan: Pastikan Koleksi milik User yang login (di-comment untuk development)
-        // const koleksi = await prisma.koleksi.findUnique({
-        //     where: { id: koleksiId, userId: userId },
-        // });
+        // Cek Keamanan: Pastikan Koleksi milik User yang login
+        const koleksi = await prisma.koleksi.findUnique({
+            where: { id: koleksiId, userId: userId },
+        });
 
-        // if (!koleksi) {
-        //     return NextResponse.json(
-        //         { error: "FORBIDDEN: Koleksi tidak ditemukan atau bukan milik user ini." },
-        //         { status: 403 }
-        //     );
-        // }
+        if (!koleksi) {
+            return NextResponse.json(
+                { error: "FORBIDDEN: Koleksi tidak ditemukan atau bukan milik user ini." },
+                { status: 403 }
+            );
+        }
 
         // Buat Kartu Baru: Inisialisasi SRS (reviewDueAt = sekarang, difficulty = 0)
         const newKartu = await prisma.kartu.create({
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
  * Endpoint GET /api/kartu: Mengambil semua kartu pengguna (opsional, dengan filter koleksi).
  */
 export async function GET(req: Request) {
-    const authHeader = headers().get('authorization');
+    const authHeader = (await headers()).get('authorization');
     const user = getUserFromAuthHeader(authHeader);
 
     if (!user) {
@@ -75,10 +75,19 @@ export async function GET(req: Request) {
         const url = new URL(req.url);
         const koleksiId = url.searchParams.get('koleksiId');
 
-        const whereClause = {
+
+
+
+        interface WhereClause {
+            koleksi: { userId: string };
+            isDeleted: boolean;
+            koleksiId?: string;
+        }
+
+        const whereClause: WhereClause = {
             koleksi: { userId: userId },
             isDeleted: false,
-        } as any;
+        };
 
         if (koleksiId) {
             whereClause.koleksiId = koleksiId;

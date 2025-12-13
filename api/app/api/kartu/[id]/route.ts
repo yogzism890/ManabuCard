@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-
-const MOCK_USER_ID = '550e8400-e29b-41d4-a716-446655440000';
-const getAuthenticatedUserId = () => MOCK_USER_ID; 
+import { getUserFromAuthHeader } from "@/lib/auth";
+import { headers } from "next/headers";
 
 /**
  * Endpoint PATCH /api/kartu/[id]: Memperbarui status SRS kartu.
@@ -11,12 +10,15 @@ export async function PATCH(
     req: Request,
     { params }: { params: Promise<{ id: string }> } // ID Kartu
 ) {
-    const { id: kartuId } = await params;
-    const userId = getAuthenticatedUserId();
+    const authHeader = (await headers()).get('authorization');
+    const user = getUserFromAuthHeader(authHeader);
 
-    if (!userId) {
-        return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
+    if (!user) {
+        return NextResponse.json({ error: "UNAUTHORIZED: User not authenticated." }, { status: 401 });
     }
+
+    const userId = user.userId;
+    const { id: kartuId } = await params;
 
     if (!kartuId) {
         return NextResponse.json({ error: "Bad Request: Card ID is required." }, { status: 400 });
@@ -74,12 +76,15 @@ export async function DELETE(
     req: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const { id: kartuId } = await params;
-    const userId = getAuthenticatedUserId();
+    const authHeader = (await headers()).get('authorization');
+    const user = getUserFromAuthHeader(authHeader);
 
-    if (!userId) {
-        return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
+    if (!user) {
+        return NextResponse.json({ error: "UNAUTHORIZED: User not authenticated." }, { status: 401 });
     }
+
+    const userId = user.userId;
+    const { id: kartuId } = await params;
 
     try {
         // Cek kepemilikan

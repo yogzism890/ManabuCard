@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-
-const MOCK_USER_ID = '550e8400-e29b-41d4-a716-446655440000';
-const getAuthenticatedUserId = () => MOCK_USER_ID;
+import { getUserFromAuthHeader } from "@/lib/auth";
+import { headers } from "next/headers";
 
 /**
  * Endpoint GET /api/koleksi/[id]/kartu: Mengambil semua kartu dalam koleksi.
@@ -11,26 +10,39 @@ export async function GET(
     req: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const { id: koleksiId } = await params;
-    const userId = getAuthenticatedUserId();
+    const authHeader = (await headers()).get('authorization');
+    const user = getUserFromAuthHeader(authHeader);
 
-    if (!userId) {
+    if (!user) {
         return NextResponse.json({ error: "UNAUTHORIZED: User not authenticated." }, { status: 401 });
     }
+
+    const userId = user.userId;
+    const { id: koleksiId } = await params;
 
     if (!koleksiId) {
         return NextResponse.json({ error: "Bad Request: Koleksi ID is required." }, { status: 400 });
     }
 
     try {
+        // Cek Keamanan: Pastikan Koleksi milik User yang login
+        const existingKoleksi = await prisma.koleksi.findFirst({
+            where: { 
+                id: koleksiId, 
+                userId: userId 
+            },
+        });
+
+        if (!existingKoleksi) {
+            return NextResponse.json({ 
+                error: "FORBIDDEN: Koleksi tidak ditemukan atau bukan milik user ini." 
+            }, { status: 403 });
+        }
+
         // Query Prisma: Ambil SEMUA Kartu dalam koleksi yang milik pengguna
-        // Cek Keamanan: Pastikan Koleksi milik User yang login (di-comment untuk development)
         const kartuList = await prisma.kartu.findMany({
             where: {
                 koleksiId: koleksiId,
-                // koleksi: {
-                //     userId: userId, // Kriteria Keamanan
-                // },
                 isDeleted: false, // Hanya kartu yang belum dihapus
             },
             select: {

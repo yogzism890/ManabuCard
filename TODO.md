@@ -1,24 +1,62 @@
-# TODO: Fix CRUD Operations and Display
 
-## Completed Tasks
-- [x] Add PUT and DELETE routes for koleksi (api/app/api/koleksi/[id]/route.ts)
-- [x] Add GET route for all kartu with filtering (api/app/api/kartu/route.ts)
-- [x] Add DELETE route for kartu (api/app/api/kartu/[id]/route.ts)
-- [x] Add login route (api/app/api/login/route.ts)
-- [x] Install required dependencies (bcryptjs, jsonwebtoken)
-- [x] Update index.tsx to fetch collections and stats from API
-- [x] Update study/[id].tsx to fetch due cards from API
-- [x] Create FlipCard component (manabucard/components/FlipCard.tsx)
-- [x] Implement profile.tsx with user stats and logout
+# TODO: Perbaikan Route Kartu dan Koleksi
 
-## Remaining Tasks
-- [ ] Test the API routes with real data
-- [ ] Run the mobile app and verify CRUD operations work
-- [ ] Implement proper authentication (replace MOCK_AUTH_TOKEN with real JWT)
-- [ ] Add error handling for network failures in frontend
-- [ ] Optimize API calls (e.g., batch fetching stats)
+## Masalah yang Ditemukan:
+1. **Inconsistency Autentikasi**: Beberapa file menggunakan `getUserFromAuthHeader`, lainnya menggunakan hardcoded `MOCK_USER_ID`
+2. **Missing GET endpoint**: Tidak ada GET endpoint untuk `/api/koleksi/[id]`
+3. **Security Issues**: Security check untuk kepemilikan data dinonaktifkan (commented out)
+4. **Response Format**: Format response tidak konsisten antar endpoint
+5. **Performance**: Query `dueToday` belum dioptimasi
+6. **Type Safety**: Missing TypeScript types untuk request/response
 
-## Notes
-- Authentication is currently mocked with MOCK_USER_ID and MOCK_AUTH_TOKEN
-- API base URL is hardcoded to http://192.168.100.9:3000/api
-- Frontend assumes API responses match expected structure
+## Plan Perbaikan:
+
+### 1. Standardisasi Autentikasi
+- [x] Update `api/app/api/kartu/[id]/route.ts` - ganti MOCK_USER_ID dengan `getUserFromAuthHeader`
+- [x] Update `api/app/api/koleksi/[id]/route.ts` - ganti MOCK_USER_ID dengan `getUserFromAuthHeader`
+- [x] Update `api/app/api/koleksi/[id]/kartu/route.ts` - ganti MOCK_USER_ID dengan `getUserFromAuthHeader`
+- [x] Fix `headers()` async/await issues
+
+### 2. Tambahkan GET endpoint untuk Koleksi/[id]
+- [x] Tambah GET method di `api/app/api/koleksi/[id]/route.ts`
+- [x] Include kartu count dan detail koleksi
+- [x] Implementasi proper dueToday calculation
+
+### 3. Enable Security Checks
+- [x] Enable security check di `api/app/api/kartu/route.ts`
+- [x] Enable security check di `api/app/api/koleksi/[id]/kartu/route.ts`
+- [x] Pastikan semua endpoint memeriksa kepemilikan user
+
+### 4. Standardisasi Response Format
+- [x] Update semua endpoint untuk menggunakan format yang konsisten
+- [x] Error handling yang lebih baik
+- [x] Proper TypeScript types
+
+### 5. Optimasi Performance
+- [x] Implementasi proper `dueToday` calculation di GET `/api/koleksi/[id]`
+- [x] Optimasi query dengan eager loading
+- [x] TypeScript type safety improvements
+
+### 6. Testing
+- [ ] Test semua endpoint setelah perbaikan
+- [ ] Pastikan autentikasi berfungsi dengan benar
+- [ ] Validasi security checks
+
+## File yang Telah Dimodifikasi:
+1. `api/app/api/kartu/route.ts` ✅
+2. `api/app/api/kartu/[id]/route.ts` ✅
+3. `api/app/api/koleksi/route.ts` ✅
+4. `api/app/api/koleksi/[id]/route.ts` ✅ (dengan GET endpoint baru)
+5. `api/app/api/koleksi/[id]/kartu/route.ts` ✅
+
+## Dependencies:
+- ✅ JWT_SECRET environment variable
+- ✅ Database PostgreSQL yang berfungsi
+- ✅ User authentication system yang berjalan
+
+## Status: PERBAIKAN UTAMA SELESAI ✅
+- Semua route kartu dan koleksi telah diperbaiki
+- Autentikasi telah distandardisasi
+- Security checks telah diaktifkan
+- Response format telah diseragamkan
+- TypeScript types telah diperbaiki
