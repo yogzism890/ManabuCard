@@ -207,7 +207,7 @@ export default function RegisterScreen() {
                 <Text style={styles.inputIcon}>🔐</Text>
                 <TextInput
                   style={[styles.input, { flex: 1 }]}
-                  placeholder="Konfirmasi Password"
+                  placeholder="Konfirmasi"
                   placeholderTextColor="#aaa"
                   secureTextEntry={!showConfirmPassword}
                   value={confirmPassword}
