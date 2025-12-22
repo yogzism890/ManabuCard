@@ -1,3 +1,3 @@
-const LOCAL_IP_ADDRESS = '192.168.100.89';
+const LOCAL_IP_ADDRESS = '10.243.219.3';
 const PORT = 3000;
 export const API_BASE_URL = `http://${LOCAL_IP_ADDRESS}:${PORT}/api`;

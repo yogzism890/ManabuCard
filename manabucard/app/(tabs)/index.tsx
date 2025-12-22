@@ -10,6 +10,8 @@ import {
 import { Link } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
+import { Image } from 'react-native';
+
 
 const { width, height } = Dimensions.get('window');
 
@@ -44,7 +46,11 @@ const LandingScreen = () => {
         <Animated.View entering={FadeInDown.delay(100).duration(600)} style={styles.heroSection}>
           <View style={styles.heroIconContainer}>
             <View style={styles.heroIcon}>
-              <Text style={styles.heroIconText}>🧠</Text>
+              <Image
+                source={require('../../assets/images/logo.png')}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
             </View>
             <View style={styles.heroIconBorder} />
           </View>
@@ -290,6 +296,12 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
     paddingHorizontal: 20,
   },
+
+  logoImage: {
+  width: 120,
+  height: 120,
+  },
+
 
   heroIconContainer: {
     position: 'relative',
