@@ -3,6 +3,7 @@ import { View, Text, Alert, StyleSheet } from 'react-native';
 import { useAuth } from '../../../contexts/AuthContext';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
+import { router } from 'expo-router';
 
 
 const CreateCollectionScreen = ({ navigation }: any) => {
@@ -39,7 +40,7 @@ const CreateCollectionScreen = ({ navigation }: any) => {
       setDesc('');
 
       // pindah ke halaman buat kartu
-      navigation.navigate('CreateCard');
+      router.push('/create/card')
 
     } catch (e: any) {
       Alert.alert("Error", e.message);
