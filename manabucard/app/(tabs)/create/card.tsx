@@ -13,6 +13,8 @@ const CreateCardScreen = () => {
   const [front, setFront] = useState('');
   const [back, setBack] = useState('');
   const [loading, setLoading] = useState(false);
+  const [hasAddedCard, setHasAddedCard] = useState(false);
+
 
   const { collectionId, collectionName } = useLocalSearchParams();
   useEffect(() => {
