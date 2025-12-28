@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Alert, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useAuth } from '../../../contexts/AuthContext';
+import Button from '../../../components/ui/Button';
+import Input from '../../../components/ui/Input';
 
 const CreateCardScreen = () => {
   const { apiRequest, isAuthenticated } = useAuth();
@@ -47,5 +49,32 @@ const CreateCardScreen = () => {
     }
   };
 
-  return <View></View>;
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>🃏 Buat Kartu Baru</Text>
+
+      <Picker selectedValue={selectedId} onValueChange={setSelectedId}>
+        <Picker.Item label="Pilih Koleksi" value="" />
+        {collections.map(c => (
+          <Picker.Item key={c.id} label={c.name} value={c.id} />
+        ))}
+      </Picker>
+
+      <Input label="Front" value={front} onChangeText={setFront} />
+      <Input label="Back" value={back} onChangeText={setBack} multiline />
+
+      <Button
+        title="Simpan Kartu"
+        onPress={handleCreateCard}
+        isLoading={loading}
+      />
+    </View>
+  );
 };
+
+export default CreateCardScreen;
+
+const styles = StyleSheet.create({
+  container: { padding: 20 },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
+});
