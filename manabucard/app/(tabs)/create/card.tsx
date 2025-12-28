@@ -92,26 +92,21 @@ const CreateCardScreen = () => {
       <Input label="Back" value={back} onChangeText={setBack} multiline />
 
       <View style={styles.buttonGroup}>
-        <Button
-          title="Simpan Kartu"
-          onPress={handleCreateCard}
-          isLoading={loading}
-        />
+  <Button
+    title="Simpan Kartu"
+    onPress={handleCreateCard}
+    isLoading={loading}
+  />
 
-        <Button
-          title="Selesai"
-          onPress={() =>
-            Alert.alert(
-              'Selesai?',
-              'Apakah Anda sudah selesai menambahkan kartu?',
-              [
-                { text: 'Batal', style: 'cancel' },
-                { text: 'Selesai', onPress: handleFinish },
-              ]
-            )
-          }
-        />
-      </View>
+  {hasAddedCard && (
+    <Button
+      title="Selesai"
+      onPress={handleFinish}
+      style={styles.finishButton}
+      textStyle={styles.finishButtonText}
+    />
+  )}
+</View>
 
 
     </View>
