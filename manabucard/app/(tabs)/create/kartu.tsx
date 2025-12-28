@@ -18,6 +18,13 @@ const CreateCardScreen = () => {
     if (isAuthenticated) load();
   }, [isAuthenticated]);
 
+  const handleCreateCard = async () => {
+    if (!selectedId || !front || !back) {
+      Alert.alert("Lengkapi data");
+      return;
+    }
+
+
 
   return <View></View>;
 };
