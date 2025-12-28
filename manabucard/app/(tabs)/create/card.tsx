@@ -83,26 +83,28 @@ const CreateCardScreen = () => {
       <Input label="Front" value={front} onChangeText={setFront} />
       <Input label="Back" value={back} onChangeText={setBack} multiline />
 
-      <Button
-        title="Simpan Kartu"
-        onPress={handleCreateCard}
-        isLoading={loading}
-      />
+      <View style={styles.buttonGroup}>
+        <Button
+          title="Simpan Kartu"
+          onPress={handleCreateCard}
+          isLoading={loading}
+        />
 
-      <Button
-        title="Selesai"
-        variant="secondary"
-        onPress={() =>
-          Alert.alert(
-            'Selesai?',
-            'Apakah Anda sudah selesai menambahkan kartu?',
-            [
-              { text: 'Batal', style: 'cancel' },
-              { text: 'Selesai', onPress: handleFinish },
-            ]
-          )
-        }
-      />
+        <Button
+          title="Selesai"
+          onPress={() =>
+            Alert.alert(
+              'Selesai?',
+              'Apakah Anda sudah selesai menambahkan kartu?',
+              [
+                { text: 'Batal', style: 'cancel' },
+                { text: 'Selesai', onPress: handleFinish },
+              ]
+            )
+          }
+        />
+      </View>
+
 
     </View>
   );
@@ -113,4 +115,10 @@ export default CreateCardScreen;
 const styles = StyleSheet.create({
   container: { padding: 20 },
   title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
+
+  buttonGroup: {
+    marginTop: 20,
+    gap: 14, // jarak antar tombol (RN modern)
+  },
+
 });
