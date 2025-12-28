@@ -26,7 +26,7 @@ const CreateCollectionScreen = ({ navigation }: any) => {
 
     setLoading(true);
     try {
-      await apiRequest('/koleksi', {
+      const newCollection = await apiRequest('/koleksi', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -36,11 +36,17 @@ const CreateCollectionScreen = ({ navigation }: any) => {
       });
 
       Alert.alert("Sukses", "Koleksi berhasil dibuat");
+
       setName('');
       setDesc('');
 
-      // pindah ke halaman buat kartu
-      router.push('/create/card')
+      router.replace({
+        pathname: '/create/card',
+        params: {
+          collectionId: newCollection.id,
+          collectionName: newCollection.nama,
+        },
+      });
 
     } catch (e: any) {
       Alert.alert("Error", e.message);
@@ -48,6 +54,7 @@ const CreateCollectionScreen = ({ navigation }: any) => {
       setLoading(false);
     }
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>📁 Buat Koleksi Baru</Text>
