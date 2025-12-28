@@ -34,31 +34,37 @@ const CreateCardScreen = () => {
   }, [isAuthenticated]);
 
   const handleCreateCard = async () => {
-    if (!selectedId || !front || !back) {
-      Alert.alert("Lengkapi data");
-      return;
-    }
-    setLoading(true);
-    try {
-      await apiRequest('/kartu', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          koleksiId: selectedId,
-          front,
-          back,
-        }),
-      });
+  if (!selectedId || !front || !back) {
+    Alert.alert("Lengkapi data");
+    return;
+  }
 
-      Alert.alert("Sukses", "Kartu berhasil ditambahkan");
-      setFront('');
-      setBack('');
-    } catch (e: any) {
-      Alert.alert("Error", e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  try {
+    await apiRequest('/kartu', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        koleksiId: selectedId,
+        front,
+        back,
+      }),
+    });
+
+    Alert.alert("Sukses", "Kartu berhasil ditambahkan");
+
+    setFront('');
+    setBack('');
+
+    setHasAddedCard(true);
+
+  } catch (e: any) {
+    Alert.alert("Error", e.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleFinish = () => {
     // reset form
