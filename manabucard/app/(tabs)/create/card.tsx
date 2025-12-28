@@ -7,7 +7,6 @@ import Input from '../../../components/ui/Input';
 import { useLocalSearchParams, router } from 'expo-router';
 const CreateCardScreen = () => {
   const { apiRequest, isAuthenticated } = useAuth();
-
   const [collections, setCollections] = useState<any[]>([]);
   const [selectedId, setSelectedId] = useState('');
   const [front, setFront] = useState('');
@@ -121,7 +120,7 @@ const styles = StyleSheet.create({
 
   buttonGroup: {
     marginTop: 20,
-    gap: 14, // jarak antar tombol (RN modern)
+    gap: 14,
   },
 
   finishButton: {
