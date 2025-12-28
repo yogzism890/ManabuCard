@@ -59,6 +59,17 @@ const CreateCardScreen = () => {
     }
   };
 
+  const handleFinish = () => {
+  // reset form
+  setFront('');
+  setBack('');
+  setSelectedId('');
+
+  // balik ke halaman buat koleksi (fresh)
+  router.replace('/create/collection');
+};
+
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>🃏 Buat Kartu Baru</Text>
