@@ -11,3 +11,40 @@ const CreateCollectionScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const handleCreate = async () => {
+    if (!isAuthenticated) {
+      Alert.alert("Error", "Silakan login terlebih dahulu");
+      return;
+    }
+
+    if (!name.trim()) {
+      Alert.alert("Perhatian", "Nama koleksi wajib diisi");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await apiRequest('/koleksi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nama: name,
+          deskripsi: desc,
+        }),
+      });
+
+      Alert.alert("Sukses", "Koleksi berhasil dibuat");
+      setName('');
+      setDesc('');
+
+      // pindah ke halaman buat kartu
+      navigation.navigate('CreateCard');
+
+    } catch (e: any) {
+      Alert.alert("Error", e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
