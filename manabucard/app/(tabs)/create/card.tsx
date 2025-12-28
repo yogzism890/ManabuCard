@@ -59,14 +59,14 @@ const CreateCardScreen = () => {
   };
 
   const handleFinish = () => {
-  // reset form
-  setFront('');
-  setBack('');
-  setSelectedId('');
+    // reset form
+    setFront('');
+    setBack('');
+    setSelectedId('');
 
-  // balik ke halaman buat koleksi (fresh)
-  router.replace('/create/collection');
-};
+    // balik ke halaman buat koleksi (fresh)
+    router.replace('/create/collection');
+  };
 
 
   return (
@@ -88,6 +88,22 @@ const CreateCardScreen = () => {
         onPress={handleCreateCard}
         isLoading={loading}
       />
+
+      <Button
+        title="Selesai"
+        variant="secondary"
+        onPress={() =>
+          Alert.alert(
+            'Selesai?',
+            'Apakah Anda sudah selesai menambahkan kartu?',
+            [
+              { text: 'Batal', style: 'cancel' },
+              { text: 'Selesai', onPress: handleFinish },
+            ]
+          )
+        }
+      />
+
     </View>
   );
 };
