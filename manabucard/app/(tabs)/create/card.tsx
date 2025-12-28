@@ -34,36 +34,36 @@ const CreateCardScreen = () => {
   }, [isAuthenticated]);
 
   const handleCreateCard = async () => {
-  if (!selectedId || !front || !back) {
-    Alert.alert("Lengkapi data");
-    return;
-  }
+    if (!selectedId || !front || !back) {
+      Alert.alert("Lengkapi data");
+      return;
+    }
 
-  setLoading(true);
-  try {
-    await apiRequest('/kartu', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        koleksiId: selectedId,
-        front,
-        back,
-      }),
-    });
+    setLoading(true);
+    try {
+      await apiRequest('/kartu', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          koleksiId: selectedId,
+          front,
+          back,
+        }),
+      });
 
-    Alert.alert("Sukses", "Kartu berhasil ditambahkan");
+      Alert.alert("Sukses", "Kartu berhasil ditambahkan");
 
-    setFront('');
-    setBack('');
+      setFront('');
+      setBack('');
 
-    setHasAddedCard(true);
+      setHasAddedCard(true);
 
-  } catch (e: any) {
-    Alert.alert("Error", e.message);
-  } finally {
-    setLoading(false);
-  }
-};
+    } catch (e: any) {
+      Alert.alert("Error", e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const handleFinish = () => {
@@ -92,21 +92,21 @@ const CreateCardScreen = () => {
       <Input label="Back" value={back} onChangeText={setBack} multiline />
 
       <View style={styles.buttonGroup}>
-  <Button
-    title="Simpan Kartu"
-    onPress={handleCreateCard}
-    isLoading={loading}
-  />
+        <Button
+          title="Simpan Kartu"
+          onPress={handleCreateCard}
+          isLoading={loading}
+        />
 
-  {hasAddedCard && (
-    <Button
-      title="Selesai"
-      onPress={handleFinish}
-      style={styles.finishButton}
-      textStyle={styles.finishButtonText}
-    />
-  )}
-</View>
+        {hasAddedCard && (
+          <Button
+            title="Selesai"
+            onPress={handleFinish}
+            style={styles.finishButton}
+            textStyle={styles.finishButtonText}
+          />
+        )}
+      </View>
 
 
     </View>
@@ -123,5 +123,17 @@ const styles = StyleSheet.create({
     marginTop: 20,
     gap: 14, // jarak antar tombol (RN modern)
   },
+
+  finishButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#3498db',
+  },
+
+  finishButtonText: {
+    color: '#3498db',
+    fontWeight: 'bold',
+  },
+
 
 });
