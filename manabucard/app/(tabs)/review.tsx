@@ -1,5 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
+
 import {
   View,
   Text,
@@ -80,9 +83,11 @@ const ReviewScreen = () => {
   };
 
   // Load collections on component mount
-  useEffect(() => {
+  useFocusEffect(
+  useCallback(() => {
     loadCollections();
-  }, []);
+  }, [])
+);
 
 
   const loadCollections = async () => {
@@ -310,7 +315,7 @@ const ReviewScreen = () => {
             Koleksi ini belum memiliki kartu. Tambahkan kartu terlebih dahulu.
           </Text>
 
-          <Link href="/(tabs)/create" asChild>
+          <Link href="/(tabs)/create/card" asChild>
             <TouchableOpacity style={styles.createButton}>
               <Text style={styles.createButtonText}>Tambah Kartu</Text>
             </TouchableOpacity>
