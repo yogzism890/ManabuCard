@@ -12,6 +12,12 @@ const CreateCollectionScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<{
+    nama: boolean;
+  }>({
+    nama: false,
+  });
+
 
   const handleCreate = async () => {
     if (!isAuthenticated) {
