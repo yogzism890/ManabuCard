@@ -26,7 +26,7 @@ const CreateCollectionScreen = ({ navigation }: any) => {
     }
 
     const errorStatus = {
-    nama: name.trim() === '',
+      nama: name.trim() === '',
     };
 
     setError(errorStatus);
@@ -72,7 +72,12 @@ const CreateCollectionScreen = ({ navigation }: any) => {
       <Input
         label="Nama Koleksi"
         value={name}
-        onChangeText={setName}
+        onChangeText={(text) => {
+          setName(text);
+          if (text.trim() !== '') {
+            setError({ nama: false });
+          }
+        }}
       />
 
       <Input
