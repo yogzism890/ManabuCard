@@ -78,6 +78,7 @@ const CreateCollectionScreen = ({ navigation }: any) => {
             setError({ nama: false });
           }
         }}
+        error={error.nama ? 'Nama koleksi tidak boleh kosong' : ''}
       />
 
       <Input
