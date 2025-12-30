@@ -86,6 +86,7 @@ const CreateCollectionScreen = ({ navigation }: any) => {
         value={desc}
         onChangeText={setDesc}
         multiline
+        placeholder="(Opsional)"
       />
 
       <Button
