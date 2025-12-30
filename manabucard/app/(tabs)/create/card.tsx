@@ -112,9 +112,20 @@ const CreateCardScreen = () => {
             setError(prev => ({ ...prev, front: false }));
           }
         }}
-        error={error.front ? 'Front tidak boleh kosong' : ''} />
-        
-      <Input label="Back" value={back} onChangeText={setBack} multiline />
+        error={error.front ? 'Front tidak boleh kosong' : ''} 
+      />
+
+      <Input
+        label="Back"
+        value={back}
+        onChangeText={(text) => {
+          setBack(text);
+          if (text.trim() !== '') {
+            setError(prev => ({ ...prev, back: false }));
+          }
+        }}
+        error={error.back ? 'Back tidak boleh kosong' : ''} 
+      />
 
       <View style={styles.buttonGroup}>
         <Button
