@@ -101,4 +101,14 @@ export default CreateCollectionScreen;
 const styles = StyleSheet.create({
   container: { padding: 20 },
   title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
+  errorArea: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    gap: 4,
+  },
+  errorText: {
+    color: '#ff0000',
+    fontSize: 12,
+  },
 });
