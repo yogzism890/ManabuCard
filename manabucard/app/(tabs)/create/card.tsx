@@ -14,10 +14,15 @@ const CreateCardScreen = () => {
   const [loading, setLoading] = useState(false);
   const [hasAddedCard, setHasAddedCard] = useState(false);
   const [error, setError] = useState<{
-    nama: boolean;
+    koleksi: boolean;
+    front: boolean;
+    back: boolean;
   }>({
-    nama: false,
+    koleksi: false,
+    front: false,
+    back: false,
   });
+
 
 
   const { collectionId, collectionName } = useLocalSearchParams();
@@ -38,10 +43,16 @@ const CreateCardScreen = () => {
   }, [isAuthenticated]);
 
   const handleCreateCard = async () => {
-    if (!selectedId || !front || !back) {
-      Alert.alert("Lengkapi data");
-      return;
-    }
+    const errorStatus = {
+      koleksi: selectedId === '',
+      front: front.trim() === '',
+      back: back.trim() === '',
+    };
+
+    setError(errorStatus);
+
+    const hasError = Object.values(errorStatus).includes(true);
+    if (hasError) return;
 
     setLoading(true);
     try {
