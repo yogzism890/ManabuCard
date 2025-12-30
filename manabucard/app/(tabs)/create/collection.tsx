@@ -25,10 +25,14 @@ const CreateCollectionScreen = ({ navigation }: any) => {
       return;
     }
 
-    if (!name.trim()) {
-      Alert.alert("Perhatian", "Nama koleksi wajib diisi");
-      return;
-    }
+    const errorStatus = {
+    nama: name.trim() === '',
+    };
+
+    setError(errorStatus);
+
+    const hasError = Object.values(errorStatus).includes(true);
+    if (hasError) return;
 
     setLoading(true);
     try {
