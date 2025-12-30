@@ -13,6 +13,11 @@ const CreateCardScreen = () => {
   const [back, setBack] = useState('');
   const [loading, setLoading] = useState(false);
   const [hasAddedCard, setHasAddedCard] = useState(false);
+  const [error, setError] = useState<{
+    nama: boolean;
+  }>({
+    nama: false,
+  });
 
 
   const { collectionId, collectionName } = useLocalSearchParams();
