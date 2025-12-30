@@ -103,7 +103,17 @@ const CreateCardScreen = () => {
         ))}
       </Picker>
 
-      <Input label="Front" value={front} onChangeText={setFront} />
+      <Input
+        label="Front"
+        value={front}
+        onChangeText={(text) => {
+          setFront(text);
+          if (text.trim() !== '') {
+            setError(prev => ({ ...prev, front: false }));
+          }
+        }}
+        error={error.front ? 'Front tidak boleh kosong' : ''} />
+        
       <Input label="Back" value={back} onChangeText={setBack} multiline />
 
       <View style={styles.buttonGroup}>
