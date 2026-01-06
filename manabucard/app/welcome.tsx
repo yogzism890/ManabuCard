@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Text, TouchableOpacity, StyleSheet, View, Dimensions } from "react-native";
+import { Text, TouchableOpacity, StyleSheet, View, Dimensions, Image } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
@@ -9,219 +9,86 @@ import Animated, {
   FadeInDown,
   withRepeat,
   withSequence,
-  FadeIn,
+  interpolate,
 } from "react-native-reanimated";
 
 const { height, width } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
   const router = useRouter();
-
-  // Animasi untuk elemen
-  const opacity = useSharedValue(0);
-  
-  // Animasi untuk logo (floating effect)
   const logoTranslateY = useSharedValue(0);
-  const logoRotate = useSharedValue(0);
-  
-  // Animasi untuk floating cards di background
-  const floatingCard1 = useSharedValue(0);
-  const floatingCard2 = useSharedValue(0);
-  const floatingCard3 = useSharedValue(0);
-  const floatingCard4 = useSharedValue(0);
+  const floatingValue = useSharedValue(0);
 
   useEffect(() => {
-    opacity.value = withTiming(1, { duration: 600 });
-    
-    // Animasi floating logo dengan sedikit rotasi
+    floatingValue.value = withRepeat(
+      withSequence(withTiming(1, { duration: 3000 }), withTiming(0, { duration: 3000 })),
+      -1,
+      true
+    );
     logoTranslateY.value = withRepeat(
-      withSequence(
-        withTiming(-15, { duration: 2500 }),
-        withTiming(0, { duration: 2500 })
-      ),
+      withSequence(withTiming(-12, { duration: 2000 }), withTiming(0, { duration: 2000 })),
       -1,
-      false
-    );
-    
-    logoRotate.value = withRepeat(
-      withSequence(
-        withTiming(-5, { duration: 2500 }),
-        withTiming(5, { duration: 2500 }),
-        withTiming(0, { duration: 2500 })
-      ),
-      -1,
-      false
-    );
-    
-    // Animasi floating cards background dengan variasi
-    floatingCard1.value = withRepeat(
-      withSequence(
-        withTiming(-20, { duration: 3200 }),
-        withTiming(0, { duration: 3200 })
-      ),
-      -1,
-      false
-    );
-    
-    floatingCard2.value = withRepeat(
-      withSequence(
-        withTiming(-25, { duration: 3800 }),
-        withTiming(0, { duration: 3800 })
-      ),
-      -1,
-      false
-    );
-    
-    floatingCard3.value = withRepeat(
-      withSequence(
-        withTiming(-18, { duration: 3000 }),
-        withTiming(0, { duration: 3000 })
-      ),
-      -1,
-      false
-    );
-    
-    floatingCard4.value = withRepeat(
-      withSequence(
-        withTiming(-22, { duration: 3500 }),
-        withTiming(0, { duration: 3500 })
-      ),
-      -1,
-      false
+      true
     );
   }, []);
-  
-  const logoAnim = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: logoTranslateY.value },
-      { rotate: `${logoRotate.value}deg` }
-    ],
+
+  const animatedLogoStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: logoTranslateY.value }],
   }));
-  
-  const floatingAnim1 = useAnimatedStyle(() => ({
-    transform: [{ translateY: floatingCard1.value }],
-  }));
-  
-  const floatingAnim2 = useAnimatedStyle(() => ({
-    transform: [{ translateY: floatingCard2.value }],
-  }));
-  
-  const floatingAnim3 = useAnimatedStyle(() => ({
-    transform: [{ translateY: floatingCard3.value }],
-  }));
-  
-  const floatingAnim4 = useAnimatedStyle(() => ({
-    transform: [{ translateY: floatingCard4.value }],
+
+  const createFloatingStyle = (offset: number) => useAnimatedStyle(() => ({
+    transform: [{ translateY: interpolate(floatingValue.value, [0, 1], [0, offset]) }],
   }));
 
   return (
-    <LinearGradient colors={["#FFF8E7", "#FFF0F5", "#E8F4FF"]} style={styles.container}>
-      
-      {/* Floating Flashcards Background - Lebih banyak & lebih playful */}
-      <Animated.View style={[styles.floatingCard, styles.floatingCard1, floatingAnim1]}>
-        <View style={[styles.miniCard, { backgroundColor: '#FFE8E8', transform: [{ rotate: '-15deg' }] }]}>
-          <Text style={styles.starIcon}>⭐</Text>
-        </View>
-      </Animated.View>
-      
-      <Animated.View style={[styles.floatingCard, styles.floatingCard2, floatingAnim2]}>
-        <View style={[styles.miniCard, { backgroundColor: '#FFE8F5', transform: [{ rotate: '12deg' }] }]}>
-          <Text style={styles.starIcon}>💡</Text>
-        </View>
-      </Animated.View>
-      
-      <Animated.View style={[styles.floatingCard, styles.floatingCard3, floatingAnim3]}>
-        <View style={[styles.miniCard, { backgroundColor: '#FFF4E0', transform: [{ rotate: '8deg' }] }]}>
-          <Text style={styles.starIcon}>🎯</Text>
-        </View>
-      </Animated.View>
-      
-      <Animated.View style={[styles.floatingCard, styles.floatingCard4, floatingAnim4]}>
-        <View style={[styles.miniCard, { backgroundColor: '#E8F5E9', transform: [{ rotate: '-10deg' }] }]}>
-          <Text style={styles.starIcon}>🌟</Text>
-        </View>
-      </Animated.View>
+    <LinearGradient colors={["#F8FAFF", "#FFF9FD"]} style={styles.container}>
+      {/* Background Decorative Circles */}
+      <Animated.View style={[styles.circle, styles.circleBlue, createFloatingStyle(-25)]} />
+      <Animated.View style={[styles.circle, styles.circlePink, createFloatingStyle(35)]} />
 
-      {/* Main Content Area - No Card Container */}
       <View style={styles.contentContainer}>
-        
-        {/* Logo dengan efek floating & rotate */}
-        <Animated.Image
-          entering={FadeInDown.delay(100).duration(800)}
-          style={[styles.logo, logoAnim]}
-          source={require('@/assets/images/manabulogo.png')} 
-        />
-
-        {/* Title with playful wave emoji */}
-        <Animated.View entering={FadeInDown.delay(200).duration(600)} style={styles.titleContainer}>
-          <Text style={styles.waveEmoji}>👋</Text>
-          <Text style={styles.title}>Hi Sobat</Text>
-        </Animated.View>
-        
-        {/* Subtitle - lebih playful */}
-        <Animated.Text entering={FadeInDown.delay(300).duration(600)} style={styles.subtitle}>
-          Yuk mulai petualangan belajar{'\n'}yang seru dan menyenangkan! 🎉
-        </Animated.Text>
-        
-        {/* Feature highlights - dengan emoji yang lebih besar & colorful */}
-        <Animated.View entering={FadeInDown.delay(400).duration(600)} style={styles.featuresContainer}>
-          <View style={styles.featureItem}>
-            <View style={[styles.featureBubble, { backgroundColor: '#FFE8E8' }]}>
-              <Text style={styles.featureIcon}>📚</Text>
-            </View>
-            <Text style={styles.featureText}>Belajar{'\n'}Interaktif</Text>
-          </View>
-          <View style={styles.featureItem}>
-            <View style={[styles.featureBubble, { backgroundColor: '#E8F5FF' }]}>
-              <Text style={styles.featureIcon}>🎨</Text>
-            </View>
-            <Text style={styles.featureText}>Desain{'\n'}Menarik</Text>
-          </View>
-          <View style={styles.featureItem}>
-            <View style={[styles.featureBubble, { backgroundColor: '#FFF4E0' }]}>
-              <Text style={styles.featureIcon}>🚀</Text>
-            </View>
-            <Text style={styles.featureText}>Progres{'\n'}Cepat</Text>
+        {/* Logo Section */}
+        <Animated.View entering={FadeInDown.delay(200).springify()} style={[styles.logoWrapper, animatedLogoStyle]}>
+          <View style={styles.logoBackground}>
+            <Image style={styles.logo} source={require('@/assets/images/manabulogo.png')} />
           </View>
         </Animated.View>
 
-        {/* Decorative stars */}
-        <Animated.View entering={FadeIn.delay(600).duration(800)} style={styles.starsContainer}>
-          <Text style={styles.decorativeStar}>✨</Text>
-          <Text style={styles.decorativeText}>Siap jadi pintar?</Text>
-          <Text style={styles.decorativeStar}>✨</Text>
+        {/* Text Section */}
+        <Animated.View entering={FadeInDown.delay(400).springify()} style={styles.textGroup}>
+          <Text style={styles.greeting}>START YOUR JOURNEY ✨</Text>
+          <Text style={styles.title}>Belajar Jadi{"\n"}<Text style={styles.highlightText}>Lebih Asyik</Text></Text>
+          <Text style={styles.subtitle}>
+            Tingkatkan kemampuanmu dengan metode belajar yang seru dan interaktif setiap hari.
+          </Text>
+        </Animated.View>
+
+        {/* Feature Grid */}
+        <Animated.View entering={FadeInDown.delay(600).springify()} style={styles.featureGrid}>
+          <FeatureCard emoji="🎯" label="Terukur" color="#F0F5FF" />
+          <FeatureCard emoji="🔥" label="Intensif" color="#FFF5F0" />
+          <FeatureCard emoji="🌈" label="Kreatif" color="#F5F0FF" />
         </Animated.View>
       </View>
 
-      {/* Bottom Section - Button & Login */}
+      {/* Bottom Actions */}
       <View style={styles.bottomSection}>
-        
-        {/* Start button - lebih besar & rounded */}
-        <Animated.View entering={FadeInDown.delay(500).duration(600)} style={styles.buttonContainer}>
+        <Animated.View entering={FadeInDown.delay(800).springify()}>
           <TouchableOpacity
-            style={styles.button}
-            onPress={() => router.push("/onboarding" as any)} 
-            activeOpacity={0.85}
+            activeOpacity={0.8}
+            onPress={() => router.push("/onboarding" as any)}
+            style={styles.mainButton}
           >
-            <LinearGradient
-              colors={['#3A7DFF', '#5B93FF', '#7DA9FF']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.buttonGradient}
-            >
-              <Text style={styles.buttonText}>Mulai Belajar</Text>
-              <Text style={styles.buttonIcon}>🚀</Text>
+            <LinearGradient colors={['#4E86FF', '#2D62ED']} style={styles.gradientButton}>
+              <Text style={styles.buttonText}>Ayo Mulai!</Text>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
 
-        {/* Footer login - lebih childish */}
-        <Animated.View entering={FadeInDown.delay(700).duration(600)} style={styles.footerContainer}>
-          <Text style={styles.footer}>
-            Sudah punya akun? {" "}
-          </Text>
+        <Animated.View entering={FadeInDown.delay(1000)} style={styles.footer}>
+          <Text style={styles.footerText}>Sudah punya akun? </Text>
           <TouchableOpacity onPress={() => router.push("/auth/login" as any)}>
-            <Text style={styles.link}>Masuk di sini! 👉</Text>
+            <Text style={styles.loginLink}>Masuk</Text>
           </TouchableOpacity>
         </Animated.View>
       </View>
@@ -229,203 +96,74 @@ export default function WelcomeScreen() {
   );
 }
 
+const FeatureCard = ({ emoji, label, color }: { emoji: string; label: string; color: string }) => (
+  <View style={[styles.card, { backgroundColor: color }]}>
+    <Text style={styles.cardEmoji}>{emoji}</Text>
+    <Text style={styles.cardLabel}>{label}</Text>
+  </View>
+);
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  
-  // Content Container - No card background
-  contentContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: height * 0.08,
-  },
-  
-  logo: {
+  container: { flex: 1 },
+  circle: { position: 'absolute', borderRadius: 1000, opacity: 0.3 },
+  circleBlue: { width: 280, height: 280, backgroundColor: '#4E86FF', top: -40, right: -80 },
+  circlePink: { width: 220, height: 220, backgroundColor: '#FF8ED4', bottom: 150, left: -60 },
+  contentContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
+  logoWrapper: { marginBottom: 32 },
+  logoBackground: {
     width: 140,
     height: 140,
-    resizeMode: 'contain',
-    marginBottom: 24,
-  },
-  
-  // Floating cards decoration - lebih banyak & tersebar
-  floatingCard: {
-    position: 'absolute',
-    opacity: 0.5,
-  },
-  floatingCard1: {
-    top: height * 0.12,
-    left: width * 0.05,
-  },
-  floatingCard2: {
-    top: height * 0.28,
-    right: width * 0.05,
-  },
-  floatingCard3: {
-    top: height * 0.08,
-    right: width * 0.22,
-  },
-  floatingCard4: {
-    top: height * 0.22,
-    left: width * 0.15,
-  },
-  miniCard: {
-    width: 65,
-    height: 85,
-    backgroundColor: '#E0F0FF',
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { height: 4, width: 0 },
-    elevation: 5,
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
-  },
-  starIcon: {
-    fontSize: 32,
-  },
-  
-  // Title styles - lebih playful
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  waveEmoji: {
-    fontSize: 42,
-    marginRight: 10,
-  },
-  title: {
-    fontSize: 48,
-    fontFamily: "FredokaBold",
-    color: "#2D2D2D",
-    textShadowColor: 'rgba(58, 125, 255, 0.1)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-  },
-  subtitle: {
-    fontSize: 17,
-    fontFamily: "Fredoka",
-    color: "#666",
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 26,
-  },
-  
-  // Features section - dengan bubble background
-  featuresContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginBottom: 24,
-    paddingHorizontal: 12,
-  },
-  featureItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  featureBubble: {
-    width: 70,
-    height: 70,
+    backgroundColor: '#FFF',
     borderRadius: 35,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
     shadowColor: "#000",
+    shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { height: 3, width: 0 },
-    elevation: 4,
+    shadowRadius: 20,
+    elevation: 8,
   },
-  featureIcon: {
-    fontSize: 32,
+  logo: { width: 90, height: 90, resizeMode: 'contain' },
+  textGroup: { alignItems: 'center', marginBottom: 40 },
+  greeting: {
+    fontSize: 13,
+    fontFamily: "Poppins_700Bold",
+    color: "#4E86FF",
+    letterSpacing: 2,
+    marginBottom: 10,
   },
-  featureText: {
-    fontSize: 12,
-    fontFamily: "Fredoka",
-    color: "#888",
+  title: {
+    fontSize: 34,
+    fontFamily: "Poppins_700Bold",
+    color: "#1F2937",
     textAlign: 'center',
-    lineHeight: 16,
+    lineHeight: 44,
   },
-  
-  // Decorative stars section
-  starsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 16,
-  },
-  decorativeStar: {
-    fontSize: 20,
-    marginHorizontal: 8,
-  },
-  decorativeText: {
+  highlightText: { color: "#4E86FF" },
+  subtitle: {
     fontSize: 15,
-    fontFamily: "FredokaBold",
-    color: "#FF6B9D",
+    fontFamily: "Poppins_400Regular",
+    color: "#6B7280",
+    textAlign: 'center',
+    marginTop: 16,
+    lineHeight: 24,
   },
-  
-  // Bottom section
-  bottomSection: {
-    paddingHorizontal: 24,
-    paddingBottom: 40,
-    alignItems: 'center',
-  },
-  
-  // Button styles - lebih besar & rounded
-  buttonContainer: {
-    width: '100%',
-    marginBottom: 20,
-  },
-  button: {
-    borderRadius: 30,
-    overflow: 'hidden',
-    shadowColor: "#3A7DFF",
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
-    shadowOffset: { height: 8, width: 0 },
-    elevation: 10,
-  },
-  buttonGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+  featureGrid: { flexDirection: 'row', justifyContent: 'space-between', width: '100%' },
+  card: {
+    width: width * 0.24,
     paddingVertical: 18,
-    paddingHorizontal: 50,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 20,
-    fontFamily: "FredokaBold",
-    letterSpacing: 0.5,
-    marginRight: 8,
-  },
-  buttonIcon: {
-    fontSize: 24,
-  },
-  
-  // Footer styles - lebih friendly
-  footerContainer: {
-    flexDirection: 'row',
+    borderRadius: 20,
     alignItems: 'center',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#FFF',
   },
-  footer: {
-    color: "#888",
-    fontSize: 15,
-    fontFamily: "Fredoka",
-  },
-  link: {
-    color: "#3A7DFF",
-    fontSize: 15,
-    fontFamily: "FredokaBold",
-  },
+  cardEmoji: { fontSize: 24, marginBottom: 6 },
+  cardLabel: { fontSize: 12, fontFamily: "Poppins_600SemiBold", color: "#374151" },
+  bottomSection: { paddingHorizontal: 32, paddingBottom: 60 },
+  mainButton: { borderRadius: 18, overflow: 'hidden' },
+  gradientButton: { paddingVertical: 18, alignItems: 'center' },
+  buttonText: { color: '#FFF', fontSize: 17, fontFamily: "Poppins_700Bold" },
+  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 22 },
+  footerText: { color: '#9CA3AF', fontFamily: "Poppins_400Regular", fontSize: 14 },
+  loginLink: { color: '#4E86FF', fontFamily: "Poppins_600SemiBold", fontSize: 14 },
 });
