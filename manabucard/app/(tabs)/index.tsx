@@ -83,7 +83,6 @@ const LandingScreen = () => {
         {/* Features Section */}
         <View style={styles.featuresSection}>
           <Animated.View entering={FadeInDown.delay(200).duration(600)} style={styles.sectionHeader}>
-            <Text style={styles.sectionEmoji}>🌟</Text>
             <Text style={styles.sectionTitle}>Fitur Keren</Text>
           </Animated.View>
 
