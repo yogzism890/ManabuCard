@@ -1,41 +1,52 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Ionicons } from '@expo/vector-icons'; // Contoh penggunaan icon
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#3498db', // Warna aktif (biru)
-        headerShown: true, // Tampilkan header navigasi
+        tabBarActiveTintColor: '#3498db',
+        headerShown: true,
       }}
     >
       <Tabs.Screen
-        name="index" // Ini merujuk ke app/(tabs)/index.tsx (Home/Belajar)
+        name="index"
         options={{
           title: 'Manabucard',
-          tabBarIcon: ({ color }) => <Ionicons name="school" size={24} color={color} />,
+          tabBarIcon: ({ color }: { color: string }) => (
+            <Ionicons name="school" size={24} color={color} />
+          ),
         }}
       />
+
       <Tabs.Screen
-        name="review" // Ini merujuk ke app/(tabs)/review.tsx
+        name="review"
         options={{
           title: 'Ulangi',
-          tabBarIcon: ({ color }) => <Ionicons name="reload-circle" size={24} color={color} />,
+          tabBarIcon: ({ color }: { color: string }) => (
+            <Ionicons name="reload-circle" size={24} color={color} />
+          ),
         }}
       />
+
       <Tabs.Screen
-        name="create" // Ini merujuk ke app/(tabs)/create.tsx (Buat Kartu)
+        name="create"
         options={{
           title: 'Buat',
-          tabBarIcon: ({ color }) => <Ionicons name="add-circle" size={24} color={color} />,
+          tabBarIcon: ({ color }: { color: string }) => (
+            <Ionicons name="add-circle" size={24} color={color} />
+          ),
         }}
       />
+
       <Tabs.Screen
-        name="profile" // Ini merujuk ke app/(tabs)/profile.tsx
+        name="profile"
         options={{
           title: 'Profil',
-          tabBarIcon: ({ color }) => <Ionicons name="person" size={24} color={color} />,
+          tabBarIcon: ({ color }: { color: string }) => (
+            <Ionicons name="person" size={24} color={color} />
+          ),
         }}
       />
     </Tabs>
