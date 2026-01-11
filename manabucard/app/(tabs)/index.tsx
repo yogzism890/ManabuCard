@@ -73,7 +73,7 @@ const LandingScreen = () => {
                 end={{ x: 1, y: 1 }}
                 style={styles.heroButtonGradient}
               >
-                <Text style={styles.heroButtonText}>Mulai Belajar</Text>
+                <Text style={styles.heroButtonText}>Mulai</Text>
                 <Text style={styles.heroButtonIcon}>🚀</Text>
               </LinearGradient>
             </Link>
