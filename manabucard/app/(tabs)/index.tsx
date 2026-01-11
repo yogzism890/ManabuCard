@@ -28,9 +28,7 @@ const LandingScreen = () => {
         <Animated.Text entering={FadeIn.delay(200)} style={[styles.floatingEmoji, styles.emoji1]}>
           ⭐
         </Animated.Text>
-        <Animated.Text entering={FadeIn.delay(300)} style={[styles.floatingEmoji, styles.emoji2]}>
-          🎨
-        </Animated.Text>
+        
         <Animated.Text entering={FadeIn.delay(400)} style={[styles.floatingEmoji, styles.emoji3]}>
           💡
         </Animated.Text>
