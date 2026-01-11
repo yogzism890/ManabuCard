@@ -10,9 +10,15 @@ import Animated, {
   withRepeat,
   withSequence,
   interpolate,
+  SharedValue,
 } from "react-native-reanimated";
 
 const { height, width } = Dimensions.get('window');
+
+const useFloatingStyle = (floatingValue: SharedValue<number>, offset: number) =>
+  useAnimatedStyle(() => ({
+    transform: [{ translateY: interpolate(floatingValue.value, [0, 1], [0, offset]) }],
+  }));
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -36,15 +42,11 @@ export default function WelcomeScreen() {
     transform: [{ translateY: logoTranslateY.value }],
   }));
 
-  const createFloatingStyle = (offset: number) => useAnimatedStyle(() => ({
-    transform: [{ translateY: interpolate(floatingValue.value, [0, 1], [0, offset]) }],
-  }));
-
   return (
     <LinearGradient colors={["#F8FAFF", "#FFF9FD"]} style={styles.container}>
       {/* Background Decorative Circles */}
-      <Animated.View style={[styles.circle, styles.circleBlue, createFloatingStyle(-25)]} />
-      <Animated.View style={[styles.circle, styles.circlePink, createFloatingStyle(35)]} />
+      <Animated.View style={[styles.circle, styles.circleBlue, useFloatingStyle(floatingValue, -25)]} />
+      <Animated.View style={[styles.circle, styles.circlePink, useFloatingStyle(floatingValue, 35)]} />
 
       <View style={styles.contentContainer}>
         {/* Logo Section */}
