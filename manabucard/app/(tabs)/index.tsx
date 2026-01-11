@@ -58,7 +58,7 @@ const LandingScreen = () => {
 
           <View style={styles.heroTitleContainer}>
             <Text style={styles.heroEmoji}>✨</Text>
-            <Text style={styles.heroTitle}>Selamat Datang!</Text>
+            <Text style={styles.heroTitle}>Hallo!</Text>
           </View>
 
           <Text style={styles.heroSubtitle}>
