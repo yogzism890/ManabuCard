@@ -188,7 +188,7 @@ export default function LoginScreen() {
           {/* Forgot Password */}
           <Animated.View entering={FadeInDown.delay(400).duration(500)} style={styles.forgotPasswordContainer}>
             <TouchableOpacity style={styles.forgotPassword}>
-              <Text style={styles.forgotPasswordText}>Lupa password? 🤔</Text>
+              <Text style={styles.forgotPasswordText}>Lupa password?</Text>
             </TouchableOpacity>
           </Animated.View>
 
