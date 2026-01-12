@@ -46,7 +46,7 @@ const LandingScreen = () => {
           <View style={styles.heroIconContainer}>
             <View style={styles.heroIcon}>
               <Image
-                source={require('../../assets/images/manabulogo.png')}
+                source={require('../../assets/images/logo.png')}
                 style={styles.logoImage}
                 resizeMode="contain"
               />
