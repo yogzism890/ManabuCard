@@ -91,6 +91,41 @@ const ReviewScreen = () => {
   }, [])
 );
 
+const handleDeleteCard = (cardId: string) => {
+  showModal(
+    'Hapus Kartu',
+    'Apakah Anda yakin ingin menghapus kartu ini?',
+    'warning',
+    true,
+    'Hapus',
+    async () => {
+      hideModal();
+      try {
+        setIsUpdating(true);
+
+        // DELETE request ke backend
+        await apiRequest(`/kartu/${cardId}`, { method: 'DELETE' });
+
+        // Update state: hapus kartu dari array
+        setCards(prev => prev.filter(card => card.id !== cardId));
+
+        // Update currentIndex agar tetap valid
+        setCurrentIndex(prev => {
+          const newIndex = prev - 1;
+          return newIndex < 0 ? 0 : newIndex;
+        });
+
+      } catch (error) {
+        console.error('Error deleting card:', error);
+        showModal('Gagal', 'Terjadi kesalahan saat menghapus kartu', 'error');
+      } finally {
+        setIsUpdating(false);
+      }
+    }
+  );
+};
+
+
 
   const loadCollections = async () => {
     try {
