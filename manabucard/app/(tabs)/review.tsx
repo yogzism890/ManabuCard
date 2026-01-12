@@ -348,22 +348,40 @@ const handleDeleteCard = (cardId: string) => {
         ) : (
           <View style={styles.collectionsList}>
             {collections.map((collection) => (
-              <TouchableOpacity
-                key={collection.id}
-                style={styles.collectionCard}
-                onPress={() => selectCollection(collection)}
-              >
-                <View style={styles.collectionHeader}>
-                  <Text style={styles.collectionName}>{collection.nama}</Text>
-                  <Text style={styles.collectionCount}>
-                    {collection._count?.kartu || 0} kartu
-                  </Text>
-                </View>
-                <Text style={styles.collectionDescription}>
-                  Ketuk untuk mulai review kartu dari koleksi ini
-                </Text>
-              </TouchableOpacity>
-            ))}
+  <View key={collection.id} style={{ position: 'relative', marginBottom: 20 }}>
+    <TouchableOpacity
+      style={styles.collectionCard}
+      onPress={() => selectCollection(collection)}
+    >
+      <View style={styles.collectionHeader}>
+        <Text style={styles.collectionName}>{collection.nama}</Text>
+        <Text style={styles.collectionCount}>
+          {collection._count?.kartu || 0} kartu
+        </Text>
+      </View>
+      <Text style={styles.collectionDescription}>
+        Ketuk untuk mulai review kartu dari koleksi ini
+      </Text>
+    </TouchableOpacity>
+
+    {/* Icon Hapus */}
+    <IconButton
+      icon="delete"
+      size={24}
+      mode="contained"
+      onPress={() => handleDeleteCollection(collection.id)}
+      style={{
+        position: 'absolute',
+        bottom: 10,
+        right: 10,
+        backgroundColor: 'rgba(255,0,0,0.7)',
+        zIndex: 10,
+      }}
+      iconColor="#fff"
+    />
+  </View>
+))}
+
           </View>
         )}
       </ScrollView>
