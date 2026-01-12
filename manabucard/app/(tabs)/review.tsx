@@ -147,6 +147,42 @@ const handleDeleteCard = (cardId: string) => {
     }
   };
 
+  const handleDeleteCollection = (collectionId: string) => {
+  showModal(
+    'Hapus Koleksi',
+    'Apakah Anda yakin ingin menghapus koleksi ini beserta semua kartunya?',
+    'warning',
+    true,
+    'Hapus',
+    async () => {
+      hideModal();
+      try {
+        setIsUpdating(true);
+
+        // DELETE request ke backend
+        await apiRequest(`/koleksi/${collectionId}`, { method: 'DELETE' });
+
+        // Update state: hapus koleksi dari array
+        setCollections(prev => prev.filter(c => c.id !== collectionId));
+
+        // Jika koleksi yang sedang dibuka sedang dihapus, kembali ke daftar koleksi
+        if (selectedCollection?.id === collectionId) {
+          backToCollections();
+        }
+
+        showModal('Berhasil', 'Koleksi berhasil dihapus', 'success');
+
+      } catch (error) {
+        console.error('Error deleting collection:', error);
+        showModal('Gagal', 'Terjadi kesalahan saat menghapus koleksi', 'error');
+      } finally {
+        setIsUpdating(false);
+      }
+    }
+  );
+};
+
+
 
   const selectCollection = async (collection: Koleksi) => {
     try {
