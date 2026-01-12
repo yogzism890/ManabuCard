@@ -8,9 +8,25 @@ import {
 } from '@expo-google-fonts/poppins';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from "react";
+import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
 
 // Mencegah splash screen tertutup otomatis sebelum font selesai dimuat
 SplashScreen.preventAutoHideAsync();
+
+// Custom theme Paper
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#6366f1', // warna utama app
+    accent: '#3498db',  // warna tambahan
+  },
+  fonts: {
+    regular: { fontFamily: 'Poppins_400Regular' },
+    medium: { fontFamily: 'Poppins_600SemiBold' },
+    bold: { fontFamily: 'Poppins_700Bold' },
+  }
+};
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -32,13 +48,15 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="welcome" />   {/* tampil pertama kali */}
-        <Stack.Screen name="(tabs)" />    {/* berisi Home, Quiz, dst */}
-        <Stack.Screen name="auth/login" />     {/* untuk login nanti */}
-        <Stack.Screen name="onboarding/index" />
-      </Stack>
-    </AuthProvider>
+    <PaperProvider>
+      <AuthProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="welcome" />   {/* tampil pertama kali */}
+          <Stack.Screen name="(tabs)" />    {/* berisi Home, Quiz, dst */}
+          <Stack.Screen name="auth/login" />     {/* untuk login nanti */}
+          <Stack.Screen name="onboarding/index" />
+        </Stack>
+      </AuthProvider>
+    </PaperProvider>
   );
 }
