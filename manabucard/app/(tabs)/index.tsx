@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Image,
   View,
@@ -6,624 +6,677 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Dimensions
-} from 'react-native';
-import { Link } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
+  Dimensions,
+  Platform,
+} from "react-native";
+import { Link } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+import Animated, { FadeInDown, FadeIn } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-
-
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
+const CARD_W = (width - 54) / 2;
 
 const LandingScreen = () => {
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Background Gradient */}
-      <LinearGradient
-        colors={["#FFF8E7", "#FFF0F5", "#E8F4FF"]}
-        style={styles.gradientBackground}
-      >
-        {/* Floating decorative emojis */}
-        <Animated.Text entering={FadeIn.delay(200)} style={[styles.floatingEmoji, styles.emoji1]}>
-          ⭐
-        </Animated.Text>
-        
-        <Animated.Text entering={FadeIn.delay(400)} style={[styles.floatingEmoji, styles.emoji3]}>
-          💡
-        </Animated.Text>
-        <Animated.Text entering={FadeIn.delay(500)} style={[styles.floatingEmoji, styles.emoji4]}>
-          📚
-        </Animated.Text>
+    <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <LinearGradient
+          colors={["#FFF8E7", "#FFF0F5", "#E8F4FF"]}
+          style={styles.gradientBackground}
+        >
+          {/* Floating decorative emojis */}
+          <Animated.Text
+            entering={FadeIn.delay(200)}
+            style={[styles.floatingEmoji, styles.emoji1]}
+          >
+            ⭐
+          </Animated.Text>
+          <Animated.Text
+            entering={FadeIn.delay(400)}
+            style={[styles.floatingEmoji, styles.emoji3]}
+          >
+            💡
+          </Animated.Text>
+          <Animated.Text
+            entering={FadeIn.delay(500)}
+            style={[styles.floatingEmoji, styles.emoji4]}
+          >
+            📚
+          </Animated.Text>
 
-        {/* Decorative circles */}
-        <View style={[styles.decorativeCircle, styles.circle1]} />
-        <View style={[styles.decorativeCircle, styles.circle2]} />
-        <View style={[styles.decorativeCircle, styles.circle3]} />
+          {/* Decorative circles */}
+          <View style={[styles.decorativeCircle, styles.circle1]} />
+          <View style={[styles.decorativeCircle, styles.circle2]} />
+          <View style={[styles.decorativeCircle, styles.circle3]} />
 
-        {/* Hero Section */}
-        <Animated.View entering={FadeInDown.delay(100).duration(600)} style={styles.heroSection}>
-          <View style={styles.heroIconContainer}>
-            <View style={styles.heroIcon}>
-              <Image
-                source={require('../../assets/images/logo.png')}
-                style={styles.logoImage}
-                resizeMode="contain"
-              />
+          {/* Top mini header */}
+          <Animated.View
+            entering={FadeInDown.delay(80).duration(600)}
+            style={styles.topHeader}
+          >
+            <View style={styles.topBadge}>
+              <Text style={styles.topBadgeText}>ManabuCard</Text>
+              <Text style={styles.topDot}>•</Text>
+              <Text style={styles.topBadgeTextMuted}>Flashcard Pintar</Text>
             </View>
-            <View style={styles.heroIconBorder} />
-          </View>
 
-          <View style={styles.heroTitleContainer}>
-            <Text style={styles.heroEmoji}>✨</Text>
-            <Text style={styles.heroTitle}>Hallo!</Text>
-          </View>
+            <View style={styles.topHint}>
+              <Text style={styles.topHintText}>Mulai cepat</Text>
+              <Text style={styles.topHintEmoji}>⚡</Text>
+            </View>
+          </Animated.View>
 
-          <Text style={styles.heroSubtitle}>
-            Belajar jadi lebih seru dan mudah dengan kartu pintar ManabuCard! 🎉
-          </Text>
+          {/* Hero Section */}
+          <Animated.View
+            entering={FadeInDown.delay(120).duration(650)}
+            style={styles.heroSection}
+          >
+            <View style={styles.heroIconContainer}>
+              <View style={styles.heroIcon}>
+                <Image
+                  source={require("../../assets/images/logo.png")}
+                  style={styles.logoImage}
+                  resizeMode="contain"
+                />
+              </View>
+              <View style={styles.heroIconBorder} />
+            </View>
 
-          <TouchableOpacity style={styles.heroButton} activeOpacity={0.85}>
+            <View style={styles.heroTitleContainer}>
+              <Text style={styles.heroEmoji}>✨</Text>
+              <Text style={styles.heroTitle}>Halo, Faiz!</Text>
+            </View>
+
+            <Text style={styles.heroSubtitle}>
+              Belajar jadi lebih seru dan mudah dengan kartu pintar ManabuCard.
+              Tingkatkan ingatanmu dengan pengulangan cerdas! 🎯
+            </Text>
+
+            {/* Primary CTA (Link as button) */}
             <Link href="/(tabs)/review" asChild>
-              <LinearGradient
-                colors={['#3A7DFF', '#5B93FF', '#7DA9FF']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.heroButtonGradient}
-              >
-                <Text style={styles.heroButtonText}>Mulai</Text>
-                <Text style={styles.heroButtonIcon}>🚀</Text>
-              </LinearGradient>
-            </Link>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* Features Section */}
-        <View style={styles.featuresSection}>
-          <Animated.View entering={FadeInDown.delay(200).duration(600)} style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Fitur Keren</Text>
-          </Animated.View>
-
-          <View style={styles.featureGrid}>
-            <Animated.View entering={FadeInDown.delay(250).duration(600)} style={styles.featureCardWrapper}>
-              <View style={[styles.featureCard, { backgroundColor: '#E8F4FF' }]}>
-                <View style={styles.featureIconBubble}>
-                  <Text style={styles.featureIcon}>📚</Text>
-                </View>
-                <Text style={styles.featureTitle}>Koleksi Pintar</Text>
-                <Text style={styles.featureDescription}>
-                  Kelompokkan kartu belajarmu dalam koleksi yang rapi
-                </Text>
-              </View>
-            </Animated.View>
-
-            <Animated.View entering={FadeInDown.delay(300).duration(600)} style={styles.featureCardWrapper}>
-              <View style={[styles.featureCard, { backgroundColor: '#FFE8F5' }]}>
-                <View style={styles.featureIconBubble}>
-                  <Text style={styles.featureIcon}>🔄</Text>
-                </View>
-                <Text style={styles.featureTitle}>Pengulangan Cerdas</Text>
-                <Text style={styles.featureDescription}>
-                  Sistem pintar yang tahu kapan kamu harus mengulang
-                </Text>
-              </View>
-            </Animated.View>
-
-            <Animated.View entering={FadeInDown.delay(350).duration(600)} style={styles.featureCardWrapper}>
-              <View style={[styles.featureCard, { backgroundColor: '#FFF4E0' }]}>
-                <View style={styles.featureIconBubble}>
-                  <Text style={styles.featureIcon}>📊</Text>
-                </View>
-                <Text style={styles.featureTitle}>Pantau Progress</Text>
-                <Text style={styles.featureDescription}>
-                  Lihat perkembangan belajarmu dengan grafik menarik
-                </Text>
-              </View>
-            </Animated.View>
-
-            <Animated.View entering={FadeInDown.delay(400).duration(600)} style={styles.featureCardWrapper}>
-              <View style={[styles.featureCard, { backgroundColor: '#E8F5E9' }]}>
-                <View style={styles.featureIconBubble}>
-                  <Text style={styles.featureIcon}>🎯</Text>
-                </View>
-                <Text style={styles.featureTitle}>Belajar Santai</Text>
-                <Text style={styles.featureDescription}>
-                  Sesuaikan kecepatan belajar sesuai kemampuanmu
-                </Text>
-              </View>
-            </Animated.View>
-          </View>
-        </View>
-
-        {/* How It Works Section */}
-        <View style={styles.howItWorksSection}>
-          <Animated.View entering={FadeInDown.delay(450).duration(600)} style={styles.sectionHeader}>
-            <Text style={styles.sectionEmoji}>💡</Text>
-            <Text style={styles.sectionTitle}>Cara Kerjanya</Text>
-          </Animated.View>
-
-          <View style={styles.stepContainer}>
-            <Animated.View entering={FadeInDown.delay(500).duration(600)} style={styles.step}>
-              <View style={styles.stepNumberContainer}>
-                <View style={styles.stepNumber}>
-                  <Text style={styles.stepNumberText}>1</Text>
-                </View>
-              </View>
-              <View style={styles.stepContent}>
-                <Text style={styles.stepTitle}>🎨 Buat Koleksi</Text>
-                <Text style={styles.stepDescription}>
-                  Mulai dengan membuat koleksi untuk topik yang mau kamu pelajari
-                </Text>
-              </View>
-            </Animated.View>
-
-            <Animated.View entering={FadeInDown.delay(550).duration(600)} style={styles.step}>
-              <View style={styles.stepNumberContainer}>
-                <View style={styles.stepNumber}>
-                  <Text style={styles.stepNumberText}>2</Text>
-                </View>
-              </View>
-              <View style={styles.stepContent}>
-                <Text style={styles.stepTitle}>✏️ Tambah Kartu</Text>
-                <Text style={styles.stepDescription}>
-                  Buat kartu dengan pertanyaan dan jawaban yang seru
-                </Text>
-              </View>
-            </Animated.View>
-
-            <Animated.View entering={FadeInDown.delay(600).duration(600)} style={styles.step}>
-              <View style={styles.stepNumberContainer}>
-                <View style={styles.stepNumber}>
-                  <Text style={styles.stepNumberText}>3</Text>
-                </View>
-              </View>
-              <View style={styles.stepContent}>
-                <Text style={styles.stepTitle}>🚀 Belajar & Ulangi</Text>
-                <Text style={styles.stepDescription}>
-                  Sistem akan bantu kamu mengingat dengan cara yang fun!
-                </Text>
-              </View>
-            </Animated.View>
-          </View>
-        </View>
-
-        {/* CTA Section */}
-        <Animated.View entering={FadeInDown.delay(650).duration(600)} style={styles.ctaSection}>
-          <Text style={styles.ctaEmoji}>🎉</Text>
-          <Text style={styles.ctaTitle}>Siap Jadi Lebih Pintar?</Text>
-          <Text style={styles.ctaSubtitle}>
-            Yuk gabung dengan ribuan pelajar yang sudah belajar pakai ManabuCard!
-          </Text>
-
-          <View style={styles.ctaButtons}>
-            <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85}>
-              <Link href="/(tabs)/create" asChild>
+              <TouchableOpacity activeOpacity={0.9} style={styles.heroButton}>
                 <LinearGradient
-                  colors={['#3A7DFF', '#5B93FF']}
+                  colors={["#3A7DFF", "#5B93FF", "#7DA9FF"]}
                   start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.primaryButtonGradient}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.heroButtonGradient}
                 >
-                  <Text style={styles.primaryButtonText}>Buat Kartu</Text>
-                  <Text style={styles.buttonEmoji}>✨</Text>
+                  <View style={styles.heroButtonLeft}>
+                    <Text style={styles.heroButtonText}>Mulai Belajar</Text>
+                    <Text style={styles.heroButtonSub}>Review kartu sekarang</Text>
+                  </View>
+                  <View style={styles.heroButtonIconWrap}>
+                    <Text style={styles.heroButtonIcon}>🚀</Text>
+                  </View>
                 </LinearGradient>
-              </Link>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </Link>
 
-            <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85}>
-              <Link href="/(tabs)/review" asChild>
-                <Text style={styles.secondaryButtonText}>Mulai Belajar 🚀</Text>
-              </Link>
-            </TouchableOpacity>
+            {/* Secondary CTA */}
+            <Link href="/(tabs)/create" asChild>
+              <TouchableOpacity activeOpacity={0.9} style={styles.heroGhostBtn}>
+                <Text style={styles.heroGhostText}>Buat Kartu Baru ✨</Text>
+              </TouchableOpacity>
+            </Link>
+          </Animated.View>
+
+          {/* Features Section */}
+          <View style={styles.section}>
+            <Animated.View
+              entering={FadeInDown.delay(220).duration(600)}
+              style={styles.sectionHeader}
+            >
+              <Text style={styles.sectionTitle}>Fitur Utama</Text>
+              <Text style={styles.sectionSubtitle}>
+                Dirancang biar belajarmu lebih konsisten
+              </Text>
+            </Animated.View>
+
+            <View style={styles.featureGrid}>
+              <Animated.View
+                entering={FadeInDown.delay(260).duration(600)}
+                style={styles.featureCardWrapper}
+              >
+                <View style={[styles.featureCard, styles.glassCard]}>
+                  <View style={styles.featureIconBubble}>
+                    <Text style={styles.featureIcon}>📚</Text>
+                  </View>
+                  <Text style={styles.featureTitle}>Koleksi Pintar</Text>
+                  <Text style={styles.featureDescription}>
+                    Kelompokkan kartu belajar dalam koleksi yang rapi.
+                  </Text>
+                </View>
+              </Animated.View>
+
+              <Animated.View
+                entering={FadeInDown.delay(300).duration(600)}
+                style={styles.featureCardWrapper}
+              >
+                <View style={[styles.featureCard, styles.glassCard]}>
+                  <View style={styles.featureIconBubble}>
+                    <Text style={styles.featureIcon}>🔄</Text>
+                  </View>
+                  <Text style={styles.featureTitle}>Ulang Cerdas</Text>
+                  <Text style={styles.featureDescription}>
+                    Sistem tahu kapan kamu perlu mengulang.
+                  </Text>
+                </View>
+              </Animated.View>
+
+              <Animated.View
+                entering={FadeInDown.delay(340).duration(600)}
+                style={styles.featureCardWrapper}
+              >
+                <View style={[styles.featureCard, styles.glassCard]}>
+                  <View style={styles.featureIconBubble}>
+                    <Text style={styles.featureIcon}>📊</Text>
+                  </View>
+                  <Text style={styles.featureTitle}>Pantau Progress</Text>
+                  <Text style={styles.featureDescription}>
+                    Lihat perkembangan belajarmu secara jelas.
+                  </Text>
+                </View>
+              </Animated.View>
+
+              <Animated.View
+                entering={FadeInDown.delay(380).duration(600)}
+                style={styles.featureCardWrapper}
+              >
+                <View style={[styles.featureCard, styles.glassCard]}>
+                  <View style={styles.featureIconBubble}>
+                    <Text style={styles.featureIcon}>🎯</Text>
+                  </View>
+                  <Text style={styles.featureTitle}>Belajar Santai</Text>
+                  <Text style={styles.featureDescription}>
+                    Atur ritme belajar sesuai kemampuanmu.
+                  </Text>
+                </View>
+              </Animated.View>
+            </View>
           </View>
-        </Animated.View>
 
-        {/* Bottom spacing */}
-        <View style={{ height: 40 }} />
-      </LinearGradient>
-    </ScrollView>
+          {/* How It Works Section */}
+          <View style={styles.section}>
+            <Animated.View
+              entering={FadeInDown.delay(430).duration(600)}
+              style={styles.sectionHeader}
+            >
+              <View style={styles.sectionTitleRow}>
+                <Text style={styles.sectionEmoji}>💡</Text>
+                <Text style={styles.sectionTitle}>Cara Kerja</Text>
+              </View>
+              <Text style={styles.sectionSubtitle}>3 langkah simpel</Text>
+            </Animated.View>
+
+            <View style={styles.stepContainer}>
+              {[
+                {
+                  n: 1,
+                  t: "Buat Koleksi",
+                  d: "Mulai dengan topik yang ingin kamu kuasai.",
+                  e: "🎨",
+                },
+                {
+                  n: 2,
+                  t: "Tambah Kartu",
+                  d: "Isi pertanyaan & jawaban singkat yang mudah diingat.",
+                  e: "✏️",
+                },
+                {
+                  n: 3,
+                  t: "Belajar & Ulang",
+                  d: "Review rutin, sistem bantu ingatanmu lebih kuat.",
+                  e: "🚀",
+                },
+              ].map((s, idx) => (
+                <Animated.View
+                  key={s.n}
+                  entering={FadeInDown.delay(500 + idx * 60).duration(600)}
+                  style={[styles.step, styles.glassCard]}
+                >
+                  <View style={styles.stepNumber}>
+                    <Text style={styles.stepNumberText}>{s.n}</Text>
+                  </View>
+
+                  <View style={styles.stepContent}>
+                    <Text style={styles.stepTitle}>
+                      {s.e} {s.t}
+                    </Text>
+                    <Text style={styles.stepDescription}>{s.d}</Text>
+                  </View>
+                </Animated.View>
+              ))}
+            </View>
+          </View>
+
+          {/* CTA Section */}
+          <Animated.View
+            entering={FadeInDown.delay(700).duration(650)}
+            style={styles.ctaSection}
+          >
+            <View style={[styles.ctaCard, styles.glassCard]}>
+              <Text style={styles.ctaEmoji}>🎉</Text>
+              <Text style={styles.ctaTitle}>Siap jadi lebih jago?</Text>
+              <Text style={styles.ctaSubtitle}>
+                Mulai dari 1 koleksi kecil hari ini, lalu konsisten tiap hari.
+              </Text>
+
+              <Link href="/(tabs)/create" asChild>
+                <TouchableOpacity activeOpacity={0.9} style={styles.primaryButton}>
+                  <LinearGradient
+                    colors={["#3A7DFF", "#5B93FF"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.primaryButtonGradient}
+                  >
+                    <Text style={styles.primaryButtonText}>Buat Kartu</Text>
+                    <Text style={styles.buttonEmoji}>✨</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </Link>
+
+              <Link href="/(tabs)/review" asChild>
+                <TouchableOpacity activeOpacity={0.9} style={styles.secondaryButton}>
+                  <Text style={styles.secondaryButtonText}>Mulai Review 🚀</Text>
+                </TouchableOpacity>
+              </Link>
+            </View>
+          </Animated.View>
+
+          <View style={{ height: 36 }} />
+        </LinearGradient>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF8E7',
-  },
-
-  gradientBackground: {
-    flex: 1,
-  },
+  safe: { flex: 1, backgroundColor: "#FFF8E7" },
+  container: { flex: 1, backgroundColor: "#FFF8E7" },
+  gradientBackground: { flex: 1 },
 
   // Floating emojis
   floatingEmoji: {
     position: "absolute",
     fontSize: 32,
-    opacity: 0.25,
+    opacity: 0.22,
     zIndex: 1,
   },
-  emoji1: {
-    top: height * 0.08,
-    left: width * 0.08,
-  },
-  emoji2: {
-    top: height * 0.35,
-    right: width * 0.08,
-  },
-  emoji3: {
-    top: height * 0.55,
-    left: width * 0.1,
-  },
-  emoji4: {
-    top: height * 0.75,
-    right: width * 0.12,
-  },
+  emoji1: { top: height * 0.08, left: width * 0.08 },
+  emoji3: { top: height * 0.55, left: width * 0.1 },
+  emoji4: { top: height * 0.75, right: width * 0.12 },
 
   // Decorative circles
   decorativeCircle: {
     position: "absolute",
     borderRadius: 1000,
-    opacity: 0.08,
+    opacity: 0.07,
     zIndex: 0,
   },
   circle1: {
-    width: 200,
-    height: 200,
+    width: 220,
+    height: 220,
     backgroundColor: "#FFE8E8",
-    top: height * 0.15,
-    left: -60,
+    top: height * 0.13,
+    left: -70,
   },
   circle2: {
-    width: 180,
-    height: 180,
+    width: 190,
+    height: 190,
     backgroundColor: "#E8F5FF",
     top: height * 0.45,
-    right: -50,
+    right: -55,
   },
   circle3: {
-    width: 160,
-    height: 160,
+    width: 170,
+    height: 170,
     backgroundColor: "#FFF4E0",
-    top: height * 0.7,
-    left: -40,
+    top: height * 0.72,
+    left: -50,
   },
 
-  // Hero Section
+  // Top header
+  topHeader: {
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === "android" ? 10 : 6,
+    paddingBottom: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  topBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.7)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.9)",
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+  },
+  topBadgeText: {
+    fontFamily: "FredokaBold",
+    fontSize: 13,
+    color: "#0F172A",
+  },
+  topDot: { marginHorizontal: 6, opacity: 0.45, color: "#0F172A" },
+  topBadgeTextMuted: {
+    fontFamily: "Fredoka",
+    fontSize: 13,
+    color: "#475569",
+  },
+  topHint: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: "rgba(58,125,255,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(58,125,255,0.18)",
+  },
+  topHintText: { fontFamily: "FredokaBold", fontSize: 13, color: "#3A7DFF" },
+  topHintEmoji: { marginLeft: 6 },
+
+  // Hero
   heroSection: {
-    alignItems: 'center',
-    paddingVertical: 60,
+    alignItems: "center",
+    paddingTop: 26,
+    paddingBottom: 34,
     paddingHorizontal: 20,
   },
 
-  logoImage: {
-  width: 120,
-  height: 120,
-  },
-
-
-  heroIconContainer: {
-    position: 'relative',
-    marginBottom: 28,
-  },
-
+  heroIconContainer: { position: "relative", marginBottom: 18 },
   heroIcon: {
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#3A7DFF',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 10,
-    borderWidth: 4,
-    borderColor: '#FFFFFF',
+    width: 112,
+    height: 112,
+    borderRadius: 56,
+    backgroundColor: "rgba(255,255,255,0.85)",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#3A7DFF",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    elevation: 9,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.9)",
   },
-
   heroIconBorder: {
-    position: 'absolute',
-    width: 118,
-    height: 118,
-    borderRadius: 59,
-    borderWidth: 3,
-    borderColor: '#3A7DFF',
-    top: -4,
-    left: -4,
+    position: "absolute",
+    width: 122,
+    height: 122,
+    borderRadius: 61,
+    borderWidth: 2,
+    borderColor: "rgba(58,125,255,0.35)",
+    top: -5,
+    left: -5,
   },
-
-  heroIconText: {
-    fontSize: 55,
-  },
+  logoImage: { width: 92, height: 92 },
 
   heroTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
   },
-
-  heroEmoji: {
-    fontSize: 32,
-    marginRight: 8,
-  },
-
+  heroEmoji: { fontSize: 30, marginRight: 8 },
   heroTitle: {
-    fontSize: 32,
-    fontFamily: 'FredokaBold',
-    color: '#2D2D2D',
-    textAlign: 'center',
+    fontSize: 34,
+    fontFamily: "FredokaBold",
+    color: "#0F172A",
+    textAlign: "center",
+    letterSpacing: 0.2,
   },
-
   heroSubtitle: {
-    fontSize: 17,
-    fontFamily: 'Fredoka',
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 26,
-    marginBottom: 32,
-    paddingHorizontal: 20,
+    fontSize: 16,
+    fontFamily: "Fredoka",
+    color: "#475569",
+    textAlign: "center",
+    lineHeight: 24,
+    marginBottom: 18,
+    paddingHorizontal: 10,
   },
 
   heroButton: {
-    borderRadius: 25,
-    overflow: 'hidden',
-    shadowColor: '#3A7DFF',
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    shadowOffset: { height: 6, width: 0 },
+    width: "100%",
+    borderRadius: 22,
+    overflow: "hidden",
+    shadowColor: "#3A7DFF",
+    shadowOpacity: 0.3,
+    shadowRadius: 14,
+    shadowOffset: { height: 8, width: 0 },
     elevation: 8,
+    marginTop: 6,
   },
-
   heroButtonGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 40,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 18,
     paddingVertical: 16,
   },
-
+  heroButtonLeft: { flex: 1 },
   heroButtonText: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontFamily: 'FredokaBold',
-    marginRight: 8,
+    color: "#fff",
+    fontSize: 17,
+    fontFamily: "FredokaBold",
+  },
+  heroButtonSub: {
+    color: "rgba(255,255,255,0.9)",
+    fontSize: 13,
+    marginTop: 4,
+    fontFamily: "Fredoka",
+  },
+  heroButtonIconWrap: {
+    width: 46,
+    height: 46,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 12,
+  },
+  heroButtonIcon: { fontSize: 20 },
+
+  heroGhostBtn: {
+    width: "100%",
+    marginTop: 12,
+    paddingVertical: 14,
+    borderRadius: 18,
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.65)",
+    borderWidth: 1,
+    borderColor: "rgba(58,125,255,0.18)",
+  },
+  heroGhostText: {
+    fontFamily: "FredokaBold",
+    fontSize: 15,
+    color: "#3A7DFF",
   },
 
-  heroButtonIcon: {
-    fontSize: 20,
-  },
-
-  // Features Section
-  featuresSection: {
-    paddingVertical: 40,
+  // Section base
+  section: {
+    paddingTop: 10,
+    paddingBottom: 26,
     paddingHorizontal: 20,
   },
-
   sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 28,
+    alignItems: "center",
+    marginBottom: 16,
   },
-
-  sectionEmoji: {
-    fontSize: 28,
-    marginRight: 10,
-  },
-
+  sectionTitleRow: { flexDirection: "row", alignItems: "center" },
+  sectionEmoji: { fontSize: 22, marginRight: 8 },
   sectionTitle: {
-    fontSize: 26,
-    fontFamily: 'FredokaBold',
-    color: '#2D2D2D',
+    fontSize: 24,
+    fontFamily: "FredokaBold",
+    color: "#0F172A",
+  },
+  sectionSubtitle: {
+    marginTop: 6,
+    fontSize: 13,
+    fontFamily: "Fredoka",
+    color: "#64748B",
+    textAlign: "center",
   },
 
-  featureGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 14,
-  },
-
-  featureCardWrapper: {
-    width: (width - 54) / 2,
-  },
-
-  featureCard: {
-    borderRadius: 24,
-    padding: 22,
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
+  // Glass card style
+  glassCard: {
+    backgroundColor: "rgba(255,255,255,0.62)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.85)",
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
     shadowRadius: 12,
     shadowOffset: { height: 6, width: 0 },
-    elevation: 5,
-  },
-
-  featureIconBubble: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 14,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.9)',
-  },
-
-  featureIcon: {
-    fontSize: 32,
-  },
-
-  featureTitle: {
-    fontSize: 16,
-    fontFamily: 'FredokaBold',
-    color: '#2D2D2D',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-
-  featureDescription: {
-    fontSize: 13,
-    fontFamily: 'Fredoka',
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-
-  // How It Works Section
-  howItWorksSection: {
-    paddingVertical: 40,
-    paddingHorizontal: 20,
-  },
-
-  stepContainer: {
-    marginTop: 20,
-    gap: 24,
-  },
-
-  step: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    borderRadius: 20,
-    padding: 20,
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    shadowOffset: { height: 4, width: 0 },
     elevation: 3,
   },
 
-  stepNumberContainer: {
-    marginRight: 16,
+  // Features
+  featureGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    gap: 14,
   },
-
-  stepNumber: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#3A7DFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#3A7DFF',
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    shadowOffset: { height: 4, width: 0 },
-    elevation: 6,
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
+  featureCardWrapper: { width: CARD_W },
+  featureCard: {
+    borderRadius: 22,
+    padding: 18,
+    alignItems: "center",
   },
-
-  stepNumberText: {
-    color: '#ffffff',
-    fontSize: 22,
-    fontFamily: 'FredokaBold',
-  },
-
-  stepContent: {
-    flex: 1,
-  },
-
-  stepTitle: {
-    fontSize: 18,
-    fontFamily: 'FredokaBold',
-    color: '#2D2D2D',
-    marginBottom: 6,
-  },
-
-  stepDescription: {
-    fontSize: 15,
-    fontFamily: 'Fredoka',
-    color: '#666',
-    lineHeight: 22,
-  },
-
-  // CTA Section
-  ctaSection: {
-    paddingVertical: 50,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-  },
-
-  ctaEmoji: {
-    fontSize: 48,
-    marginBottom: 16,
-  },
-
-  ctaTitle: {
-    fontSize: 28,
-    fontFamily: 'FredokaBold',
-    color: '#2D2D2D',
-    textAlign: 'center',
+  featureIconBubble: {
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    backgroundColor: "rgba(58,125,255,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(58,125,255,0.16)",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 12,
   },
-
-  ctaSubtitle: {
-    fontSize: 16,
-    fontFamily: 'Fredoka',
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 32,
-    paddingHorizontal: 20,
+  featureIcon: { fontSize: 30 },
+  featureTitle: {
+    fontSize: 15,
+    fontFamily: "FredokaBold",
+    color: "#0F172A",
+    textAlign: "center",
+    marginBottom: 6,
+  },
+  featureDescription: {
+    fontSize: 12.5,
+    fontFamily: "Fredoka",
+    color: "#475569",
+    textAlign: "center",
+    lineHeight: 18,
   },
 
-  ctaButtons: {
-    width: '100%',
-    gap: 14,
+  // Steps
+  stepContainer: { marginTop: 10, gap: 14 },
+  step: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 20,
+    padding: 16,
+  },
+  stepNumber: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: "rgba(58,125,255,0.14)",
+    borderWidth: 1,
+    borderColor: "rgba(58,125,255,0.18)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  stepNumberText: {
+    fontFamily: "FredokaBold",
+    fontSize: 18,
+    color: "#3A7DFF",
+  },
+  stepContent: { flex: 1 },
+  stepTitle: {
+    fontSize: 16,
+    fontFamily: "FredokaBold",
+    color: "#0F172A",
+    marginBottom: 4,
+  },
+  stepDescription: {
+    fontSize: 13.5,
+    fontFamily: "Fredoka",
+    color: "#475569",
+    lineHeight: 20,
+  },
+
+  // CTA
+  ctaSection: {
+    paddingHorizontal: 20,
+    paddingTop: 6,
+    paddingBottom: 18,
+  },
+  ctaCard: {
+    borderRadius: 24,
+    padding: 20,
+    alignItems: "center",
+  },
+  ctaEmoji: { fontSize: 44, marginBottom: 10 },
+  ctaTitle: {
+    fontSize: 24,
+    fontFamily: "FredokaBold",
+    color: "#0F172A",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  ctaSubtitle: {
+    fontSize: 14.5,
+    fontFamily: "Fredoka",
+    color: "#475569",
+    textAlign: "center",
+    lineHeight: 22,
+    marginBottom: 16,
+    paddingHorizontal: 8,
   },
 
   primaryButton: {
-    borderRadius: 20,
-    overflow: 'hidden',
-    shadowColor: '#3A7DFF',
-    shadowOpacity: 0.4,
+    width: "100%",
+    borderRadius: 18,
+    overflow: "hidden",
+    shadowColor: "#3A7DFF",
+    shadowOpacity: 0.28,
     shadowRadius: 12,
-    shadowOffset: { height: 6, width: 0 },
-    elevation: 8,
+    shadowOffset: { height: 8, width: 0 },
+    elevation: 7,
+    marginBottom: 12,
   },
-
   primaryButtonGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 15,
   },
-
   primaryButtonText: {
-    color: '#ffffff',
-    fontSize: 17,
-    fontFamily: 'FredokaBold',
+    color: "#fff",
+    fontSize: 16.5,
+    fontFamily: "FredokaBold",
     marginRight: 8,
   },
-
-  buttonEmoji: {
-    fontSize: 20,
-  },
+  buttonEmoji: { fontSize: 18 },
 
   secondaryButton: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 3,
-    borderColor: '#3A7DFF',
-    paddingVertical: 16,
-    borderRadius: 20,
-    shadowColor: '#3A7DFF',
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    shadowOffset: { height: 4, width: 0 },
-    elevation: 6,
-    alignItems: 'center',
+    width: "100%",
+    paddingVertical: 14,
+    borderRadius: 18,
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.75)",
+    borderWidth: 1,
+    borderColor: "rgba(58,125,255,0.22)",
   },
-
   secondaryButtonText: {
-    color: '#3A7DFF',
-    fontSize: 17,
-    fontFamily: 'FredokaBold',
+    color: "#3A7DFF",
+    fontSize: 16,
+    fontFamily: "FredokaBold",
   },
 });
 
