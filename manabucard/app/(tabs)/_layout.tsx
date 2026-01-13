@@ -28,7 +28,7 @@ export default function TabLayout() {
         name="review"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="search" label="Search" focused={focused} />
+            <TabIcon icon="search" label="Belajar" focused={focused} />
           ),
         }}
       />
@@ -36,7 +36,7 @@ export default function TabLayout() {
         name="create"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="bar-chart" label="Stats" focused={focused} />
+            <TabIcon icon="bar-chart" label="Tambah" focused={focused} />
           ),
         }}
       />
