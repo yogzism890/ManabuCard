@@ -20,6 +20,8 @@ import Input from "../../../components/ui/Input";
 
 const { width } = Dimensions.get("window");
 
+const ACCENT = "#9100FF";
+
 export default function CreateCollectionScreen() {
   const { apiRequest, isAuthenticated } = useAuth();
 
@@ -72,12 +74,18 @@ export default function CreateCollectionScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
-      <LinearGradient colors={["#F6F7FB", "#F6F7FB"]} style={styles.page}>
-        {/* Subtle decorations */}
+      <View style={styles.page}>
+        {/* Background */}
+        <LinearGradient
+          colors={["#F7F7FB", "#F7F7FB"]}
+          style={StyleSheet.absoluteFill}
+        />
+
+        {/* Soft blobs */}
         <View style={styles.blob1} />
         <View style={styles.blob2} />
-        <Animated.View entering={FadeIn.delay(150)} style={styles.sparkle}>
-          <Feather name="sparkles" size={18} color="rgba(58,125,255,0.35)" />
+        <Animated.View entering={FadeIn.delay(120)} style={styles.sparkle}>
+          <Feather name="star" size={16} color="rgba(145,0,255,0.35)" />
         </Animated.View>
 
         <ScrollView
@@ -85,10 +93,10 @@ export default function CreateCollectionScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Header */}
-          <Animated.View entering={FadeInDown.delay(100).duration(600)} style={styles.header}>
-            <View style={styles.headerTopRow}>
+          <Animated.View entering={FadeInDown.delay(80).duration(600)} style={styles.header}>
+            <View style={styles.badgeRow}>
               <View style={styles.badge}>
-                <Feather name="folder" size={14} color="#3A7DFF" />
+                <View style={styles.badgeDot} />
                 <Text style={styles.badgeText}>Create Collection</Text>
               </View>
 
@@ -98,7 +106,7 @@ export default function CreateCollectionScreen() {
                 onPress={() =>
                   Alert.alert(
                     "Tips",
-                    "Nama koleksi sebaiknya singkat dan jelas. Contoh: Matematika, Bahasa Inggris, Biologi."
+                    "Nama koleksi sebaiknya singkat & jelas. Contoh: Matematika, Bahasa Inggris, Biologi."
                   )
                 }
               >
@@ -108,37 +116,34 @@ export default function CreateCollectionScreen() {
 
             <Text style={styles.title}>Buat Koleksi Baru</Text>
             <Text style={styles.subtitle}>
-              Atur kartu belajarmu biar rapi dan gampang direview.
+              Atur kartu belajarmu jadi lebih rapi, gampang dicari, dan enak direview.
             </Text>
           </Animated.View>
 
-          {/* Form Card */}
-          <Animated.View entering={FadeInDown.delay(170).duration(600)} style={styles.card}>
-            {/* Info inline */}
+          {/* Card */}
+          <Animated.View entering={FadeInDown.delay(140).duration(600)} style={styles.card}>
+            {/* Info */}
             <View style={styles.info}>
               <View style={styles.infoIcon}>
-                <Feather name="zap" size={16} color="#3A7DFF" />
+                <Feather name="zap" size={16} color={ACCENT} />
               </View>
               <Text style={styles.infoText}>
-                Koleksi = grup kartu berdasarkan topik/mata pelajaran.
+                Koleksi membantu kamu mengelompokkan kartu berdasarkan topik / mata pelajaran.
               </Text>
             </View>
 
-            {/* Field: Name */}
+            {/* Field: Nama */}
             <View style={styles.field}>
               <Text style={styles.label}>Nama Koleksi</Text>
-              <View style={styles.inputRow}>
-                <View style={styles.leftIcon}>
-                  <Feather name="edit-3" size={18} color="#6B7280" />
-                </View>
-
-                <View style={{ flex: 1 }}>
+              <View style={styles.inputShell}>
+                <Feather name="edit-3" size={18} color="#6B7280" />
+                <View style={styles.inputFlex}>
                   <Input
-                    label="" // supaya label kamu tidak dobel (jika Input punya label internal)
+                    label="" // supaya label tidak dobel
                     value={name}
-                    onChangeText={(text) => {
-                      setName(text);
-                      if (text.trim() !== "") setError({ nama: false });
+                    onChangeText={(t) => {
+                      setName(t);
+                      if (t.trim() !== "") setError({ nama: false });
                     }}
                     error={error.nama ? "Nama koleksi tidak boleh kosong" : ""}
                     placeholder="Contoh: Bahasa Inggris"
@@ -150,12 +155,9 @@ export default function CreateCollectionScreen() {
             {/* Field: Desc */}
             <View style={styles.field}>
               <Text style={styles.label}>Deskripsi (Opsional)</Text>
-              <View style={styles.inputRow}>
-                <View style={styles.leftIcon}>
-                  <Feather name="file-text" size={18} color="#6B7280" />
-                </View>
-
-                <View style={{ flex: 1 }}>
+              <View style={[styles.inputShell, styles.inputShellTop]}>
+                <Feather name="file-text" size={18} color="#6B7280" />
+                <View style={styles.inputFlex}>
                   <Input
                     label=""
                     value={desc}
@@ -169,9 +171,9 @@ export default function CreateCollectionScreen() {
 
             {/* Preview */}
             {name.trim() !== "" && (
-              <Animated.View entering={FadeInDown.duration(350)} style={styles.preview}>
-                <View style={styles.previewHeader}>
-                  <Feather name="eye" size={16} color="#3A7DFF" />
+              <Animated.View entering={FadeInDown.duration(300)} style={styles.preview}>
+                <View style={styles.previewHead}>
+                  <Feather name="eye" size={16} color={ACCENT} />
                   <Text style={styles.previewTitle}>Preview</Text>
                 </View>
 
@@ -182,7 +184,7 @@ export default function CreateCollectionScreen() {
               </Animated.View>
             )}
 
-            {/* Submit */}
+            {/* Button */}
             <TouchableOpacity
               activeOpacity={0.9}
               style={[styles.primaryBtn, !canSubmit && styles.primaryBtnDisabled]}
@@ -190,15 +192,15 @@ export default function CreateCollectionScreen() {
               disabled={!canSubmit}
             >
               <LinearGradient
-                colors={canSubmit ? ["#3A7DFF", "#5B93FF"] : ["#CBD5E1", "#CBD5E1"]}
+                colors={canSubmit ? [ACCENT, "#B44CFF"] : ["#CBD5E1", "#CBD5E1"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
-                style={styles.primaryBtnGrad}
+                style={styles.primaryGrad}
               >
-                <Text style={styles.primaryBtnText}>
+                <Text style={styles.primaryText}>
                   {loading ? "Membuat..." : "Buat Koleksi"}
                 </Text>
-                <View style={styles.primaryBtnIcon}>
+                <View style={styles.primaryIcon}>
                   <Feather
                     name={loading ? "loader" : "arrow-right"}
                     size={18}
@@ -211,92 +213,107 @@ export default function CreateCollectionScreen() {
             {/* Tips */}
             <View style={styles.tips}>
               <Text style={styles.tipsTitle}>Tips cepat</Text>
+
               <View style={styles.tipRow}>
-                <Feather name="check" size={16} color="#10B981" />
+                <View style={[styles.tipCheck, { backgroundColor: "rgba(16,185,129,0.12)" }]}>
+                  <Feather name="check" size={14} color="#10B981" />
+                </View>
                 <Text style={styles.tipText}>Nama singkat & spesifik.</Text>
               </View>
+
               <View style={styles.tipRow}>
-                <Feather name="check" size={16} color="#10B981" />
+                <View style={[styles.tipCheck, { backgroundColor: "rgba(16,185,129,0.12)" }]}>
+                  <Feather name="check" size={14} color="#10B981" />
+                </View>
                 <Text style={styles.tipText}>Deskripsi untuk tujuan koleksi.</Text>
               </View>
+
               <View style={styles.tipRow}>
-                <Feather name="check" size={16} color="#10B981" />
+                <View style={[styles.tipCheck, { backgroundColor: "rgba(16,185,129,0.12)" }]}>
+                  <Feather name="check" size={14} color="#10B981" />
+                </View>
                 <Text style={styles.tipText}>Boleh buat banyak koleksi.</Text>
               </View>
             </View>
           </Animated.View>
 
-          <View style={{ height: 22 }} />
+          <View style={{ height: 18 }} />
         </ScrollView>
-      </LinearGradient>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F6F7FB" },
-  page: { flex: 1 },
+  safe: { flex: 1, backgroundColor: "#F7F7FB" },
+  page: { flex: 1, backgroundColor: "#F7F7FB" },
 
   content: {
     paddingHorizontal: 20,
-    paddingTop: 14,
-    paddingBottom: 26,
+    paddingTop: -10,
+    paddingBottom: 22,
+    gap: 14, // bikin jarak antar section konsisten
   },
 
   // decorations
   blob1: {
     position: "absolute",
-    top: -80,
-    left: -70,
-    width: 220,
-    height: 220,
+    top: -90,
+    left: -80,
+    width: 250,
+    height: 250,
     borderRadius: 999,
-    backgroundColor: "rgba(58,125,255,0.10)",
+    backgroundColor: "rgba(145,0,255,0.10)",
   },
   blob2: {
     position: "absolute",
-    bottom: -90,
-    right: -80,
-    width: 240,
-    height: 240,
+    bottom: -110,
+    right: -90,
+    width: 280,
+    height: 280,
     borderRadius: 999,
-    backgroundColor: "rgba(255,196,107,0.12)",
+    backgroundColor: "rgba(255,196,107,0.10)",
   },
   sparkle: {
     position: "absolute",
-    top: 18,
-    right: 18,
-    width: 34,
-    height: 34,
-    borderRadius: 14,
-    backgroundColor: "rgba(255,255,255,0.75)",
+    top: 14,
+    right: 14,
+    width: 36,
+    height: 36,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.80)",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.9)",
+    borderColor: "rgba(255,255,255,0.95)",
   },
 
   // header
   header: {
-    paddingTop: 6,
-    paddingBottom: 12,
+    paddingTop: 4,
   },
-  headerTopRow: {
+  badgeRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 12,
   },
   badge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.8)",
+    backgroundColor: "rgba(255,255,255,0.85)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.9)",
+    borderColor: "rgba(17,24,39,0.06)",
+    gap: 8,
+  },
+  badgeDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 999,
+    backgroundColor: ACCENT,
   },
   badgeText: {
     fontFamily: "Poppins_600SemiBold",
@@ -307,14 +324,11 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 16,
-    backgroundColor: "rgba(255,255,255,0.85)",
+    backgroundColor: "rgba(255,255,255,0.90)",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: "rgba(17,24,39,0.06)",
   },
   title: {
     fontFamily: "Poppins_700Bold",
@@ -327,6 +341,7 @@ const styles = StyleSheet.create({
     fontSize: 13.5,
     color: "#6B7280",
     lineHeight: 20,
+    maxWidth: 520,
   },
 
   // card
@@ -341,6 +356,7 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 10 },
     elevation: 3,
+    gap: 14, // konsisten jarak dalam card
   },
 
   // info
@@ -350,16 +366,15 @@ const styles = StyleSheet.create({
     gap: 10,
     padding: 12,
     borderRadius: 16,
-    backgroundColor: "rgba(58,125,255,0.08)",
+    backgroundColor: "rgba(145,0,255,0.08)",
     borderWidth: 1,
-    borderColor: "rgba(58,125,255,0.16)",
-    marginBottom: 14,
+    borderColor: "rgba(145,0,255,0.14)",
   },
   infoIcon: {
     width: 34,
     height: 34,
     borderRadius: 14,
-    backgroundColor: "rgba(255,255,255,0.7)",
+    backgroundColor: "rgba(255,255,255,0.75)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -371,39 +386,47 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
 
-  // field
-  field: { marginTop: 10 },
+  // fields
+  field: {
+    gap: 8,
+  },
   label: {
     fontFamily: "Poppins_600SemiBold",
     fontSize: 13.5,
     color: "#111827",
-    marginBottom: 8,
   },
-  inputRow: {
+
+  // input shell (rapi + konsisten)
+  inputShell: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 10,
-  },
-  leftIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 16,
-    backgroundColor: "#F3F4F6",
     alignItems: "center",
-    justifyContent: "center",
-    marginTop: Platform.OS === "android" ? 2 : 0,
+    gap: 10,
+    backgroundColor: "#F3F4F6",
+    borderRadius: 16,
+    paddingLeft: 14,
+    paddingRight: 10,
+    paddingVertical: Platform.OS === "android" ? 6 : 10,
+    borderWidth: 1,
+    borderColor: "rgba(17,24,39,0.06)",
+  },
+  inputShellTop: {
+    alignItems: "flex-start", // multiline biar icon naik
+    paddingTop: 10,
+  },
+  inputFlex: {
+    flex: 1,
+    paddingTop: 2,
   },
 
   // preview
   preview: {
-    marginTop: 14,
     padding: 14,
     borderRadius: 18,
     backgroundColor: "rgba(17,24,39,0.03)",
     borderWidth: 1,
     borderColor: "rgba(17,24,39,0.06)",
   },
-  previewHeader: {
+  previewHead: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
@@ -412,7 +435,7 @@ const styles = StyleSheet.create({
   previewTitle: {
     fontFamily: "Poppins_600SemiBold",
     fontSize: 13,
-    color: "#3A7DFF",
+    color: ACCENT,
   },
   previewName: {
     fontFamily: "Poppins_700Bold",
@@ -429,27 +452,26 @@ const styles = StyleSheet.create({
 
   // button
   primaryBtn: {
-    marginTop: 16,
     borderRadius: 18,
     overflow: "hidden",
   },
   primaryBtnDisabled: {
     opacity: 0.85,
   },
-  primaryBtnGrad: {
+  primaryGrad: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 14,
     paddingHorizontal: 16,
   },
-  primaryBtnText: {
+  primaryText: {
     fontFamily: "Poppins_600SemiBold",
     fontSize: 15,
     color: "#fff",
     marginRight: 10,
   },
-  primaryBtnIcon: {
+  primaryIcon: {
     width: 34,
     height: 34,
     borderRadius: 14,
@@ -460,24 +482,30 @@ const styles = StyleSheet.create({
 
   // tips
   tips: {
-    marginTop: 14,
     padding: 14,
     borderRadius: 18,
     backgroundColor: "rgba(255,196,107,0.14)",
     borderWidth: 1,
-    borderColor: "rgba(255,196,107,0.20)",
+    borderColor: "rgba(255,196,107,0.22)",
+    gap: 8,
   },
   tipsTitle: {
     fontFamily: "Poppins_700Bold",
     fontSize: 13.5,
     color: "#111827",
-    marginBottom: 8,
+    marginBottom: 2,
   },
   tipRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    marginTop: 6,
+  },
+  tipCheck: {
+    width: 26,
+    height: 26,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
   tipText: {
     fontFamily: "Poppins_400Regular",
