@@ -11,38 +11,53 @@ import {
 } from "react-native";
 import { Link } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import Animated, { FadeInDown, FadeIn } from "react-native-reanimated";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
-const { width, height } = Dimensions.get("window");
-const CARD_W = (width - 60) / 2; // Penyesuaian lebar kartu agar seimbang
+const { width } = Dimensions.get("window");
+const ACCENT = "#9100FF";
+const CARD_GAP = 14;
+const CARD_W = (width - 40 - CARD_GAP) / 2; // 20 kiri + 20 kanan + gap 14
 
 const LandingScreen = () => {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         <LinearGradient
-          colors={["#F8F0FF", "#F0F4FF", "#FFFFFF"]} // Warna lebih soft ke arah ungu/biru
+          colors={["#F8F0FF", "#F0F4FF", "#FFFFFF"]}
           style={styles.gradientBackground}
         >
-          {/* Ornamen Dekoratif (Bukan kotak, tapi lingkaran blur) */}
-          <View style={[styles.decorativeCircle, styles.circle1]} />
-          <View style={[styles.decorativeCircle, styles.circle2]} />
+          {/* Decorative blobs */}
+          <View style={[styles.blob, styles.blob1]} />
+          <View style={[styles.blob, styles.blob2]} />
 
           {/* Top Header */}
-          <Animated.View entering={FadeInDown.delay(100)} style={styles.topHeader}>
+          <Animated.View entering={FadeInDown.delay(80)} style={styles.topHeader}>
             <View style={styles.topBadge}>
-              <Ionicons name="sparkles" size={16} color="#9100FF" style={{ marginRight: 6 }} />
+              <Ionicons
+                name="sparkles"
+                size={16}
+                color={ACCENT}
+                style={{ marginRight: 6 }}
+              />
               <Text style={styles.topBadgeText}>ManabuCard v1.0</Text>
             </View>
-            <TouchableOpacity style={styles.profileMini}>
-              <Ionicons name="person-circle-outline" size={28} color="#1A1A1A" />
+
+            <TouchableOpacity style={styles.profileMini} activeOpacity={0.85}>
+              <Ionicons
+                name="person-circle-outline"
+                size={30}
+                color="#111827"
+              />
             </TouchableOpacity>
           </Animated.View>
 
-          {/* Hero Section */}
-          <Animated.View entering={FadeInDown.delay(200)} style={styles.heroSection}>
+          {/* Hero */}
+          <Animated.View entering={FadeInDown.delay(160)} style={styles.heroSection}>
             <View style={styles.logoWrapper}>
               <Image
                 source={require("../../assets/images/logo.png")}
@@ -50,51 +65,66 @@ const LandingScreen = () => {
                 resizeMode="contain"
               />
             </View>
+
             <Text style={styles.heroTitle}>Halo, Faiz 👋</Text>
             <Text style={styles.heroSubtitle}>
-              Siap menguasai hal baru hari ini? Tingkatkan ingatanmu dengan metode flashcard yang asik.
+              Siap menguasai hal baru hari ini? Tingkatkan ingatanmu dengan metode
+              flashcard yang asik dan konsisten.
             </Text>
 
-            {/* Tombol Utama (Ungu Navigasi) */}
+            {/* Main CTA */}
             <Link href="/(tabs)/review" asChild>
-              <TouchableOpacity activeOpacity={0.8} style={styles.mainButton}>
+              <TouchableOpacity activeOpacity={0.9} style={styles.mainButton}>
                 <LinearGradient
-                  colors={["#9100FF", "#7100CC"]}
+                  colors={[ACCENT, "#B44CFF"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.mainButtonGradient}
                 >
-                  <Text style={styles.mainButtonText}>Mulai Belajar Sekarang</Text>
-                  <Ionicons name="chevron-forward" size={20} color="#fff" />
+                  <Text style={styles.mainButtonText}>Mulai Belajar</Text>
+                  <View style={styles.mainButtonIcon}>
+                    <Ionicons name="chevron-forward" size={18} color="#fff" />
+                  </View>
                 </LinearGradient>
+              </TouchableOpacity>
+            </Link>
+
+            {/* Secondary CTA */}
+            <Link href="/(tabs)/create" asChild>
+              <TouchableOpacity activeOpacity={0.9} style={styles.secondaryBtn}>
+                <Text style={styles.secondaryBtnText}>Buat Kartu Baru ✨</Text>
               </TouchableOpacity>
             </Link>
           </Animated.View>
 
-          {/* Features Grid (Style Kaca Tanpa Border Kaku) */}
+          {/* Features */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Fitur Utama</Text>
+            <View style={styles.sectionHead}>
+              <Text style={styles.sectionTitle}>Fitur Utama</Text>
+              <Text style={styles.sectionSub}>Semua yang kamu butuhkan untuk belajar</Text>
+            </View>
+
             <View style={styles.featureGrid}>
               <FeatureCard
-                delay={300}
+                delay={240}
                 icon="layers-outline"
                 title="Koleksi"
                 desc="Atur kartu per topik"
               />
               <FeatureCard
-                delay={400}
+                delay={320}
                 icon="infinite-outline"
                 title="Spaced Repetition"
                 desc="Review di waktu tepat"
               />
               <FeatureCard
-                delay={500}
+                delay={400}
                 icon="analytics-outline"
                 title="Statistik"
-                desc="Pantau grafik progres"
+                desc="Pantau progresmu"
               />
               <FeatureCard
-                delay={600}
+                delay={480}
                 icon="color-wand-outline"
                 title="Kustom"
                 desc="Desain sesukamu"
@@ -102,64 +132,78 @@ const LandingScreen = () => {
             </View>
           </View>
 
-          {/* How it Works (List Elegan) */}
+          {/* How it Works */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Cara Kerja</Text>
+            <View style={styles.sectionHead}>
+              <Text style={styles.sectionTitle}>Cara Kerja</Text>
+              <Text style={styles.sectionSub}>3 langkah simpel</Text>
+            </View>
+
             <View style={styles.stepWrapper}>
-              <StepItem 
-                n={1} 
-                title="Buat Kartu" 
-                desc="Masukkan pertanyaan dan jawaban singkat." 
-                delay={700}
+              <StepItem
+                n={1}
+                title="Buat Kartu"
+                desc="Masukkan pertanyaan dan jawaban singkat."
+                delay={560}
               />
-              <StepItem 
-                n={2} 
-                title="Review Rutin" 
-                desc="Buka aplikasi setiap hari untuk sesi singkat." 
-                delay={800}
+              <StepItem
+                n={2}
+                title="Review Rutin"
+                desc="Buka aplikasi setiap hari untuk sesi singkat."
+                delay={640}
               />
-              <StepItem 
-                n={3} 
-                title="Kuasai Materi" 
-                desc="Ingatanmu akan bertahan lebih lama secara otomatis." 
-                delay={900}
+              <StepItem
+                n={3}
+                title="Kuasai Materi"
+                desc="Ingatanmu bertahan lebih lama secara otomatis."
+                delay={720}
               />
             </View>
           </View>
 
-          <View style={{ height: 120 }} /> 
-          {/* Padding bawah agar tidak tertutup TabBar melayang */}
+          {/* Bottom spacing for floating tab bar */}
+          <View style={{ height: 110 }} />
         </LinearGradient>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-// Komponen Card Kecil
 function FeatureCard({ delay, icon, title, desc }: any) {
   return (
     <Animated.View entering={FadeInDown.delay(delay)} style={styles.featureCardWrapper}>
-      <View style={styles.glassCard}>
+      <View style={styles.featureCard}>
         <View style={styles.iconCircle}>
-          <Ionicons name={icon} size={24} color="#9100FF" />
+          <Ionicons name={icon} size={22} color={ACCENT} />
         </View>
-        <Text style={styles.featureTitle}>{title}</Text>
-        <Text style={styles.featureDesc}>{desc}</Text>
+
+        <Text style={styles.featureTitle} numberOfLines={1}>
+          {title}
+        </Text>
+        <Text style={styles.featureDesc} numberOfLines={2}>
+          {desc}
+        </Text>
       </View>
     </Animated.View>
   );
 }
 
-// Komponen List Step
 function StepItem({ n, title, desc, delay }: any) {
   return (
     <Animated.View entering={FadeInDown.delay(delay)} style={styles.stepItem}>
       <View style={styles.stepBadge}>
         <Text style={styles.stepNumber}>{n}</Text>
       </View>
+
       <View style={styles.stepTextContent}>
-        <Text style={styles.stepTitle}>{title}</Text>
+        <Text style={styles.stepTitle} numberOfLines={1}>
+          {title}
+        </Text>
         <Text style={styles.stepDesc}>{desc}</Text>
+      </View>
+
+      <View style={styles.stepArrow}>
+        <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
       </View>
     </Animated.View>
   );
@@ -167,122 +211,251 @@ function StepItem({ n, title, desc, delay }: any) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#F8F0FF" },
-  container: { flex: 1 },
-  gradientBackground: { flex: 1, paddingHorizontal: 20 },
 
-  // Dekorasi Lingkaran Blur (Menghapus kesan kaku)
-  decorativeCircle: {
-    position: "absolute",
-    borderRadius: 200,
-    opacity: 0.4,
+  scrollContent: {
+    flexGrow: 1,
   },
-  circle1: { width: 300, height: 300, backgroundColor: "#E0D0FF", top: -50, right: -100 },
-  circle2: { width: 200, height: 200, backgroundColor: "#D0E0FF", top: 400, left: -100 },
 
+  gradientBackground: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === "android" ? 10 : 6,
+  },
+
+  // Blobs
+  blob: {
+    position: "absolute",
+    borderRadius: 999,
+    opacity: 0.35,
+  },
+  blob1: {
+    width: 320,
+    height: 320,
+    backgroundColor: "rgba(145,0,255,0.14)",
+    top: -80,
+    right: -120,
+  },
+  blob2: {
+    width: 240,
+    height: 240,
+    backgroundColor: "rgba(59,130,246,0.10)",
+    top: 420,
+    left: -130,
+  },
+
+  // Top header
   topHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 20,
-    marginBottom: 30,
+    marginTop: 8,
+    marginBottom: 18,
   },
   topBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.8)",
+    backgroundColor: "rgba(255,255,255,0.85)",
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingVertical: 7,
+    borderRadius: 999,
     borderWidth: 1,
-    borderColor: "rgba(145, 0, 255, 0.1)",
+    borderColor: "rgba(17,24,39,0.06)",
   },
-  topBadgeText: { fontSize: 12, fontFamily: "Poppins-SemiBold", color: "#9100FF" },
-  profileMini: { width: 40, height: 40, justifyContent: "center", alignItems: "center" },
-
-  heroSection: { alignItems: "center", marginBottom: 40 },
-  logoWrapper: {
-    width: 100,
-    height: 100,
-    borderRadius: 30,
-    backgroundColor: "#fff",
+  topBadgeText: {
+    fontSize: 12,
+    fontFamily: "Poppins_600SemiBold",
+    color: ACCENT,
+  },
+  profileMini: {
+    width: 42,
+    height: 42,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.85)",
+    borderWidth: 1,
+    borderColor: "rgba(17,24,39,0.06)",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
-    elevation: 5,
-    shadowColor: "#9100FF",
-    shadowOpacity: 0.1,
-    shadowRadius: 15,
   },
-  logoImage: { width: 70, height: 70 },
-  heroTitle: { fontSize: 28, fontFamily: "Poppins-Bold", color: "#1A1A1A" },
-  heroSubtitle: {
-    fontSize: 14,
-    fontFamily: "Poppins-Regular",
-    color: "#666",
+
+  // Hero
+  heroSection: { alignItems: "center", marginBottom: 26 },
+  logoWrapper: {
+    width: 104,
+    height: 104,
+    borderRadius: 28,
+    backgroundColor: "rgba(255,255,255,0.92)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: "rgba(17,24,39,0.06)",
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 3,
+  },
+  logoImage: { width: 72, height: 72 },
+
+  heroTitle: {
+    fontSize: 28,
+    fontFamily: "Poppins_700Bold",
+    color: "#111827",
     textAlign: "center",
-    lineHeight: 22,
-    marginTop: 10,
+  },
+  heroSubtitle: {
+    fontSize: 13.5,
+    fontFamily: "Poppins_400Regular",
+    color: "#6B7280",
+    textAlign: "center",
+    lineHeight: 20,
+    marginTop: 8,
     paddingHorizontal: 10,
   },
 
-  mainButton: { width: "100%", marginTop: 25, borderRadius: 20, overflow: "hidden" },
+  mainButton: {
+    width: "100%",
+    marginTop: 18,
+    borderRadius: 18,
+    overflow: "hidden",
+    shadowColor: ACCENT,
+    shadowOpacity: 0.22,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 6,
+  },
   mainButtonGradient: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 18,
+    paddingVertical: 16,
     gap: 10,
   },
-  mainButtonText: { color: "#fff", fontSize: 16, fontFamily: "Poppins-Bold" },
-
-  section: { marginBottom: 30 },
-  sectionTitle: { fontSize: 20, fontFamily: "Poppins-Bold", color: "#1A1A1A", marginBottom: 15 },
-
-  featureGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" },
-  featureCardWrapper: { width: CARD_W, marginBottom: 15 },
-  glassCard: {
-    backgroundColor: "rgba(255, 255, 255, 0.6)",
-    borderRadius: 24,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.8)",
-    minHeight: 160,
+  mainButtonText: {
+    color: "#fff",
+    fontSize: 15.5,
+    fontFamily: "Poppins_700Bold",
   },
-  iconCircle: {
-    width: 45,
-    height: 45,
-    borderRadius: 15,
-    backgroundColor: "rgba(145, 0, 255, 0.1)",
+  mainButtonIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.18)",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
   },
-  featureTitle: { fontSize: 14, fontFamily: "Poppins-SemiBold", color: "#1A1A1A" },
-  featureDesc: { fontSize: 11, fontFamily: "Poppins-Regular", color: "#777", marginTop: 4 },
 
-  stepWrapper: { gap: 12 },
+  secondaryBtn: {
+    width: "100%",
+    marginTop: 12,
+    paddingVertical: 14,
+    borderRadius: 18,
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.78)",
+    borderWidth: 1,
+    borderColor: "rgba(145,0,255,0.16)",
+  },
+  secondaryBtnText: {
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 14,
+    color: ACCENT,
+  },
+
+  // Section
+  section: { marginTop: 10, marginBottom: 18 },
+  sectionHead: { marginBottom: 12 },
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: "Poppins_700Bold",
+    color: "#111827",
+  },
+  sectionSub: {
+    marginTop: 4,
+    fontSize: 12.5,
+    fontFamily: "Poppins_400Regular",
+    color: "#6B7280",
+  },
+
+  // Features grid
+  featureGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    rowGap: CARD_GAP,
+  },
+  featureCardWrapper: { width: CARD_W },
+  featureCard: {
+    backgroundColor: "rgba(255,255,255,0.68)",
+    borderRadius: 22,
+    padding: 16,
+    minHeight: 150,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.85)",
+  },
+  iconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 16,
+    backgroundColor: "rgba(145,0,255,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(145,0,255,0.14)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  featureTitle: {
+    fontSize: 13.5,
+    fontFamily: "Poppins_600SemiBold",
+    color: "#111827",
+  },
+  featureDesc: {
+    marginTop: 4,
+    fontSize: 11.5,
+    fontFamily: "Poppins_400Regular",
+    color: "#6B7280",
+    lineHeight: 16,
+  },
+
+  // Steps
+  stepWrapper: { gap: 10 },
   stepItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.4)",
-    padding: 15,
-    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.62)",
+    padding: 14,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.5)",
+    borderColor: "rgba(255,255,255,0.85)",
   },
   stepBadge: {
-    width: 35,
-    height: 35,
-    borderRadius: 12,
-    backgroundColor: "#9100FF",
+    width: 36,
+    height: 36,
+    borderRadius: 14,
+    backgroundColor: ACCENT,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 15,
+    marginRight: 12,
   },
-  stepNumber: { color: "#fff", fontFamily: "Poppins-Bold", fontSize: 14 },
+  stepNumber: { color: "#fff", fontFamily: "Poppins_700Bold", fontSize: 13 },
   stepTextContent: { flex: 1 },
-  stepTitle: { fontSize: 15, fontFamily: "Poppins-SemiBold", color: "#1A1A1A" },
-  stepDesc: { fontSize: 12, fontFamily: "Poppins-Regular", color: "#666" },
+  stepTitle: { fontSize: 14, fontFamily: "Poppins_600SemiBold", color: "#111827" },
+  stepDesc: {
+    marginTop: 2,
+    fontSize: 12,
+    fontFamily: "Poppins_400Regular",
+    color: "#6B7280",
+    lineHeight: 17,
+  },
+  stepArrow: {
+    width: 32,
+    height: 32,
+    borderRadius: 14,
+    backgroundColor: "rgba(17,24,39,0.03)",
+    borderWidth: 1,
+    borderColor: "rgba(17,24,39,0.06)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });
 
 export default LandingScreen;
