@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 
 /**
  * Endpoint POST /api/kartu: Menambahkan kartu baru ke koleksi tertentu.
+ * Mendukung kartu TEXT dan IMAGE.
  */
 export async function POST(req: Request) {
     const authHeader = (await headers()).get('authorization');
@@ -13,11 +14,22 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json();
-        const { koleksiId, front, back } = body;
+        const { 
+            koleksiId, 
+            type = "TEXT",
+            frontText, 
+            backText, 
+            frontImageUrl, 
+            backImageUrl,
+            // Legacy fields for backward compatibility
+            front, 
+            back 
+        } = body;
 
-        if (!koleksiId || !front || !back) {
+        // Validasi dasar
+        if (!koleksiId) {
             return NextResponse.json(
-                { error: "Koleksi ID, front, dan back wajib diisi." },
+                { error: "Koleksi ID wajib diisi." },
                 { status: 400 }
             );
         }
@@ -34,12 +46,40 @@ export async function POST(req: Request) {
             );
         }
 
-        // Buat Kartu Baru: Inisialisasi SRS (reviewDueAt = sekarang, difficulty = 0)
+        // Validasi berdasarkan type
+        if (type === "TEXT") {
+            // Untuk TEXT: minimal frontText atau legacy front harus ada
+            const hasFront = (frontText && frontText.trim() !== "") || (front && front.trim() !== "");
+            if (!hasFront) {
+                return NextResponse.json(
+                    { error: "Front (teks pertanyaan) wajib diisi untuk kartu TEXT." },
+                    { status: 400 }
+                );
+            }
+        } else if (type === "IMAGE") {
+            // Untuk IMAGE: minimal salah satu image harus ada
+            const hasFrontImage = frontImageUrl && frontImageUrl.trim() !== "";
+            const hasBackImage = backImageUrl && backImageUrl.trim() !== "";
+            if (!hasFrontImage && !hasBackImage) {
+                return NextResponse.json(
+                    { error: "Minimal satu gambar (Front atau Back) wajib diisi untuk kartu IMAGE." },
+                    { status: 400 }
+                );
+            }
+        }
+
+        // Buat Kartu Baru dengan field baru
         const newKartu = await prisma.kartu.create({
             data: {
                 koleksiId,
-                front,
-                back,
+                type,
+                frontText: frontText || null,
+                backText: backText || null,
+                frontImageUrl: frontImageUrl || null,
+                backImageUrl: backImageUrl || null,
+                // Legacy fields
+                front: front || frontText || null,
+                back: back || backText || null,
                 difficulty: 0,
                 reviewDueAt: new Date(),
             },
@@ -64,11 +104,13 @@ export async function GET(req: Request) {
     try {
         const url = new URL(req.url);
         const koleksiId = url.searchParams.get('koleksiId');
+        const cardType = url.searchParams.get('type'); // Optional: filter by type (TEXT/IMAGE)
 
         interface WhereClause {
             koleksi: { userId: string };
             isDeleted: boolean;
             koleksiId?: string;
+            type?: string;
         }
 
         const whereClause: WhereClause = {
@@ -80,10 +122,20 @@ export async function GET(req: Request) {
             whereClause.koleksiId = koleksiId;
         }
 
+        if (cardType && (cardType === "TEXT" || cardType === "IMAGE")) {
+            whereClause.type = cardType;
+        }
+
         const kartuList = await prisma.kartu.findMany({
             where: whereClause,
             select: {
                 id: true,
+                type: true,
+                frontText: true,
+                backText: true,
+                frontImageUrl: true,
+                backImageUrl: true,
+                // Legacy fields
                 front: true,
                 back: true,
                 difficulty: true,

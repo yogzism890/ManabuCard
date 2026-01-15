@@ -14,9 +14,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import FlipCard from "../../components/FlipCard";
+import FlipCard, { FlipCardProps } from "../../components/FlipCard";
 import CustomModal from "../../components/ui/CustomModal";
 import { useAuth } from "../../contexts/AuthContext";
+import { ReviewMode } from "../../types/card";
 
 const { width } = Dimensions.get("window");
 const ACCENT = "#9100FF";
@@ -27,8 +28,15 @@ const ReviewScreen = () => {
   const [collections, setCollections] = useState<any[]>([]);
   const [selectedCollection, setSelectedCollection] = useState<any | null>(null);
 
+  // All cards from API
+  const [allCards, setAllCards] = useState<any[]>([]);
+  // Filtered cards for review
   const [cards, setCards] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  
+  // Review mode selection
+  const [reviewMode, setReviewMode] = useState<ReviewMode>("ALL");
+  const [showModeSelector, setShowModeSelector] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -78,9 +86,11 @@ const ReviewScreen = () => {
       setIsLoading(true);
       const data = await apiRequest(`/koleksi/${collection.id}/kartu`);
       setSelectedCollection(collection);
-      setCards(Array.isArray(data) ? data : []);
+      setAllCards(Array.isArray(data) ? data : []);
       setCurrentIndex(0);
       setIsFlipped(false);
+      setReviewMode("ALL");
+      setShowModeSelector(true);
     } catch {
       showModal("Error", "Gagal memuat kartu", "error");
     } finally {
@@ -88,11 +98,27 @@ const ReviewScreen = () => {
     }
   };
 
+  // Filter cards based on review mode
+  const filterCardsByMode = useCallback((mode: ReviewMode) => {
+    setReviewMode(mode);
+    
+    if (mode === "ALL") {
+      setCards(allCards);
+    } else {
+      const filtered = allCards.filter((card: any) => card.type === mode);
+      setCards(filtered);
+    }
+    setCurrentIndex(0);
+    setIsFlipped(false);
+  }, [allCards]);
+
   const goBackToList = () => {
     setSelectedCollection(null);
+    setAllCards([]);
     setCards([]);
     setCurrentIndex(0);
     setIsFlipped(false);
+    setShowModeSelector(false);
   };
 
   const handleAnswer = async (quality: "hard" | "good" | "easy") => {
@@ -134,6 +160,25 @@ const ReviewScreen = () => {
     return ((currentIndex + 1) / cards.length) * 100;
   }, [cards.length, currentIndex]);
 
+  // Card count by type
+  const textCardsCount = useMemo(() => {
+    return allCards.filter((c: any) => c.type === "TEXT" || !c.type).length;
+  }, [allCards]);
+
+  const imageCardsCount = useMemo(() => {
+    return allCards.filter((c: any) => c.type === "IMAGE").length;
+  }, [allCards]);
+
+  // Prepare FlipCard props
+  const flipCardProps: FlipCardProps = {
+    type: currentCard?.type === "IMAGE" ? "IMAGE" : "TEXT",
+    frontText: currentCard?.frontText || currentCard?.front || "",
+    backText: currentCard?.backText || currentCard?.back || "",
+    frontImageUrl: currentCard?.frontImageUrl || null,
+    backImageUrl: currentCard?.backImageUrl || null,
+    isFlipped: isFlipped,
+  };
+
   if (isLoading) {
     return (
       <View style={styles.center}>
@@ -146,7 +191,6 @@ const ReviewScreen = () => {
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
       <View style={styles.page}>
-        {/* Background */}
         <LinearGradient
           colors={["#F7F7FB", "#F7F7FB"]}
           style={StyleSheet.absoluteFill}
@@ -262,88 +306,182 @@ const ReviewScreen = () => {
           ) : (
             // REVIEW SESSION
             <View style={styles.sessionWrapper}>
-              {/* Progress */}
-              <View style={styles.progressContainer}>
-                <View style={styles.progressTopRow}>
-                  <Text style={styles.progressLabel}>Progress</Text>
-                  <Text style={styles.progressValue}>
-                    {Math.round(progress)}%
-                  </Text>
-                </View>
+              {/* Mode Selector */}
+              {showModeSelector && (
+                <View style={styles.modeSelector}>
+                  <Text style={styles.modeLabel}>Mode Review:</Text>
+                  <View style={styles.modeButtons}>
+                    <TouchableOpacity
+                      style={[
+                        styles.modeBtn,
+                        reviewMode === "ALL" && styles.modeBtnActive,
+                      ]}
+                      onPress={() => filterCardsByMode("ALL")}
+                      activeOpacity={0.85}
+                    >
+                      <Text
+                        style={[
+                          styles.modeBtnText,
+                          reviewMode === "ALL" && styles.modeBtnTextActive,
+                        ]}
+                      >
+                        Semua
+                      </Text>
+                      <Text style={styles.modeCount}>
+                        {allCards.length}
+                      </Text>
+                    </TouchableOpacity>
 
-                <View style={styles.progressBarBg}>
-                  <View style={[styles.progressFill, { width: `${progress}%` }]} />
-                </View>
-              </View>
+                    <TouchableOpacity
+                      style={[
+                        styles.modeBtn,
+                        reviewMode === "TEXT" && styles.modeBtnActive,
+                      ]}
+                      onPress={() => filterCardsByMode("TEXT")}
+                      activeOpacity={0.85}
+                    >
+                      <Ionicons
+                        name="document-text"
+                        size={16}
+                        color={reviewMode === "TEXT" ? "#fff" : ACCENT}
+                      />
+                      <Text
+                        style={[
+                          styles.modeBtnText,
+                          reviewMode === "TEXT" && styles.modeBtnTextActive,
+                        ]}
+                      >
+                        Teks
+                      </Text>
+                      <Text style={styles.modeCount}>{textCardsCount}</Text>
+                    </TouchableOpacity>
 
-              {/* Card */}
-              <TouchableOpacity
-                activeOpacity={0.9}
-                onPress={() => setIsFlipped((v) => !v)}
-                style={styles.cardWrapper}
-              >
-                <FlipCard
-                  frontText={currentCard?.front}
-                  backText={
-                    isFlipped
-                      ? currentCard?.back
-                      : "Ketuk untuk mengungkap jawaban"
-                  }
-                  isFlipped={isFlipped}
-                />
-              </TouchableOpacity>
-
-              {/* Actions */}
-              {isFlipped ? (
-                <View style={styles.actionGrid}>
-                  <TouchableOpacity
-                    disabled={isUpdating}
-                    style={[styles.actionBtn, styles.btnHard]}
-                    onPress={() => handleAnswer("hard")}
-                    activeOpacity={0.9}
-                  >
-                    <Text style={styles.actionSmall}>+1 hari</Text>
-                    <Text style={styles.actionText}>Sulit</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    disabled={isUpdating}
-                    style={[styles.actionBtn, styles.btnGood]}
-                    onPress={() => handleAnswer("good")}
-                    activeOpacity={0.9}
-                  >
-                    <Text style={styles.actionSmall}>+3 hari</Text>
-                    <Text style={styles.actionText}>Bisa</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    disabled={isUpdating}
-                    style={[styles.actionBtn, styles.btnEasy]}
-                    onPress={() => handleAnswer("easy")}
-                    activeOpacity={0.9}
-                  >
-                    <Text style={styles.actionSmall}>+7 hari</Text>
-                    <Text style={styles.actionText}>Mudah</Text>
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <View style={styles.hintBox}>
-                  <Ionicons
-                    name="information-circle-outline"
-                    size={18}
-                    color={ACCENT}
-                  />
-                  <Text style={styles.hintText}>
-                    Ketuk kartu untuk mengungkap jawaban
-                  </Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.modeBtn,
+                        reviewMode === "IMAGE" && styles.modeBtnActive,
+                      ]}
+                      onPress={() => filterCardsByMode("IMAGE")}
+                      activeOpacity={0.85}
+                    >
+                      <Ionicons
+                        name="image"
+                        size={16}
+                        color={reviewMode === "IMAGE" ? "#fff" : ACCENT}
+                      />
+                      <Text
+                        style={[
+                          styles.modeBtnText,
+                          reviewMode === "IMAGE" && styles.modeBtnTextActive,
+                        ]}
+                      >
+                        Gambar
+                      </Text>
+                      <Text style={styles.modeCount}>{imageCardsCount}</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               )}
 
-              {isUpdating && (
-                <View style={styles.updatingRow}>
-                  <ActivityIndicator size="small" color={ACCENT} />
-                  <Text style={styles.updatingText}>Menyimpan progres...</Text>
+              {/* Empty State for filtered cards */}
+              {cards.length === 0 && allCards.length > 0 && (
+                <View style={styles.emptyFiltered}>
+                  <Ionicons name="images-outline" size={40} color="#9CA3AF" />
+                  <Text style={styles.emptyFilteredTitle}>
+                    Tidak ada kartu {reviewMode === "TEXT" ? "Teks" : reviewMode === "IMAGE" ? "Gambar" : ""}
+                  </Text>
+                  <Text style={styles.emptyFilteredText}>
+                    Coba pilih mode yang berbeda atau kembali ke "Semua"
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.changeModeBtn}
+                    onPress={() => filterCardsByMode("ALL")}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={styles.changeModeBtnText}>Lihat Semua Kartu</Text>
+                  </TouchableOpacity>
                 </View>
+              )}
+
+              {/* Cards available */}
+              {cards.length > 0 && (
+                <>
+                  {/* Progress */}
+                  <View style={styles.progressContainer}>
+                    <View style={styles.progressTopRow}>
+                      <Text style={styles.progressLabel}>Progress</Text>
+                      <Text style={styles.progressValue}>
+                        {Math.round(progress)}%
+                      </Text>
+                    </View>
+
+                    <View style={styles.progressBarBg}>
+                      <View style={[styles.progressFill, { width: `${progress}%` }]} />
+                    </View>
+                  </View>
+
+                  {/* Card */}
+                  <TouchableOpacity
+                    activeOpacity={0.9}
+                    onPress={() => setIsFlipped((v) => !v)}
+                    style={styles.cardWrapper}
+                  >
+                    <FlipCard {...flipCardProps} />
+                  </TouchableOpacity>
+
+                  {/* Actions */}
+                  {isFlipped ? (
+                    <View style={styles.actionGrid}>
+                      <TouchableOpacity
+                        disabled={isUpdating}
+                        style={[styles.actionBtn, styles.btnHard]}
+                        onPress={() => handleAnswer("hard")}
+                        activeOpacity={0.9}
+                      >
+                        <Text style={styles.actionSmall}>+1 hari</Text>
+                        <Text style={styles.actionText}>Sulit</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        disabled={isUpdating}
+                        style={[styles.actionBtn, styles.btnGood]}
+                        onPress={() => handleAnswer("good")}
+                        activeOpacity={0.9}
+                      >
+                        <Text style={styles.actionSmall}>+3 hari</Text>
+                        <Text style={styles.actionText}>Bisa</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        disabled={isUpdating}
+                        style={[styles.actionBtn, styles.btnEasy]}
+                        onPress={() => handleAnswer("easy")}
+                        activeOpacity={0.9}
+                      >
+                        <Text style={styles.actionSmall}>+7 hari</Text>
+                        <Text style={styles.actionText}>Mudah</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <View style={styles.hintBox}>
+                      <Ionicons
+                        name="information-circle-outline"
+                        size={18}
+                        color={ACCENT}
+                      />
+                      <Text style={styles.hintText}>
+                        Ketuk kartu untuk mengungkap jawaban
+                      </Text>
+                    </View>
+                  )}
+
+                  {isUpdating && (
+                    <View style={styles.updatingRow}>
+                      <ActivityIndicator size="small" color={ACCENT} />
+                      <Text style={styles.updatingText}>Menyimpan progres...</Text>
+                    </View>
+                  )}
+                </>
               )}
             </View>
           )}
@@ -547,6 +685,99 @@ const styles = StyleSheet.create({
   // Session
   sessionWrapper: { paddingTop: 6, alignItems: "center" },
 
+  // Mode Selector
+  modeSelector: {
+    width: "100%",
+    marginBottom: 16,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: "rgba(17,24,39,0.06)",
+    shadowColor: "#000",
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 2,
+  },
+  modeLabel: {
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 13,
+    color: "#111827",
+    marginBottom: 10,
+  },
+  modeButtons: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  modeBtn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    backgroundColor: "rgba(145,0,255,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(145,0,255,0.14)",
+  },
+  modeBtnActive: {
+    backgroundColor: ACCENT,
+    borderColor: ACCENT,
+  },
+  modeBtnText: {
+    fontFamily: "Poppins_500Medium",
+    fontSize: 12,
+    color: ACCENT,
+  },
+  modeBtnTextActive: {
+    color: "#fff",
+  },
+  modeCount: {
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 11,
+    color: "rgba(145,0,255,0.6)",
+    backgroundColor: "rgba(255,255,255,0.7)",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+
+  // Empty Filtered
+  emptyFiltered: {
+    alignItems: "center",
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+  },
+  emptyFilteredTitle: {
+    marginTop: 16,
+    fontSize: 16,
+    fontFamily: "Poppins_700Bold",
+    color: "#111827",
+  },
+  emptyFilteredText: {
+    marginTop: 6,
+    fontSize: 13,
+    fontFamily: "Poppins_400Regular",
+    color: "#6B7280",
+    textAlign: "center",
+    lineHeight: 18,
+  },
+  changeModeBtn: {
+    marginTop: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 14,
+    backgroundColor: ACCENT,
+  },
+  changeModeBtnText: {
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 14,
+    color: "#fff",
+  },
+
   progressContainer: { width: "100%", marginBottom: 14 },
   progressTopRow: {
     flexDirection: "row",
@@ -621,13 +852,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  // tetap beda tapi masih tema ungu (ga ada biru)
   btnHard: {
     backgroundColor: "#FF4D6D",
     borderColor: "rgba(255,77,109,0.35)",
   },
   btnGood: {
-    backgroundColor: "#7C3AED", // ungu tua
+    backgroundColor: "#7C3AED",
     borderColor: "rgba(124,58,237,0.35)",
   },
   btnEasy: {
@@ -647,3 +877,4 @@ const styles = StyleSheet.create({
     color: "#6B7280",
   },
 });
+

@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 
 /**
  * Endpoint GET /api/koleksi/[id]/kartu: Mengambil semua kartu dalam koleksi.
+ * Mendukung filter berdasarkan type (TEXT/IMAGE).
  */
 export async function GET(
     req: Request,
@@ -14,6 +15,10 @@ export async function GET(
     const user = getUserOrDefault(authHeader);
     const userId = user.userId;
     const { id: koleksiId } = await params;
+
+    // Parse query params untuk filter type
+    const url = new URL(req.url);
+    const cardType = url.searchParams.get('type'); // Optional: TEXT atau IMAGE
 
     if (!koleksiId) {
         return NextResponse.json({ error: "Bad Request: Koleksi ID is required." }, { status: 400 });
@@ -29,14 +34,27 @@ export async function GET(
             return NextResponse.json({ error: "FORBIDDEN: Koleksi tidak ditemukan atau bukan milik user ini." }, { status: 403 });
         }
 
+        // Build where clause dengan filter type opsional
+        const whereClause: any = {
+            koleksiId: koleksiId,
+            isDeleted: false,
+        };
+
+        if (cardType && (cardType === "TEXT" || cardType === "IMAGE")) {
+            whereClause.type = cardType;
+        }
+
         // Query Prisma: Ambil SEMUA Kartu dalam koleksi yang milik pengguna
         const kartuList = await prisma.kartu.findMany({
-            where: {
-                koleksiId: koleksiId,
-                isDeleted: false, // Hanya kartu yang belum dihapus
-            },
+            where: whereClause,
             select: {
                 id: true,
+                type: true,
+                frontText: true,
+                backText: true,
+                frontImageUrl: true,
+                backImageUrl: true,
+                // Legacy fields
                 front: true,
                 back: true,
                 difficulty: true,
