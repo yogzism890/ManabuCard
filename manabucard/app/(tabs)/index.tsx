@@ -1,6 +1,5 @@
-import React, { useMemo } from  "react";
+import React, { useMemo } from "react";
 import {
-  Image,
   View,
   Text,
   StyleSheet,
@@ -16,15 +15,17 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
-
 const { width } = Dimensions.get("window");
+
 const ACCENT = "#9100FF";
 const CARD_GAP = 14;
-const CARD_W = (width - 40 - CARD_GAP) / 2; // 20 kiri + 20 kanan + gap 14
+const CARD_W = (width - 40 - CARD_GAP) / 2; // 20 kiri + 20 kanan + gap
 
 const LandingScreen = () => {
+  // 1x random image tiap reload (bukan tiap render)
   const heroSeed = useMemo(() => Math.floor(Math.random() * 999999), []);
-  const heroImage = `https://picsum.photos/seed/${heroSeed}/900/600`;
+  const heroImage = `https://picsum.photos/seed/24/900/600`;
+
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <ScrollView
@@ -52,15 +53,11 @@ const LandingScreen = () => {
             </View>
 
             <TouchableOpacity style={styles.profileMini} activeOpacity={0.85}>
-              <Ionicons
-                name="person-circle-outline"
-                size={30}
-                color="#111827"
-              />
+              <Ionicons name="person-circle-outline" size={30} color="#111827" />
             </TouchableOpacity>
           </Animated.View>
 
-          {/* Hero */}
+          {/* HERO (layout mirip referensi smart-home card) */}
           <Animated.View entering={FadeInDown.delay(160)} style={styles.heroCard}>
             <ImageBackground
               source={{ uri: heroImage }}
@@ -69,7 +66,11 @@ const LandingScreen = () => {
             >
               {/* gradient overlay biar teks kebaca */}
               <LinearGradient
-                colors={["rgba(145,0,255,0.92)", "rgba(145,0,255,0.55)", "rgba(255,255,255,0.05)"]}
+                colors={[
+                  "rgba(145,0,255,0.92)",
+                  "rgba(145,0,255,0.55)",
+                  "rgba(255,255,255,0.05)",
+                ]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.heroOverlay}
@@ -77,7 +78,7 @@ const LandingScreen = () => {
                 {/* top row: title + plus */}
                 <View style={styles.heroTopRow}>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.heroSmall}>ManabuCard</Text>
+                    <Text style={styles.heroSmall}>My Home</Text>
                     <Text style={styles.heroBig}>Let’s learn</Text>
                     <Text style={styles.heroBigStrong}>something new</Text>
                   </View>
@@ -115,34 +116,16 @@ const LandingScreen = () => {
           <View style={styles.section}>
             <View style={styles.sectionHead}>
               <Text style={styles.sectionTitle}>Fitur Utama</Text>
-              <Text style={styles.sectionSub}>Semua yang kamu butuhkan untuk belajar</Text>
+              <Text style={styles.sectionSub}>
+                Semua yang kamu butuhkan untuk belajar
+              </Text>
             </View>
 
             <View style={styles.featureGrid}>
-              <FeatureCard
-                delay={240}
-                icon="layers-outline"
-                title="Koleksi"
-                desc="Atur kartu per topik"
-              />
-              <FeatureCard
-                delay={320}
-                icon="infinite-outline"
-                title="Spaced Repetition"
-                desc="Review di waktu tepat"
-              />
-              <FeatureCard
-                delay={400}
-                icon="analytics-outline"
-                title="Statistik"
-                desc="Pantau progresmu"
-              />
-              <FeatureCard
-                delay={480}
-                icon="color-wand-outline"
-                title="Kustom"
-                desc="Desain sesukamu"
-              />
+              <FeatureCard delay={240} icon="layers-outline" title="Koleksi" desc="Atur kartu per topik" />
+              <FeatureCard delay={320} icon="infinite-outline" title="Spaced Repetition" desc="Review di waktu tepat" />
+              <FeatureCard delay={400} icon="analytics-outline" title="Statistik" desc="Pantau progresmu" />
+              <FeatureCard delay={480} icon="color-wand-outline" title="Kustom" desc="Desain sesukamu" />
             </View>
           </View>
 
@@ -154,24 +137,9 @@ const LandingScreen = () => {
             </View>
 
             <View style={styles.stepWrapper}>
-              <StepItem
-                n={1}
-                title="Buat Kartu"
-                desc="Masukkan pertanyaan dan jawaban singkat."
-                delay={560}
-              />
-              <StepItem
-                n={2}
-                title="Review Rutin"
-                desc="Buka aplikasi setiap hari untuk sesi singkat."
-                delay={640}
-              />
-              <StepItem
-                n={3}
-                title="Kuasai Materi"
-                desc="Ingatanmu bertahan lebih lama secara otomatis."
-                delay={720}
-              />
+              <StepItem n={1} title="Buat Kartu" desc="Masukkan pertanyaan dan jawaban singkat." delay={560} />
+              <StepItem n={2} title="Review Rutin" desc="Buka aplikasi setiap hari untuk sesi singkat." delay={640} />
+              <StepItem n={3} title="Kuasai Materi" desc="Ingatanmu bertahan lebih lama secara otomatis." delay={720} />
             </View>
           </View>
 
@@ -226,9 +194,7 @@ function StepItem({ n, title, desc, delay }: any) {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#F8F0FF" },
 
-  scrollContent: {
-    flexGrow: 1,
-  },
+  scrollContent: { flexGrow: 1 },
 
   gradientBackground: {
     flex: 1,
@@ -291,88 +257,108 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  // Hero
-  heroSection: { alignItems: "center", marginBottom: 26 },
-  logoWrapper: {
-    width: 104,
-    height: 104,
-    borderRadius: 28,
-    backgroundColor: "rgba(255,255,255,0.92)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 14,
+  // HERO
+  heroCard: {
+    borderRadius: 26,
+    overflow: "hidden",
+    marginBottom: 18,
     borderWidth: 1,
     borderColor: "rgba(17,24,39,0.06)",
     shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 3,
-  },
-  logoImage: { width: 72, height: 72 },
-
-  heroTitle: {
-    fontSize: 28,
-    fontFamily: "Poppins_700Bold",
-    color: "#111827",
-    textAlign: "center",
-  },
-  heroSubtitle: {
-    fontSize: 13.5,
-    fontFamily: "Poppins_400Regular",
-    color: "#6B7280",
-    textAlign: "center",
-    lineHeight: 20,
-    marginTop: 8,
-    paddingHorizontal: 10,
-  },
-
-  mainButton: {
-    width: "100%",
-    marginTop: 18,
-    borderRadius: 18,
-    overflow: "hidden",
-    shadowColor: ACCENT,
-    shadowOpacity: 0.22,
+    shadowOpacity: 0.10,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 12 },
-    elevation: 6,
+    elevation: 4,
   },
-  mainButtonGradient: {
+  heroBg: {
+    width: "100%",
+    height: 220,
+  },
+  heroBgImage: {
+    borderRadius: 26,
+  },
+  heroOverlay: {
+    flex: 1,
+    padding: 18,
+    justifyContent: "space-between",
+  },
+  heroTopRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+  },
+  heroPlusBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.22)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.22)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  heroSmall: {
+    fontFamily: "Poppins_500Medium",
+    fontSize: 12,
+    color: "rgba(255,255,255,0.85)",
+    marginBottom: 6,
+  },
+  heroBig: {
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 22,
+    color: "#fff",
+    lineHeight: 26,
+  },
+  heroBigStrong: {
+    fontFamily: "Poppins_700Bold",
+    fontSize: 24,
+    color: "#fff",
+    lineHeight: 28,
+    marginTop: 2,
+  },
+  heroSub: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 12.5,
+    color: "rgba(255,255,255,0.88)",
+    marginTop: 10,
+    lineHeight: 18,
+  },
+  heroCtaRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 12,
+  },
+  heroPrimaryBtn: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
-    gap: 10,
-  },
-  mainButtonText: {
-    color: "#fff",
-    fontSize: 15.5,
-    fontFamily: "Poppins_700Bold",
-  },
-  mainButtonIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 12,
-    backgroundColor: "rgba(255,255,255,0.18)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  secondaryBtn: {
-    width: "100%",
-    marginTop: 12,
-    paddingVertical: 14,
-    borderRadius: 18,
-    alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.78)",
+    gap: 8,
+    paddingVertical: 12,
+    borderRadius: 16,
+    backgroundColor: "rgba(0,0,0,0.22)",
     borderWidth: 1,
-    borderColor: "rgba(145,0,255,0.16)",
+    borderColor: "rgba(255,255,255,0.18)",
   },
-  secondaryBtnText: {
+  heroPrimaryText: {
+    fontFamily: "Poppins_700Bold",
+    fontSize: 13.5,
+    color: "#fff",
+  },
+  heroGhostBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.22)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.22)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  heroGhostText: {
     fontFamily: "Poppins_600SemiBold",
-    fontSize: 14,
-    color: ACCENT,
+    fontSize: 13.5,
+    color: "#fff",
   },
 
   // Section
@@ -452,7 +438,11 @@ const styles = StyleSheet.create({
   },
   stepNumber: { color: "#fff", fontFamily: "Poppins_700Bold", fontSize: 13 },
   stepTextContent: { flex: 1 },
-  stepTitle: { fontSize: 14, fontFamily: "Poppins_600SemiBold", color: "#111827" },
+  stepTitle: {
+    fontSize: 14,
+    fontFamily: "Poppins_600SemiBold",
+    color: "#111827",
+  },
   stepDesc: {
     marginTop: 2,
     fontSize: 12,
@@ -470,122 +460,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  heroCard: {
-  borderRadius: 26,
-  overflow: "hidden",
-  marginBottom: 18,
-  borderWidth: 1,
-  borderColor: "rgba(17,24,39,0.06)",
-  shadowColor: "#000",
-  shadowOpacity: 0.10,
-  shadowRadius: 18,
-  shadowOffset: { width: 0, height: 12 },
-  elevation: 4,
-},
-
-heroBg: {
-  width: "100%",
-  height: 220,
-},
-
-heroBgImage: {
-  borderRadius: 26,
-},
-
-heroOverlay: {
-  flex: 1,
-  padding: 18,
-  justifyContent: "space-between",
-},
-
-heroTopRow: {
-  flexDirection: "row",
-  alignItems: "flex-start",
-  gap: 12,
-},
-
-heroPlusBtn: {
-  width: 36,
-  height: 36,
-  borderRadius: 14,
-  backgroundColor: "rgba(255,255,255,0.22)",
-  borderWidth: 1,
-  borderColor: "rgba(255,255,255,0.22)",
-  alignItems: "center",
-  justifyContent: "center",
-},
-
-heroSmall: {
-  fontFamily: "Poppins_500Medium",
-  fontSize: 12,
-  color: "rgba(255,255,255,0.85)",
-  marginBottom: 6,
-},
-
-heroBig: {
-  fontFamily: "Poppins_600SemiBold",
-  fontSize: 22,
-  color: "#fff",
-  lineHeight: 26,
-},
-
-heroBigStrong: {
-  fontFamily: "Poppins_700Bold",
-  fontSize: 24,
-  color: "#fff",
-  lineHeight: 28,
-  marginTop: 2,
-},
-
-heroSub: {
-  fontFamily: "Poppins_400Regular",
-  fontSize: 12.5,
-  color: "rgba(255,255,255,0.88)",
-  marginTop: 10,
-  lineHeight: 18,
-},
-
-heroCtaRow: {
-  flexDirection: "row",
-  gap: 10,
-  marginTop: 12,
-},
-
-heroPrimaryBtn: {
-  flex: 1,
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 8,
-  paddingVertical: 12,
-  borderRadius: 16,
-  backgroundColor: "rgba(0,0,0,0.22)",
-  borderWidth: 1,
-  borderColor: "rgba(255,255,255,0.18)",
-},
-
-heroPrimaryText: {
-  fontFamily: "Poppins_700Bold",
-  fontSize: 13.5,
-  color: "#fff",
-},
-
-heroGhostBtn: {
-  paddingHorizontal: 14,
-  paddingVertical: 12,
-  borderRadius: 16,
-  backgroundColor: "rgba(255,255,255,0.22)",
-  borderWidth: 1,
-  borderColor: "rgba(255,255,255,0.22)",
-  alignItems: "center",
-  justifyContent: "center",
-},
-
-heroGhostText: {
-  fontFamily: "Poppins_600SemiBold",
-  fontSize: 13.5,
-  color: "#fff",
-},
 });
 
 export default LandingScreen;
