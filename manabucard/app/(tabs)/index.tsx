@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from  "react";
 import {
   Image,
   View,
@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Platform,
+  ImageBackground,
 } from "react-native";
 import { Link } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -15,12 +16,15 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
+
 const { width } = Dimensions.get("window");
 const ACCENT = "#9100FF";
 const CARD_GAP = 14;
 const CARD_W = (width - 40 - CARD_GAP) / 2; // 20 kiri + 20 kanan + gap 14
 
 const LandingScreen = () => {
+  const heroSeed = useMemo(() => Math.floor(Math.random() * 999999), []);
+  const heroImage = `https://picsum.photos/seed/${heroSeed}/900/600`;
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <ScrollView
@@ -57,44 +61,54 @@ const LandingScreen = () => {
           </Animated.View>
 
           {/* Hero */}
-          <Animated.View entering={FadeInDown.delay(160)} style={styles.heroSection}>
-            <View style={styles.logoWrapper}>
-              <Image
-                source={require("../../assets/images/logo.png")}
-                style={styles.logoImage}
-                resizeMode="contain"
-              />
-            </View>
-
-            <Text style={styles.heroTitle}>Halo, Faiz 👋</Text>
-            <Text style={styles.heroSubtitle}>
-              Siap menguasai hal baru hari ini? Tingkatkan ingatanmu dengan metode
-              flashcard yang asik dan konsisten.
-            </Text>
-
-            {/* Main CTA */}
-            <Link href="/(tabs)/review" asChild>
-              <TouchableOpacity activeOpacity={0.9} style={styles.mainButton}>
-                <LinearGradient
-                  colors={[ACCENT, "#B44CFF"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.mainButtonGradient}
-                >
-                  <Text style={styles.mainButtonText}>Mulai Belajar</Text>
-                  <View style={styles.mainButtonIcon}>
-                    <Ionicons name="chevron-forward" size={18} color="#fff" />
+          <Animated.View entering={FadeInDown.delay(160)} style={styles.heroCard}>
+            <ImageBackground
+              source={{ uri: heroImage }}
+              style={styles.heroBg}
+              imageStyle={styles.heroBgImage}
+            >
+              {/* gradient overlay biar teks kebaca */}
+              <LinearGradient
+                colors={["rgba(145,0,255,0.92)", "rgba(145,0,255,0.55)", "rgba(255,255,255,0.05)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.heroOverlay}
+              >
+                {/* top row: title + plus */}
+                <View style={styles.heroTopRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.heroSmall}>ManabuCard</Text>
+                    <Text style={styles.heroBig}>Let’s learn</Text>
+                    <Text style={styles.heroBigStrong}>something new</Text>
                   </View>
-                </LinearGradient>
-              </TouchableOpacity>
-            </Link>
 
-            {/* Secondary CTA */}
-            <Link href="/(tabs)/create" asChild>
-              <TouchableOpacity activeOpacity={0.9} style={styles.secondaryBtn}>
-                <Text style={styles.secondaryBtnText}>Buat Kartu Baru ✨</Text>
-              </TouchableOpacity>
-            </Link>
+                  <TouchableOpacity activeOpacity={0.85} style={styles.heroPlusBtn}>
+                    <Ionicons name="add" size={18} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+
+                {/* subtitle */}
+                <Text style={styles.heroSub}>
+                  Pilih koleksi dan mulai review dalam 3 menit.
+                </Text>
+
+                {/* CTA row */}
+                <View style={styles.heroCtaRow}>
+                  <Link href="/(tabs)/review" asChild>
+                    <TouchableOpacity activeOpacity={0.9} style={styles.heroPrimaryBtn}>
+                      <Text style={styles.heroPrimaryText}>Mulai Review</Text>
+                      <Ionicons name="chevron-forward" size={16} color="#fff" />
+                    </TouchableOpacity>
+                  </Link>
+
+                  <Link href="/(tabs)/create" asChild>
+                    <TouchableOpacity activeOpacity={0.9} style={styles.heroGhostBtn}>
+                      <Text style={styles.heroGhostText}>Buat Kartu</Text>
+                    </TouchableOpacity>
+                  </Link>
+                </View>
+              </LinearGradient>
+            </ImageBackground>
           </Animated.View>
 
           {/* Features */}
@@ -456,6 +470,122 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  heroCard: {
+  borderRadius: 26,
+  overflow: "hidden",
+  marginBottom: 18,
+  borderWidth: 1,
+  borderColor: "rgba(17,24,39,0.06)",
+  shadowColor: "#000",
+  shadowOpacity: 0.10,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 12 },
+  elevation: 4,
+},
+
+heroBg: {
+  width: "100%",
+  height: 220,
+},
+
+heroBgImage: {
+  borderRadius: 26,
+},
+
+heroOverlay: {
+  flex: 1,
+  padding: 18,
+  justifyContent: "space-between",
+},
+
+heroTopRow: {
+  flexDirection: "row",
+  alignItems: "flex-start",
+  gap: 12,
+},
+
+heroPlusBtn: {
+  width: 36,
+  height: 36,
+  borderRadius: 14,
+  backgroundColor: "rgba(255,255,255,0.22)",
+  borderWidth: 1,
+  borderColor: "rgba(255,255,255,0.22)",
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+heroSmall: {
+  fontFamily: "Poppins_500Medium",
+  fontSize: 12,
+  color: "rgba(255,255,255,0.85)",
+  marginBottom: 6,
+},
+
+heroBig: {
+  fontFamily: "Poppins_600SemiBold",
+  fontSize: 22,
+  color: "#fff",
+  lineHeight: 26,
+},
+
+heroBigStrong: {
+  fontFamily: "Poppins_700Bold",
+  fontSize: 24,
+  color: "#fff",
+  lineHeight: 28,
+  marginTop: 2,
+},
+
+heroSub: {
+  fontFamily: "Poppins_400Regular",
+  fontSize: 12.5,
+  color: "rgba(255,255,255,0.88)",
+  marginTop: 10,
+  lineHeight: 18,
+},
+
+heroCtaRow: {
+  flexDirection: "row",
+  gap: 10,
+  marginTop: 12,
+},
+
+heroPrimaryBtn: {
+  flex: 1,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+  paddingVertical: 12,
+  borderRadius: 16,
+  backgroundColor: "rgba(0,0,0,0.22)",
+  borderWidth: 1,
+  borderColor: "rgba(255,255,255,0.18)",
+},
+
+heroPrimaryText: {
+  fontFamily: "Poppins_700Bold",
+  fontSize: 13.5,
+  color: "#fff",
+},
+
+heroGhostBtn: {
+  paddingHorizontal: 14,
+  paddingVertical: 12,
+  borderRadius: 16,
+  backgroundColor: "rgba(255,255,255,0.22)",
+  borderWidth: 1,
+  borderColor: "rgba(255,255,255,0.22)",
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+heroGhostText: {
+  fontFamily: "Poppins_600SemiBold",
+  fontSize: 13.5,
+  color: "#fff",
+},
 });
 
 export default LandingScreen;
