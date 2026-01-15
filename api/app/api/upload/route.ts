@@ -71,8 +71,8 @@ export async function POST(req: NextRequest) {
         const filepath = path.join(uploadDir, filename);
         await writeFile(filepath, buffer);
 
-        // Return URL
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+        // Return URL - use the request origin to ensure correct URL for both web and mobile
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || req.nextUrl.origin;
         const imageUrl = `${baseUrl}/uploads/${filename}`;
 
         return NextResponse.json(
