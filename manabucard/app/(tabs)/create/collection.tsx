@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Picker } from "@react-native-picker/picker";
 import Animated, { FadeInDown, FadeIn } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
@@ -25,12 +26,40 @@ const ACCENT = "#9100FF";
 export default function CreateCollectionScreen() {
   const { apiRequest, isAuthenticated } = useAuth();
 
+  const [collections, setCollections] = useState<any[]>([]);
+  const [selectedCollectionId, setSelectedCollectionId] = useState<string>("");
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<{ nama: boolean }>({ nama: false });
 
+  // Load collections on mount
+  useEffect(() => {
+    const loadCollections = async () => {
+      try {
+        const data = await apiRequest("/koleksi");
+        setCollections(Array.isArray(data) ? data : []);
+      } catch (e: any) {
+        console.error("Failed to load collections:", e);
+      }
+    };
+    if (isAuthenticated) {
+      loadCollections();
+    }
+  }, [isAuthenticated]);
+
   const canSubmit = useMemo(() => name.trim().length > 0 && !loading, [name, loading]);
+
+  // Navigate to card creation with selected collection
+  const handleSelectCollection = (collectionId: string, collectionName: string) => {
+    router.replace({
+      pathname: "/create/card",
+      params: {
+        collectionId: collectionId,
+        collectionName: collectionName,
+      },
+    });
+  };
 
   const handleCreate = async () => {
     if (!isAuthenticated) {
@@ -131,6 +160,46 @@ export default function CreateCollectionScreen() {
                 Koleksi membantu kamu mengelompokkan kartu berdasarkan topik / mata pelajaran.
               </Text>
             </View>
+
+            {/* Dropdown: Pilih Koleksi yang Sudah Ada */}
+            {collections.length > 0 && (
+              <View style={styles.field}>
+                <Text style={styles.label}>Atau Pilih Koleksi yang Ada</Text>
+                <View style={[styles.inputShell, styles.pickerShell]}>
+                  <Feather name="folder" size={18} color="#6B7280" />
+                  <View style={styles.pickerWrap}>
+                    <Picker
+                      selectedValue={selectedCollectionId}
+                      onValueChange={(v) => {
+                        setSelectedCollectionId(String(v));
+                        if (String(v) !== "") {
+                          // Find the collection name
+                          const collection = collections.find(c => c.id === v);
+                          if (collection) {
+                            handleSelectCollection(String(v), collection.name || collection.nama);
+                          }
+                        }
+                      }}
+                      style={styles.picker}
+                      dropdownIconColor="#6B7280"
+                    >
+                      <Picker.Item label="Pilih Koleksi..." value="" />
+                      {collections.map((c) => {
+                        const label = c?.name ?? c?.nama ?? `Koleksi ${c?.id ?? ""}`;
+                        const cardCount = c?.cardCount ?? 0;
+                        return (
+                          <Picker.Item
+                            key={c.id}
+                            label={`${String(label)} (${cardCount} kartu)`}
+                            value={String(c.id)}
+                          />
+                        );
+                      })}
+                    </Picker>
+                  </View>
+                </View>
+              </View>
+            )}
 
             {/* Field: Nama */}
             <View style={styles.field}>
@@ -511,5 +580,20 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_400Regular",
     fontSize: 12.8,
     color: "#374151",
+  },
+
+  // picker
+  pickerShell: {
+    paddingVertical: Platform.OS === "android" ? 0 : 4,
+  },
+  pickerWrap: {
+    flex: 1,
+    overflow: "hidden",
+    borderRadius: 14,
+  },
+  picker: {
+    width: "100%",
+    height: Platform.OS === "android" ? 48 : 44,
+    color: "#111827",
   },
 });
