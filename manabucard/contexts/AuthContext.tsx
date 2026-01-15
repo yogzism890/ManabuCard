@@ -148,13 +148,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const apiRequest = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
     const headers: any = {
-      'Content-Type': 'application/json',
       ...options.headers,
     };
 
     // Use simple token format: userId:email
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    // Don't set Content-Type for FormData (browser will set it with boundary)
+    if (!(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
     }
 
     try {

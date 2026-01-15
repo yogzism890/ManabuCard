@@ -7,17 +7,18 @@ import { headers } from "next/headers";
  * Endpoint GET /api/koleksi/[id]/kartu: Mengambil semua kartu dalam koleksi.
  * Mendukung filter berdasarkan type (TEXT/IMAGE).
  */
-export async function GET(
-    req: Request,
-    { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: Request) {
+    // Extract koleksiId dari URL path
+    const url = new URL(req.url);
+    const pathParts = url.pathname.split('/');
+    // Expected: ['', 'api', 'koleksi', ':id', 'kartu']
+    const koleksiId = pathParts[3]; // Index 3 karena path dimulai dengan '/'
+
     const authHeader = (await headers()).get('authorization');
     const user = getUserOrDefault(authHeader);
     const userId = user.userId;
-    const { id: koleksiId } = await params;
 
     // Parse query params untuk filter type
-    const url = new URL(req.url);
     const cardType = url.searchParams.get('type'); // Optional: TEXT atau IMAGE
 
     if (!koleksiId) {
