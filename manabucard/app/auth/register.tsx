@@ -225,7 +225,7 @@ export default function RegisterScreen() {
             <View style={styles.footer}>
               <Text style={styles.footerText}>Sudah punya akun? </Text>
               <TouchableOpacity onPress={() => router.push("/auth/login")}>
-                <Text style={styles.linkText}>Masuk</Text>
+                <Text style={styles.linkText}>Masuk Sekarang</Text>
               </TouchableOpacity>
             </View>
 
