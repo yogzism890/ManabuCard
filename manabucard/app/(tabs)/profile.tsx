@@ -144,7 +144,6 @@ const ProfileScreen = () => {
 
               <View style={{ flex: 1 }}>
                 <Text style={styles.hello}> Hallo!
-                  <Text style={styles.wave}>👋 </Text>
                 </Text>
                 <Text style={styles.email} numberOfLines={1}>
                   {user?.email || "Pengguna"}
