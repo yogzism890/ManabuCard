@@ -193,7 +193,7 @@ export default function RegisterScreen() {
               <View style={styles.passwordInfo}>
                 <Ionicons name="information-circle" size={14} color="#777" />
                 <Text style={styles.passwordInfoText}>
-                  Password minimal 6 karakter
+                  Masukkan Password minimal 6 karakter
                 </Text>
               </View>
             </View>
