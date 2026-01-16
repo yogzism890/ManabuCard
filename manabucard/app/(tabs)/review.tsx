@@ -231,7 +231,7 @@ const ReviewScreen = () => {
             <>
               <Text style={styles.mainTitle}>Review Kartu</Text>
               <Text style={styles.mainSubtitle}>
-                Pilih koleksi, lalu review kartu untuk menguatkan ingatan.
+                Pilih koleksi, lalu review kartu untuk menghafal ulang.
               </Text>
             </>
           )}
