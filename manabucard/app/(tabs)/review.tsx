@@ -80,6 +80,34 @@ const ReviewScreen = () => {
       setIsLoading(false);
     }
   };
+  const deleteCollection = async (id: string) => {
+  // Gunakan Alert bawaan untuk konfirmasi
+  Alert.alert(
+    "Hapus Koleksi",
+    "Apakah Anda yakin ingin menghapus koleksi ini? Semua kartu di dalamnya juga akan terhapus.",
+    [
+      { text: "Batal", style: "cancel" },
+      {
+        text: "Hapus",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            setIsLoading(true);
+            await apiRequest(`/koleksi/${id}`, {
+              method: "DELETE",
+            });
+            showModal("Sukses", "Koleksi berhasil dihapus", "success");
+            loadCollections(); // Refresh list setelah hapus
+          } catch (error: any) {
+            showModal("Gagal", error?.message || "Gagal menghapus koleksi", "error");
+          } finally {
+            setIsLoading(false);
+          }
+        },
+      },
+    ]
+  );
+};
 
   const selectCollection = async (collection: any) => {
     try {
