@@ -52,7 +52,7 @@ export default function WelcomeScreen() {
         {/* Logo Section */}
         <Animated.View entering={FadeInDown.delay(200).springify()} style={[styles.logoWrapper, animatedLogoStyle]}>
           <View style={styles.logoBackground}>
-            <Image style={styles.logo} source={require('@/assets/images/manabulogo.png')} />
+            <Image style={styles.logo} source={require('@/assets/images/logo.png')} />
           </View>
         </Animated.View>
 
