@@ -67,7 +67,7 @@ export default function WelcomeScreen() {
 
         {/* Feature Grid */}
         <Animated.View entering={FadeInDown.delay(600).springify()} style={styles.featureGrid}>
-          <FeatureCard emoji="🎯" label="Terukur" color="#F0F5FF" />
+          <FeatureCard emoji="🎯" label="Terjadwal" color="#F0F5FF" />
           <FeatureCard emoji="🔥" label="Intensif" color="#FFF5F0" />
           <FeatureCard emoji="🌈" label="Kreatif" color="#F5F0FF" />
         </Animated.View>
