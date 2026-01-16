@@ -127,9 +127,9 @@ const handleOpenEdit = (item: any) => {
     try {
       setIsUpdating(true);
       await apiRequest(`/koleksi/${editingId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ nama: editName }),
-      });
+  method: "PUT",
+  body: JSON.stringify({ nama: editName }),
+});
 
       setIsEditModalVisible(false);
       showModal("Sukses", "Koleksi berhasil diperbarui", "success");
