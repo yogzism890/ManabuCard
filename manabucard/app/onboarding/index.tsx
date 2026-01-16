@@ -43,7 +43,7 @@ function OnboardingPage({
             source={item.animation}
             autoPlay
             loop
-            style={{ width: width * 0.75, height: width * 0.75 }}
+            style={{ width: width * 0.6, height: width * 0.6 }}
           />
         </View>
       </Animated.View>
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   circle1: { width: 250, height: 250, top: -50, left: -100 },
   circle2: { width: 180, height: 180, top: 100, right: -80 },
 
-  animationContainer: { marginBottom: 40 },
+  animationContainer: { marginBottom: 20 },
   animationBubble: {
     backgroundColor: "rgba(255, 255, 255, 0.4)",
     borderRadius: 50,
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     lineHeight: 22 
   },
 
-  footer: { position: "absolute", bottom: 50, left: 0, right: 0, alignItems: "center" },
+  footer: { position: "absolute", bottom: 40, left: 0, right: 0, alignItems: "center" },
   dotsContainer: { flexDirection: "row", marginBottom: 30 },
   dot: { height: 8, marginHorizontal: 4, borderRadius: 4, backgroundColor: "#9100FF" },
 
