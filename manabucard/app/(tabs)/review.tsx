@@ -10,6 +10,8 @@ import {
   Dimensions,
   Platform,
   Alert,
+  Modal,
+  TextInput,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
@@ -563,7 +565,46 @@ const handleOpenEdit = (item: any) => {
           type={modalType}
           onClose={() => setModalVisible(false)}
         />
-        
+        <Modal
+  visible={isEditModalVisible}
+  transparent={true}
+  animationType="fade"
+  onRequestClose={() => setIsEditModalVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContentSmall}>
+      <Text style={styles.modalTitle}>Edit Nama Koleksi</Text>
+      <View style={styles.inputShell}>
+        <Ionicons name="pencil" size={18} color="#6B7280" />
+        <TextInput
+          style={{ flex: 1, paddingLeft: 10, height: 40, color: '#111827' }}
+          value={editName}
+          onChangeText={setEditName}
+          placeholder="Nama Koleksi Baru"
+          autoFocus={true}
+        />
+      </View>
+      <View style={{ flexDirection: 'row', gap: 10, marginTop: 20 }}>
+        <TouchableOpacity
+          style={[styles.modalBtn, { backgroundColor: '#F3F4F6' }]}
+          onPress={() => setIsEditModalVisible(false)}
+        >
+          <Text style={{ color: '#6B7280' }}>Batal</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.modalBtn, { backgroundColor: ACCENT }]}
+          onPress={handleSaveEdit}
+        >
+          {isUpdating ? (
+            <ActivityIndicator color="#fff" size="small" />
+          ) : (
+            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Simpan</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</Modal>
       </View>
     </SafeAreaView>
   );
