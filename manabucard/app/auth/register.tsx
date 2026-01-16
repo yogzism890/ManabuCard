@@ -160,7 +160,7 @@ export default function RegisterScreen() {
                 <Ionicons name="lock-closed" size={20} color="#9100FF" style={styles.inputIcon} />
                 <TextInput
                   style={[styles.input, { flex: 1 }]}
-                  placeholder="Password"
+                  placeholder="Masukkan Password"
                   placeholderTextColor="#A0A0A0"
                   secureTextEntry={!showPassword}
                   value={password}
