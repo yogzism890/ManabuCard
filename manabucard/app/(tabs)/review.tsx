@@ -700,22 +700,6 @@ const styles = StyleSheet.create({
     paddingBottom: 18,
   },
 
-  // Koleksi card
-  collectionCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    padding: 14,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: "rgba(17,24,39,0.06)",
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 2,
-    gap: 12,
-  },
   cardIcon: {
     width: 46,
     height: 46,
@@ -796,7 +780,6 @@ const styles = StyleSheet.create({
   // Session
   sessionWrapper: { paddingTop: 6, alignItems: "center" },
 
-  // Mode Selector
   modeSelector: {
     width: "100%",
     marginBottom: 16,
@@ -987,14 +970,90 @@ const styles = StyleSheet.create({
     fontSize: 12.5,
     color: "#6B7280",
   },
+ 
+// --- Style untuk Modal Edit ---
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)', // Gelap transparan
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20
+  },
+  modalContentSmall: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 24,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontFamily: 'Poppins_700Bold',
+    color: '#111827',
+    marginBottom: 20,
+    textAlign: 'center'
+  },
+  inputShell: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F3F4F6",
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    height: 56,
+    borderWidth: 1,
+    borderColor: "rgba(17,24,39,0.06)",
+  },
+  modalBtn: {
+    flex: 1,
+    height: 52,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+ actionContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  editInsideBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: "rgba(145, 0, 255, 0.05)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(145, 0, 255, 0.1)",
+  },
   deleteInsideBtn: {
-  width: 36,
-  height: 36,
-  borderRadius: 12,
-  backgroundColor: "rgba(239, 68, 68, 0.05)", // Merah sangat transparan
-  justifyContent: "center",
-  alignItems: "center",
-  marginLeft: 4,
-},
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: "rgba(239, 68, 68, 0.05)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(239, 68, 68, 0.1)",
+  },
+  collectionCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    padding: 14,
+    borderRadius: 20,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "rgba(17,24,39,0.06)",
+    shadowColor: "#000",
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
+    gap: 12,
+  },
 });
 
