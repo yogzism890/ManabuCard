@@ -114,6 +114,11 @@ const ReviewScreen = () => {
     ]
   );
 };
+const handleOpenEdit = (item: any) => {
+    setEditingId(item.id);
+    setEditName(item.nama);
+    setIsEditModalVisible(true);
+  };
 
   const selectCollection = async (collection: any) => {
     try {
