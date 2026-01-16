@@ -9,6 +9,7 @@ import {
   Platform,
   Dimensions,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -45,116 +46,130 @@ export default function LoginScreen() {
       <View style={[styles.circle, { top: -50, right: -100, backgroundColor: "#E0D0FF" }]} />
       <View style={[styles.circle, { bottom: -50, left: -100, backgroundColor: "#D0E0FF" }]} />
 
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.keyboardView}>
-        <Animated.View entering={FadeInDown.duration(800)} style={styles.glassCard}>
-          
-          {/* Logo dengan Bayangan Lembut */}
-          <View style={styles.logoWrapper}>
-            <View style={styles.logoInner}>
-              <Animated.Image
-                source={require("@/assets/images/logo.png")}
-                style={styles.logo}
-                resizeMode="contain"
-              />
-            </View>
-          </View>
-
-          <View style={styles.textHeader}>
-            <Text style={styles.title}>Halo Kembali!</Text>
-            <Text style={styles.subtitle}>Masuk untuk melanjutkan progresmu</Text>
-          </View>
-
-          <View style={styles.form}>
-            {/* Input dengan Border "Highlight" (Bukan Garis Hitam) */}
-            <View style={styles.inputContainer}>
-              <Ionicons name="mail" size={20} color="#9100FF" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Email Anda"
-                placeholderTextColor="#A0A0A0"
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-              />
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"} 
+        style={styles.keyboardView}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+      >
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
+        >
+          <Animated.View entering={FadeInDown.duration(800)} style={styles.glassCard}>
+            
+            {/* Logo dengan Bayangan Lembut */}
+            <View style={styles.logoWrapper}>
+              <View style={styles.logoInner}>
+                <Animated.Image
+                  source={require("@/assets/images/logo.png")}
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
+              </View>
             </View>
 
-            <View style={styles.inputContainer}>
-              <Ionicons name="lock-closed" size={20} color="#9100FF" style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, { flex: 1 }]}
-                placeholder="Password"
-                placeholderTextColor="#A0A0A0"
-                secureTextEntry={!showPassword}
-                value={password}
-                onChangeText={setPassword}
-              />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color="#CCC" />
+            <View style={styles.textHeader}>
+              <Text style={styles.title}>Halo Kembali!</Text>
+              <Text style={styles.subtitle}>Masuk untuk melanjutkan progresmu</Text>
+            </View>
+
+            <View style={styles.form}>
+              {/* Input dengan Border "Highlight" (Bukan Garis Hitam) */}
+              <View style={styles.inputContainer}>
+                <Ionicons name="mail" size={20} color="#9100FF" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email Anda"
+                  placeholderTextColor="#A0A0A0"
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Ionicons name="lock-closed" size={20} color="#9100FF" style={styles.inputIcon} />
+                <TextInput
+                  style={[styles.input, { flex: 1 }]}
+                  placeholder="Password"
+                  placeholderTextColor="#A0A0A0"
+                  secureTextEntry={!showPassword}
+                  value={password}
+                  onChangeText={setPassword}
+                  autoCapitalize="none"
+                />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                  <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color="#CCC" />
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity style={styles.forgotBtn}>
+                <Text style={styles.forgotText}>Lupa Password?</Text>
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.forgotBtn}>
-              <Text style={styles.forgotText}>Lupa Password?</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Tombol yang "Pas" dengan Gambar Navigasi */}
-          <TouchableOpacity 
-            style={styles.mainBtn} 
-            onPress={handleLogin}
-            activeOpacity={0.8}
-          >
-            <LinearGradient
-              colors={["#9100FF", "#7100CC"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.btnGradient}
+            {/* Tombol yang "Pas" dengan Gambar Navigasi */}
+            <TouchableOpacity 
+              style={styles.mainBtn} 
+              onPress={handleLogin}
+              activeOpacity={0.8}
+              disabled={isLoading}
             >
-              {isLoading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <>
-                  <Text style={styles.btnText}>Masuk Sekarang</Text>
-                  <Ionicons name="arrow-forward" size={18} color="#fff" />
-                </>
-              )}
-            </LinearGradient>
-          </TouchableOpacity>
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Belum punya akun? </Text>
-            <TouchableOpacity onPress={() => router.push("/auth/register")}>
-              <Text style={styles.linkText}>Daftar Sekarang</Text>
+              <LinearGradient
+                colors={["#9100FF", "#7100CC"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.btnGradient}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <>
+                    <Text style={styles.btnText}>Masuk Sekarang</Text>
+                    <Ionicons name="arrow-forward" size={18} color="#fff" />
+                  </>
+                )}
+              </LinearGradient>
             </TouchableOpacity>
-          </View>
 
-        </Animated.View>
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Belum punya akun? </Text>
+              <TouchableOpacity onPress={() => router.push("/auth/register")}>
+                <Text style={styles.linkText}>Daftar Sekarang</Text>
+              </TouchableOpacity>
+            </View>
+
+          </Animated.View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center" },
+  container: { flex: 1 },
   circle: { position: "absolute", width: 300, height: 300, borderRadius: 150, opacity: 0.4 },
-  keyboardView: { width: "100%", alignItems: "center" },
+  keyboardView: { flex: 1 },
+  scrollContent: { 
+    flexGrow: 1,
+    justifyContent: "center",
+    paddingHorizontal: width * 0.06,
+    paddingVertical: 20,
+    minHeight: '100%',
+  },
 
   // KARTU UTAMA (Seamless Glass)
   glassCard: {
-    width: width * 0.88,
-    backgroundColor: "rgba(255, 255, 255, 0.65)", // Transparansi kaca
-    borderRadius: 35, // Radius besar agar tidak kaku
+    width: '100%',
+    backgroundColor: "rgba(255, 255, 255, 0.65)",
+    borderRadius: 35,
     padding: 30,
     alignItems: "center",
-    // Border Putih Tipis (Efek Highlight)
     borderWidth: 1.5,
     borderColor: "rgba(255, 255, 255, 0.8)",
-    // Shadow lembut warna ungu
-    // shadowColor: "#9100FF",
-    // shadowOffset: { width: 0, height: 15 },
-    // shadowOpacity: 0.1,
-    // shadowRadius: 25,
-    // elevation: 10,
   },
 
   logoWrapper: { marginBottom: 20 },
@@ -183,15 +198,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.8)",
-    borderRadius: 22, // Membulat sempurna
+    borderRadius: 22,
     paddingHorizontal: 20,
     paddingVertical: Platform.OS === 'ios' ? 16 : 12,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "rgba(145, 0, 255, 0.08)", // Border ungu sangat tipis
+    borderColor: "rgba(145, 0, 255, 0.08)",
   },
   inputIcon: { marginRight: 15 },
-  input: { fontSize: 15, fontWeight: "600", color: "#1A1A1A" },
+  input: { fontSize: 15, fontWeight: "600", color: "#1A1A1A", flex: 1 },
 
   forgotBtn: { alignSelf: "flex-end", marginTop: -5 },
   forgotText: { fontSize: 13, color: "#9100FF", fontWeight: "700" },
