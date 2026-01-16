@@ -116,11 +116,13 @@ export default function RegisterScreen() {
       <KeyboardAvoidingView 
         behavior={Platform.OS === "ios" ? "padding" : "height"} 
         style={styles.keyboardView}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
         <ScrollView 
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          bounces={false}
         >
           <Animated.View entering={FadeInDown.duration(800)} style={styles.glassCard}>
             
@@ -146,7 +148,7 @@ export default function RegisterScreen() {
                 <Ionicons name="mail" size={20} color="#9100FF" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="Massukan Email Anda"
+                  placeholder="Masukkan Email Anda"
                   placeholderTextColor="#A0A0A0"
                   value={email}
                   onChangeText={setEmail}
@@ -249,19 +251,20 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center" },
+  container: { flex: 1 },
   circle: { position: "absolute", width: 300, height: 300, borderRadius: 150, opacity: 0.4 },
-  keyboardView: { flex: 1, width: "100%" },
+  keyboardView: { flex: 1 },
   scrollContent: { 
-    flexGrow: 1, 
-    justifyContent: "center", 
-    alignItems: "center",
-    paddingVertical: 40,
+    flexGrow: 1,
+    justifyContent: "center",
+    paddingHorizontal: width * 0.06,
+    paddingVertical: 20,
+    minHeight: '100%',
   },
 
   // KARTU UTAMA (Seamless Glass)
   glassCard: {
-    width: width * 0.88,
+    width: '100%',
     backgroundColor: "rgba(255, 255, 255, 0.65)",
     borderRadius: 35,
     padding: 30,
