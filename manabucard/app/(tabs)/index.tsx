@@ -34,13 +34,12 @@ type HeroItem = {
 };
 
 export default function LandingScreen() {
-  // Daftar gambar + teks (bisa kamu ganti nanti pakai asset lokal juga)
   const heroSlides: HeroItem[] = useMemo(
     () => [
       {
         id: "1",
         titleSmall: "ManabuCard",
-        title1: "Let’s learn",
+        title1: "Let's learn",
         title2: "something new",
         subtitle: "Pilih koleksi dan mulai review dalam 3 menit.",
         image: "https://picsum.photos/seed/manabu-1/900/600",
@@ -76,7 +75,6 @@ export default function LandingScreen() {
   const listRef = useRef<FlatList<HeroItem> | null>(null);
   const [heroIndex, setHeroIndex] = useState(0);
 
-  // Auto slide tiap 3 detik
   useEffect(() => {
     const timer = setInterval(() => {
       setHeroIndex((prev) => {
@@ -107,7 +105,6 @@ export default function LandingScreen() {
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <LinearGradient colors={["#F8F0FF", "#F0F4FF", "#FFFFFF"]} style={styles.gradientBackground}>
-          {/* Decorative blobs */}
           <View style={[styles.blob, styles.blob1]} />
           <View style={[styles.blob, styles.blob2]} />
 
@@ -118,9 +115,12 @@ export default function LandingScreen() {
               <Text style={styles.topBadgeText}>ManabuCard v1.0</Text>
             </View>
 
-            <TouchableOpacity style={styles.profileMini} activeOpacity={0.85}>
-              <Ionicons name="person-circle-outline" size={30} color="#111827" />
-            </TouchableOpacity>
+            {/* Profile Button - Mengarah ke profile.tsx */}
+            <Link href="/(tabs)/profile" asChild>
+              <TouchableOpacity style={styles.profileMini} activeOpacity={0.85}>
+                <Ionicons name="person-circle-outline" size={30} color="#111827" />
+              </TouchableOpacity>
+            </Link>
           </Animated.View>
 
           {/* HERO CAROUSEL */}
@@ -154,7 +154,6 @@ export default function LandingScreen() {
                         <Text style={styles.heroSmall}>{item.titleSmall}</Text>
                         <Text style={styles.heroBig}>{item.title1}</Text>
                         <Text style={styles.heroBigStrong}>{item.title2}</Text>
-
                         <Text style={styles.heroSub}>{item.subtitle}</Text>
                       </View>
                     </LinearGradient>
@@ -177,14 +176,16 @@ export default function LandingScreen() {
             </View>
           </Animated.View>
 
-          {/* CTA BAR (DIBAWAH HERO, DI ATAS FITUR UTAMA) */}
+          {/* CTA BAR */}
           <Animated.View entering={FadeInDown.delay(200)} style={styles.ctaBar}>
-            {/* Button + */}
-            <TouchableOpacity activeOpacity={0.85} style={styles.ctaPlusBtn}>
-              <View style={styles.ctaPlusInner}>
-                <Ionicons name="add" size={20} color="#fff" />
-              </View>
-            </TouchableOpacity>
+            {/* Button Plus - Mengarah ke create */}
+            <Link href="/(tabs)/create" asChild>
+              <TouchableOpacity activeOpacity={0.85} style={styles.ctaPlusBtn}>
+                <View style={styles.ctaPlusInner}>
+                  <Ionicons name="add" size={20} color="#fff" />
+                </View>
+              </TouchableOpacity>
+            </Link>
 
             {/* Mulai Review */}
             <Link href="/(tabs)/review" asChild>
@@ -209,7 +210,6 @@ export default function LandingScreen() {
               </TouchableOpacity>
             </Link>
           </Animated.View>
-
 
           {/* Features */}
           <View style={styles.section}>
@@ -295,7 +295,6 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === "android" ? 10 : 6,
   },
 
-  // Blobs
   blob: { position: "absolute", borderRadius: 999, opacity: 0.35 },
   blob1: {
     width: 320,
@@ -312,7 +311,6 @@ const styles = StyleSheet.create({
     left: -130,
   },
 
-  // Top header
   topHeader: {
     paddingHorizontal: 20,
     flexDirection: "row",
@@ -343,7 +341,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  // HERO
   heroCard: {
     borderRadius: 26,
     overflow: "hidden",
@@ -419,7 +416,6 @@ const styles = StyleSheet.create({
   },
   heroGhostText: { fontFamily: "Poppins_600SemiBold", fontSize: 13.5, color: "#fff" },
 
-  // Dots
   dotsRow: {
     position: "absolute",
     bottom: 10,
@@ -433,13 +429,11 @@ const styles = StyleSheet.create({
   dotActive: { width: 22, backgroundColor: "#fff", opacity: 0.95 },
   dotInactive: { width: 8, backgroundColor: "#fff", opacity: 0.45 },
 
-  // Section
   section: { marginTop: 10, marginBottom: 18, paddingHorizontal: 20 },
   sectionHead: { marginBottom: 12 },
   sectionTitle: { fontSize: 18, fontFamily: "Poppins_700Bold", color: "#111827" },
   sectionSub: { marginTop: 4, fontSize: 12.5, fontFamily: "Poppins_400Regular", color: "#6B7280" },
 
-  // Features
   featureGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -475,7 +469,6 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
 
-  // Steps
   stepWrapper: { gap: 10 },
   stepItem: {
     flexDirection: "row",
@@ -515,77 +508,77 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  // CTA BAR (di bawah hero)
-ctaBar: {
-  paddingHorizontal: 20,
-  flexDirection: "row",
-  alignItems: "center",
-  gap: 10,
-  marginBottom: 18,
-},
 
-ctaPlusBtn: {
-  width: 48,
-  height: 48,
-  borderRadius: 18,
-  backgroundColor: "rgba(255,255,255,0.85)",
-  borderWidth: 1,
-  borderColor: "rgba(17,24,39,0.06)",
-  justifyContent: "center",
-  alignItems: "center",
-  shadowColor: "#000",
-  shadowOpacity: 0.06,
-  shadowRadius: 10,
-  shadowOffset: { width: 0, height: 8 },
-  elevation: 2,
-},
-ctaPlusInner: {
-  width: 36,
-  height: 36,
-  borderRadius: 14,
-  backgroundColor: ACCENT,
-  justifyContent: "center",
-  alignItems: "center",
-},
+  ctaBar: {
+    paddingHorizontal: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 18,
+  },
 
-ctaPrimaryBtn: {
-  flex: 1,
-  borderRadius: 18,
-  overflow: "hidden",
-  shadowColor: ACCENT,
-  shadowOpacity: 0.18,
-  shadowRadius: 14,
-  shadowOffset: { width: 0, height: 10 },
-  elevation: 4,
-},
-ctaPrimaryGrad: {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 8,
-  paddingVertical: 14,
-},
-ctaPrimaryText: {
-  color: "#fff",
-  fontSize: 14.5,
-  fontFamily: "Poppins_700Bold",
-},
+  ctaPlusBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.85)",
+    borderWidth: 1,
+    borderColor: "rgba(17,24,39,0.06)",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 2,
+  },
+  ctaPlusInner: {
+    width: 36,
+    height: 36,
+    borderRadius: 14,
+    backgroundColor: ACCENT,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 
-ctaGhostBtn: {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 8,
-  paddingHorizontal: 14,
-  height: 48,
-  borderRadius: 18,
-  backgroundColor: "rgba(255,255,255,0.85)",
-  borderWidth: 1,
-  borderColor: "rgba(145,0,255,0.16)",
-},
-ctaGhostText: {
-  fontSize: 13.5,
-  fontFamily: "Poppins_600SemiBold",
-  color: ACCENT,
-},
+  ctaPrimaryBtn: {
+    flex: 1,
+    borderRadius: 18,
+    overflow: "hidden",
+    shadowColor: ACCENT,
+    shadowOpacity: 0.18,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 4,
+  },
+  ctaPrimaryGrad: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 14,
+  },
+  ctaPrimaryText: {
+    color: "#fff",
+    fontSize: 14.5,
+    fontFamily: "Poppins_700Bold",
+  },
+
+  ctaGhostBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingHorizontal: 14,
+    height: 48,
+    borderRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.85)",
+    borderWidth: 1,
+    borderColor: "rgba(145,0,255,0.16)",
+  },
+  ctaGhostText: {
+    fontSize: 13.5,
+    fontFamily: "Poppins_600SemiBold",
+    color: ACCENT,
+  },
 });
