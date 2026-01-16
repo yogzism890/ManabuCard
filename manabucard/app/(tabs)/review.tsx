@@ -907,5 +907,14 @@ const styles = StyleSheet.create({
     fontSize: 12.5,
     color: "#6B7280",
   },
+  deleteInsideBtn: {
+  width: 36,
+  height: 36,
+  borderRadius: 12,
+  backgroundColor: "rgba(239, 68, 68, 0.05)", // Merah sangat transparan
+  justifyContent: "center",
+  alignItems: "center",
+  marginLeft: 4,
+},
 });
 
