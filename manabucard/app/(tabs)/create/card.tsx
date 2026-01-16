@@ -380,7 +380,7 @@ const CreateCardScreen = () => {
                         label=""
                         value={front}
                         onChangeText={setFront}
-                        placeholder="Contoh: Apa itu photosynthesis?"
+                        placeholder="Contoh: Eye"
                       />
                     </View>
                   </View>
