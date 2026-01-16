@@ -195,7 +195,7 @@ export default function LandingScreen() {
                   end={{ x: 1, y: 0 }}
                   style={styles.ctaPrimaryGrad}
                 >
-                  <Text style={styles.ctaPrimaryText}>Mulai Review</Text>
+                  <Text style={styles.ctaPrimaryText}>Review</Text>
                   <Ionicons name="chevron-forward" size={18} color="#fff" />
                 </LinearGradient>
               </TouchableOpacity>
