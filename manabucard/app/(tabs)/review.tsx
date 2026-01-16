@@ -306,28 +306,32 @@ const ReviewScreen = () => {
             ) : (
               <View style={{ gap: 12 }}>
                 {collections.map((item) => (
-                  <TouchableOpacity
-                    key={item.id}
-                    style={styles.collectionCard}
-                    onPress={() => selectCollection(item)}
-                    activeOpacity={0.88}
-                  >
-                    <View style={styles.cardIcon}>
-                      <Ionicons name="folder-open" size={22} color={ACCENT} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.collectionName} numberOfLines={1}>
-                        {item.nama}
-                      </Text>
-                      <Text style={styles.collectionCount}>
-                        {item.kartuCount} kartu
-                      </Text>
-                    </View>
-                    <View style={styles.chev}>
-                      <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
-                    </View>
-                  </TouchableOpacity>
-                ))}
+  <TouchableOpacity
+    key={item.id}
+    style={styles.collectionCard}
+    onPress={() => selectCollection(item)}
+    activeOpacity={0.88}
+  >
+    <View style={styles.cardIcon}>
+      <Ionicons name="folder-open" size={22} color={ACCENT} />
+    </View>
+
+    <View style={{ flex: 1 }}>
+      <Text style={styles.collectionName} numberOfLines={1}>
+        {item.nama}
+      </Text>
+      <Text style={styles.collectionCount}>
+        {item.kartuCount} kartu
+      </Text>
+    </View>
+    <TouchableOpacity
+      style={styles.deleteInsideBtn}
+      onPress={() => deleteCollection(item.id)}
+    >
+      <Ionicons name="trash-outline" size={18} color="#EF4444" />
+    </TouchableOpacity>
+  </TouchableOpacity>
+))}
               </View>
             )
           ) : (
