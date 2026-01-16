@@ -126,7 +126,7 @@ export default function CreateCollectionScreen() {
             <View style={styles.badgeRow}>
               <View style={styles.badge}>
                 <View style={styles.badgeDot} />
-                <Text style={styles.badgeText}>Create Collection</Text>
+                <Text style={styles.badgeText}>Create Collections</Text>
               </View>
 
               <TouchableOpacity
