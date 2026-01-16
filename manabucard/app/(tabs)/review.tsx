@@ -353,12 +353,21 @@ const handleOpenEdit = (item: any) => {
         {item.kartuCount} kartu
       </Text>
     </View>
-    <TouchableOpacity
-      style={styles.deleteInsideBtn}
-      onPress={() => deleteCollection(item.id)}
-    >
-      <Ionicons name="trash-outline" size={18} color="#EF4444" />
-    </TouchableOpacity>
+    <View style={styles.actionContainer}>
+      <TouchableOpacity
+        style={styles.editInsideBtn}
+        onPress={() => handleOpenEdit(item)}
+      >
+        <Ionicons name="create-outline" size={18} color={ACCENT} />
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.deleteInsideBtn}
+        onPress={() => deleteCollection(item.id)}
+      >
+        <Ionicons name="trash-outline" size={18} color="#EF4444" />
+      </TouchableOpacity>
+    </View>
   </TouchableOpacity>
 ))}
               </View>
@@ -554,6 +563,7 @@ const handleOpenEdit = (item: any) => {
           type={modalType}
           onClose={() => setModalVisible(false)}
         />
+        
       </View>
     </SafeAreaView>
   );
