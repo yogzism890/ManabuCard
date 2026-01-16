@@ -119,6 +119,25 @@ const handleOpenEdit = (item: any) => {
     setEditName(item.nama);
     setIsEditModalVisible(true);
   };
+  const handleSaveEdit = async () => {
+    if (!editName.trim() || !editingId) return;
+
+    try {
+      setIsUpdating(true);
+      await apiRequest(`/koleksi/${editingId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ nama: editName }),
+      });
+
+      setIsEditModalVisible(false);
+      showModal("Sukses", "Koleksi berhasil diperbarui", "success");
+      loadCollections();
+    } catch (error: any) {
+      showModal("Gagal", error?.message || "Gagal update koleksi", "error");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const selectCollection = async (collection: any) => {
     try {
