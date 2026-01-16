@@ -51,6 +51,11 @@ const ReviewScreen = () => {
     "success" | "error" | "info" | "warning"
   >("info");
 
+  // Edit modal
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+
   const showModal = (title: string, message: string, type: any = "info") => {
     setModalTitle(title);
     setModalMessage(message);
