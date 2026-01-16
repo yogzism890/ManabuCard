@@ -36,7 +36,7 @@ const ReviewScreen = () => {
   // Filtered cards for review
   const [cards, setCards] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  
+
   // Review mode selection
   const [reviewMode, setReviewMode] = useState<ReviewMode>("ALL");
   const [showModeSelector, setShowModeSelector] = useState(false);
@@ -89,34 +89,34 @@ const ReviewScreen = () => {
     }
   };
   const deleteCollection = async (id: string) => {
-  // Gunakan Alert bawaan untuk konfirmasi
-  Alert.alert(
-    "Hapus Koleksi",
-    "Apakah Anda yakin ingin menghapus koleksi ini? Semua kartu di dalamnya juga akan terhapus.",
-    [
-      { text: "Batal", style: "cancel" },
-      {
-        text: "Hapus",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            setIsLoading(true);
-            await apiRequest(`/koleksi/${id}`, {
-              method: "DELETE",
-            });
-            showModal("Sukses", "Koleksi berhasil dihapus", "success");
-            loadCollections(); // Refresh list setelah hapus
-          } catch (error: any) {
-            showModal("Gagal", error?.message || "Gagal menghapus koleksi", "error");
-          } finally {
-            setIsLoading(false);
-          }
+    // Gunakan Alert bawaan untuk konfirmasi
+    Alert.alert(
+      "Hapus Koleksi",
+      "Apakah Anda yakin ingin menghapus koleksi ini? Semua kartu di dalamnya juga akan terhapus.",
+      [
+        { text: "Batal", style: "cancel" },
+        {
+          text: "Hapus",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setIsLoading(true);
+              await apiRequest(`/koleksi/${id}`, {
+                method: "DELETE",
+              });
+              showModal("Sukses", "Koleksi berhasil dihapus", "success");
+              loadCollections(); // Refresh list setelah hapus
+            } catch (error: any) {
+              showModal("Gagal", error?.message || "Gagal menghapus koleksi", "error");
+            } finally {
+              setIsLoading(false);
+            }
+          },
         },
-      },
-    ]
-  );
-};
-const handleOpenEdit = (item: any) => {
+      ]
+    );
+  };
+  const handleOpenEdit = (item: any) => {
     setEditingId(item.id);
     setEditName(item.nama);
     setIsEditModalVisible(true);
@@ -127,9 +127,9 @@ const handleOpenEdit = (item: any) => {
     try {
       setIsUpdating(true);
       await apiRequest(`/koleksi/${editingId}`, {
-  method: "PUT",
-  body: JSON.stringify({ nama: editName }),
-});
+        method: "PUT",
+        body: JSON.stringify({ nama: editName }),
+      });
 
       setIsEditModalVisible(false);
       showModal("Sukses", "Koleksi berhasil diperbarui", "success");
@@ -161,7 +161,7 @@ const handleOpenEdit = (item: any) => {
   // Filter cards based on review mode
   const filterCardsByMode = useCallback((mode: ReviewMode) => {
     setReviewMode(mode);
-    
+
     if (mode === "ALL") {
       setCards(allCards);
     } else {
@@ -337,41 +337,41 @@ const handleOpenEdit = (item: any) => {
             ) : (
               <View style={{ gap: 12 }}>
                 {collections.map((item) => (
-  <TouchableOpacity
-    key={item.id}
-    style={styles.collectionCard}
-    onPress={() => selectCollection(item)}
-    activeOpacity={0.88}
-  >
-    <View style={styles.cardIcon}>
-      <Ionicons name="folder-open" size={22} color={ACCENT} />
-    </View>
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.collectionCard}
+                    onPress={() => selectCollection(item)}
+                    activeOpacity={0.88}
+                  >
+                    <View style={styles.cardIcon}>
+                      <Ionicons name="folder-open" size={22} color={ACCENT} />
+                    </View>
 
-    <View style={{ flex: 1 }}>
-      <Text style={styles.collectionName} numberOfLines={1}>
-        {item.nama}
-      </Text>
-      <Text style={styles.collectionCount}>
-        {item.kartuCount} kartu
-      </Text>
-    </View>
-    <View style={styles.actionContainer}>
-      <TouchableOpacity
-        style={styles.editInsideBtn}
-        onPress={() => handleOpenEdit(item)}
-      >
-        <Ionicons name="create-outline" size={18} color={ACCENT} />
-      </TouchableOpacity>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.collectionName} numberOfLines={1}>
+                        {item.nama}
+                      </Text>
+                      <Text style={styles.collectionCount}>
+                        {item.kartuCount} kartu
+                      </Text>
+                    </View>
+                    <View style={styles.actionContainer}>
+                      <TouchableOpacity
+                        style={styles.editInsideBtn}
+                        onPress={() => handleOpenEdit(item)}
+                      >
+                        <Ionicons name="create-outline" size={18} color={ACCENT} />
+                      </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.deleteInsideBtn}
-        onPress={() => deleteCollection(item.id)}
-      >
-        <Ionicons name="trash-outline" size={18} color="#EF4444" />
-      </TouchableOpacity>
-    </View>
-  </TouchableOpacity>
-))}
+                      <TouchableOpacity
+                        style={styles.deleteInsideBtn}
+                        onPress={() => deleteCollection(item.id)}
+                      >
+                        <Ionicons name="trash-outline" size={18} color="#EF4444" />
+                      </TouchableOpacity>
+                    </View>
+                  </TouchableOpacity>
+                ))}
               </View>
             )
           ) : (
@@ -566,45 +566,45 @@ const handleOpenEdit = (item: any) => {
           onClose={() => setModalVisible(false)}
         />
         <Modal
-  visible={isEditModalVisible}
-  transparent={true}
-  animationType="fade"
-  onRequestClose={() => setIsEditModalVisible(false)}
->
-  <View style={styles.modalOverlay}>
-    <View style={styles.modalContentSmall}>
-      <Text style={styles.modalTitle}>Edit Nama Koleksi</Text>
-      <View style={styles.inputShell}>
-        <Ionicons name="pencil" size={18} color="#6B7280" />
-        <TextInput
-          style={{ flex: 1, paddingLeft: 10, height: 40, color: '#111827' }}
-          value={editName}
-          onChangeText={setEditName}
-          placeholder="Nama Koleksi Baru"
-          autoFocus={true}
-        />
-      </View>
-      <View style={{ flexDirection: 'row', gap: 10, marginTop: 20 }}>
-        <TouchableOpacity
-          style={[styles.modalBtn, { backgroundColor: '#F3F4F6' }]}
-          onPress={() => setIsEditModalVisible(false)}
+          visible={isEditModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setIsEditModalVisible(false)}
         >
-          <Text style={{ color: '#6B7280' }}>Batal</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.modalBtn, { backgroundColor: ACCENT }]}
-          onPress={handleSaveEdit}
-        >
-          {isUpdating ? (
-            <ActivityIndicator color="#fff" size="small" />
-          ) : (
-            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Simpan</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </View>
-  </View>
-</Modal>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContentSmall}>
+              <Text style={styles.modalTitle}>Edit Nama Koleksi</Text>
+              <View style={styles.inputShell}>
+                <Ionicons name="pencil" size={18} color="#6B7280" />
+                <TextInput
+                  style={{ flex: 1, paddingLeft: 10, height: 40, color: '#111827' }}
+                  value={editName}
+                  onChangeText={setEditName}
+                  placeholder="Nama Koleksi Baru"
+                  autoFocus={true}
+                />
+              </View>
+              <View style={{ flexDirection: 'row', gap: 10, marginTop: 20 }}>
+                <TouchableOpacity
+                  style={[styles.modalBtn, { backgroundColor: '#F3F4F6' }]}
+                  onPress={() => setIsEditModalVisible(false)}
+                >
+                  <Text style={{ color: '#6B7280' }}>Batal</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalBtn, { backgroundColor: ACCENT }]}
+                  onPress={handleSaveEdit}
+                >
+                  {isUpdating ? (
+                    <ActivityIndicator color="#fff" size="small" />
+                  ) : (
+                    <Text style={{ color: '#fff', fontWeight: 'bold' }}>Simpan</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     </SafeAreaView>
   );
@@ -970,8 +970,8 @@ const styles = StyleSheet.create({
     fontSize: 12.5,
     color: "#6B7280",
   },
- 
-// --- Style untuk Modal Edit ---
+
+  // --- Style untuk Modal Edit ---
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)', // Gelap transparan
@@ -1014,7 +1014,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
- actionContainer: {
+  actionContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
