@@ -315,7 +315,6 @@ const ReviewScreen = () => {
                     <View style={styles.cardIcon}>
                       <Ionicons name="folder-open" size={22} color={ACCENT} />
                     </View>
-
                     <View style={{ flex: 1 }}>
                       <Text style={styles.collectionName} numberOfLines={1}>
                         {item.nama}
@@ -324,7 +323,6 @@ const ReviewScreen = () => {
                         {item.kartuCount} kartu
                       </Text>
                     </View>
-
                     <View style={styles.chev}>
                       <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
                     </View>
