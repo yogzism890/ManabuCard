@@ -10,19 +10,10 @@ import Animated, {
   interpolate,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   SharedValue,
 } from "react-native-reanimated";
 
 const { width, height } = Dimensions.get("window");
-
-function FloatingEmoji({ emoji, style }: { emoji: string; style: any }) {
-  return (
-    <Animated.Text style={[styles.floatingEmoji, style]}>
-      {emoji}
-    </Animated.Text>
-  );
-}
 
 function OnboardingPage({
   item,
@@ -93,11 +84,6 @@ export default function Onboarding() {
 
   return (
     <LinearGradient colors={["#F8F0FF", "#F0F4FF", "#FFFFFF"]} style={styles.container}>
-      {/* Floating Elements */}
-      <FloatingEmoji emoji="✨" style={{ top: height * 0.1, left: width * 0.1 }} />
-      <FloatingEmoji emoji="📚" style={{ top: height * 0.2, right: width * 0.15 }} />
-      <FloatingEmoji emoji="💡" style={{ top: height * 0.6, left: width * 0.05 }} />
-
       <PagerView
         style={{ flex: 1 }}
         ref={pagerRef}
@@ -155,7 +141,6 @@ export default function Onboarding() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  floatingEmoji: { position: "absolute", fontSize: 24, opacity: 0.3 },
   page: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 30 },
   
   decorativeCircle: { position: "absolute", borderRadius: 200, opacity: 0.4 },
