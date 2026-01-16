@@ -146,7 +146,7 @@ export default function RegisterScreen() {
                 <Ionicons name="mail" size={20} color="#9100FF" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="Email Anda"
+                  placeholder="Massukan Email Anda"
                   placeholderTextColor="#A0A0A0"
                   value={email}
                   onChangeText={setEmail}
