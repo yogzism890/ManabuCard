@@ -13,11 +13,12 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import Animated, { FadeInDown, FadeIn } from "react-native-reanimated";
+import { Ionicons } from "@expo/vector-icons";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { useAuth } from "../../contexts/AuthContext";
 import CustomModal from "../../components/ui/CustomModal";
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -107,169 +108,127 @@ export default function RegisterScreen() {
   };
 
   return (
-    <LinearGradient colors={["#FFF8E7", "#FFF0F5", "#E8F4FF"]} style={styles.container}>
-      
-      {/* Floating decorative elements */}
-      <Animated.Text entering={FadeIn.delay(200)} style={[styles.floatingEmoji, styles.emoji1]}>
-        🎨
-      </Animated.Text>
-      <Animated.Text entering={FadeIn.delay(300)} style={[styles.floatingEmoji, styles.emoji2]}>
-        ✨
-      </Animated.Text>
-      <Animated.Text entering={FadeIn.delay(400)} style={[styles.floatingEmoji, styles.emoji3]}>
-        🚀
-      </Animated.Text>
-      <Animated.Text entering={FadeIn.delay(500)} style={[styles.floatingEmoji, styles.emoji4]}>
-        📚
-      </Animated.Text>
+    <LinearGradient colors={["#F8F0FF", "#F0F4FF", "#FFFFFF"]} style={styles.container}>
+      {/* Ornamen Latar Belakang */}
+      <View style={[styles.circle, { top: -50, right: -100, backgroundColor: "#E0D0FF" }]} />
+      <View style={[styles.circle, { bottom: -50, left: -100, backgroundColor: "#D0E0FF" }]} />
 
-      {/* Decorative circles */}
-      <View style={[styles.decorativeCircle, styles.circle1]} />
-      <View style={[styles.decorativeCircle, styles.circle2]} />
-
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"} 
         style={styles.keyboardView}
       >
         <ScrollView 
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <Animated.View entering={FadeInDown.duration(600)} style={styles.card}>
+          <Animated.View entering={FadeInDown.duration(800)} style={styles.glassCard}>
             
-            {/* Top accent bar */}
-            <View style={styles.cardAccent} />
-
-            {/* Logo with bubble */}
-            <Animated.View
-              entering={FadeInDown.delay(150).duration(500)}
-              style={styles.logoContainer}
-            >
-              <View style={styles.logoBubble}>
+            {/* Logo dengan Bayangan Lembut */}
+            <View style={styles.logoWrapper}>
+              <View style={styles.logoInner}>
                 <Animated.Image
                   source={require("@/assets/images/manabulogo.png")}
                   style={styles.logo}
+                  resizeMode="contain"
                 />
               </View>
-            </Animated.View>
+            </View>
 
-            {/* Title with sparkle emoji */}
-            <Animated.View entering={FadeInDown.delay(200).duration(500)} style={styles.titleContainer}>
-              <Text style={styles.sparkleEmoji}>✨</Text>
-              <Text style={styles.title}>Daftar Yuk!</Text>
-            </Animated.View>
+            <View style={styles.textHeader}>
+              <Text style={styles.title}>Ayo Bergabung</Text>
+              <Text style={styles.subtitle}>Buat akun untuk memulai perjalanan belajarmu</Text>
+            </View>
 
-            <Animated.Text entering={FadeInDown.delay(250).duration(500)} style={styles.subtitle}>
-              Bergabung dengan ManabuCard sekarang
-            </Animated.Text>
-
-            {/* Email Input with icon */}
-            <Animated.View entering={FadeInDown.delay(300).duration(500)} style={styles.inputWrapper}>
-              <View style={styles.inputBox}>
-                <Text style={styles.inputIcon}>📧</Text>
+            <View style={styles.form}>
+              {/* Input Email */}
+              <View style={styles.inputContainer}>
+                <Ionicons name="mail" size={20} color="#9100FF" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="Email"
-                  placeholderTextColor="#aaa"
+                  placeholder="Massukan Email Anda"
+                  placeholderTextColor="#A0A0A0"
                   value={email}
                   onChangeText={setEmail}
                   autoCapitalize="none"
                   keyboardType="email-address"
                 />
               </View>
-            </Animated.View>
 
-            {/* Password Input with icon */}
-            <Animated.View entering={FadeInDown.delay(350).duration(500)} style={styles.inputWrapper}>
-              <View style={styles.inputBoxRow}>
-                <Text style={styles.inputIcon}>🔒</Text>
+              {/* Input Password */}
+              <View style={styles.inputContainer}>
+                <Ionicons name="lock-closed" size={20} color="#9100FF" style={styles.inputIcon} />
                 <TextInput
                   style={[styles.input, { flex: 1 }]}
-                  placeholder="Password"
-                  placeholderTextColor="#aaa"
+                  placeholder="Masukkan Password"
+                  placeholderTextColor="#A0A0A0"
                   secureTextEntry={!showPassword}
                   value={password}
                   onChangeText={setPassword}
                   autoCapitalize="none"
                 />
-                <TouchableOpacity
-                  onPress={() => setShowPassword(!showPassword)}
-                  style={styles.eyeButton}
-                >
-                  <Text style={styles.eyeIcon}>{showPassword ? "👁️" : "🙈"}</Text>
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                  <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color="#CCC" />
                 </TouchableOpacity>
               </View>
-            </Animated.View>
 
-            {/* Confirm Password Input with icon */}
-            <Animated.View entering={FadeInDown.delay(400).duration(500)} style={styles.inputWrapper}>
-              <View style={styles.inputBoxRow}>
-                <Text style={styles.inputIcon}>🔐</Text>
+              {/* Input Konfirmasi Password */}
+              <View style={styles.inputContainer}>
+                <Ionicons name="lock-closed" size={20} color="#9100FF" style={styles.inputIcon} />
                 <TextInput
                   style={[styles.input, { flex: 1 }]}
-                  placeholder="Konfirmasi"
-                  placeholderTextColor="#aaa"
+                  placeholder="Konfirmasi Password"
+                  placeholderTextColor="#A0A0A0"
                   secureTextEntry={!showConfirmPassword}
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   autoCapitalize="none"
                 />
-                <TouchableOpacity
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  style={styles.eyeButton}
-                >
-                  <Text style={styles.eyeIcon}>{showConfirmPassword ? "👁️" : "🙈"}</Text>
+                <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                  <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={20} color="#CCC" />
                 </TouchableOpacity>
               </View>
-            </Animated.View>
 
-            {/* Password Hint */}
-            <Animated.View entering={FadeInDown.delay(450).duration(500)} style={styles.hintContainer}>
-              <Text style={styles.hintText}>💡 Password minimal 6 karakter</Text>
-            </Animated.View>
+              {/* Info Password */}
+              <View style={styles.passwordInfo}>
+                <Ionicons name="information-circle" size={14} color="#777" />
+                <Text style={styles.passwordInfoText}>
+                  Password minimal 6 karakter
+                </Text>
+              </View>
+            </View>
 
-            {/* Register Button */}
-            <Animated.View entering={FadeInDown.delay(500).duration(500)} style={styles.buttonWrapper}>
-              <TouchableOpacity 
-                style={styles.button}
-                onPress={handleRegister}
-                disabled={isLoading}
-                activeOpacity={0.85}
+            {/* Tombol Register Capsule */}
+            <TouchableOpacity 
+              style={styles.mainBtn} 
+              onPress={handleRegister}
+              activeOpacity={0.8}
+              disabled={isLoading}
+            >
+              <LinearGradient
+                colors={["#9100FF", "#7100CC"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.btnGradient}
               >
-                <LinearGradient
-                  colors={["#3A7DFF", "#5B93FF", "#7DA9FF"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.buttonGradient}
-                >
-                  {isLoading ? (
-                    <ActivityIndicator color="#fff" size="small" />
-                  ) : (
-                    <>
-                      <Text style={styles.buttonText}>Daftar Sekarang</Text>
-                      <Text style={styles.buttonEmoji}>🎉</Text>
-                    </>
-                  )}
-                </LinearGradient>
-              </TouchableOpacity>
-            </Animated.View>
+                {isLoading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <>
+                    <Text style={styles.btnText}>Daftar Sekarang</Text>
+                    <Ionicons name="arrow-forward" size={18} color="#fff" />
+                  </>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
 
-            {/* Divider */}
-            <Animated.View entering={FadeInDown.delay(550).duration(500)} style={styles.dividerContainer}>
-              <View style={styles.divider} />
-              <Text style={styles.dividerText}>atau</Text>
-              <View style={styles.divider} />
-            </Animated.View>
-
-            {/* Footer - Login Link */}
-            <Animated.View entering={FadeInDown.delay(600).duration(500)} style={styles.footerContainer}>
-              <Text style={styles.footer}>
-                Sudah punya akun?{" "}
-              </Text>
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Sudah punya akun? </Text>
               <TouchableOpacity onPress={() => router.push("/auth/login")}>
-                <Text style={styles.link}>Masuk di sini! 👉</Text>
+                <Text style={styles.linkText}>Masuk ✨</Text>
               </TouchableOpacity>
-            </Animated.View>
+            </View>
+
           </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -290,255 +249,98 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-
-  // Floating emojis
-  floatingEmoji: {
-    position: "absolute",
-    fontSize: 32,
-    opacity: 0.3,
-    zIndex: 1,
-  },
-  emoji1: {
-    top: height * 0.1,
-    left: width * 0.08,
-  },
-  emoji2: {
-    top: height * 0.18,
-    right: width * 0.08,
-  },
-  emoji3: {
-    top: height * 0.06,
-    right: width * 0.25,
-  },
-  emoji4: {
-    bottom: height * 0.12,
-    left: width * 0.1,
-  },
-
-  // Decorative circles
-  decorativeCircle: {
-    position: "absolute",
-    borderRadius: 1000,
-    opacity: 0.1,
-    zIndex: 0,
-  },
-  circle1: {
-    width: 200,
-    height: 200,
-    backgroundColor: "#FFE8F5",
-    top: height * 0.08,
-    left: -60,
-  },
-  circle2: {
-    width: 180,
-    height: 180,
-    backgroundColor: "#E8F5FF",
-    bottom: height * 0.1,
-    right: -50,
-  },
-
-  keyboardView: {
-    flex: 1,
-    width: "100%",
-  },
-
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: "center",
+  container: { flex: 1, justifyContent: "center", alignItems: "center" },
+  circle: { position: "absolute", width: 300, height: 300, borderRadius: 150, opacity: 0.4 },
+  keyboardView: { flex: 1, width: "100%" },
+  scrollContent: { 
+    flexGrow: 1, 
+    justifyContent: "center", 
     alignItems: "center",
     paddingVertical: 40,
   },
 
-  card: {
-    width: "90%",
-    maxWidth: 420,
-    paddingHorizontal: 28,
-    paddingVertical: 36,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 32,
-    alignItems: "center",
-    shadowColor: "#3A7DFF",
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    shadowOffset: { height: 10, width: 0 },
-    elevation: 10,
-    overflow: "hidden",
-  },
-
-  cardAccent: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 5,
-    backgroundColor: "#3A7DFF",
-  },
-
-  // Logo styles
-  logoContainer: {
-    marginBottom: 20,
-  },
-  logoBubble: {
-    backgroundColor: "rgba(58, 125, 255, 0.08)",
+  // KARTU UTAMA (Seamless Glass)
+  glassCard: {
+    width: width * 0.88,
+    backgroundColor: "rgba(255, 255, 255, 0.65)",
     borderRadius: 35,
-    padding: 15,
-    borderWidth: 3,
-    borderColor: "rgba(58, 125, 255, 0.15)",
-  },
-  logo: {
-    width: 90,
-    height: 90,
-    borderRadius: 20,
-  },
-
-  // Title styles
-  titleContainer: {
-    flexDirection: "row",
+    padding: 30,
     alignItems: "center",
-    marginBottom: 8,
-  },
-  sparkleEmoji: {
-    fontSize: 32,
-    marginRight: 8,
-  },
-  title: {
-    fontSize: 32,
-    fontFamily: "FredokaBold",
-    color: "#2D2D2D",
+    borderWidth: 1.5,
+    borderColor: "rgba(255, 255, 255, 0.8)",
   },
 
-  subtitle: {
-    fontSize: 15,
-    fontFamily: "Fredoka",
-    color: "#777",
-    marginBottom: 24,
-    textAlign: "center",
-  },
-
-  // Input styles
-  inputWrapper: {
-    width: "100%",
-    marginBottom: 14,
-  },
-  inputBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F8F9FC",
-    borderRadius: 18,
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-    borderWidth: 2,
-    borderColor: "#E8EBF0",
-  },
-  inputBoxRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F8F9FC",
-    borderRadius: 18,
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-    borderWidth: 2,
-    borderColor: "#E8EBF0",
-  },
-  inputIcon: {
-    fontSize: 20,
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: "#333",
-    fontFamily: "Fredoka",
-  },
-  eyeButton: {
-    padding: 4,
-    marginLeft: 8,
-  },
-  eyeIcon: {
-    fontSize: 20,
-  },
-
-  // Hint text
-  hintContainer: {
-    width: "100%",
-    marginBottom: 20,
-  },
-  hintText: {
-    fontSize: 13,
-    fontFamily: "Fredoka",
-    color: "#888",
-    textAlign: "left",
-  },
-
-  // Button styles
-  buttonWrapper: {
-    width: "100%",
-    marginBottom: 20,
-  },
-  button: {
-    width: "100%",
-    borderRadius: 20,
-    overflow: "hidden",
-    shadowColor: "#3A7DFF",
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    shadowOffset: { height: 6, width: 0 },
-    elevation: 8,
-  },
-  buttonGradient: {
-    flexDirection: "row",
-    alignItems: "center",
+  logoWrapper: { marginBottom: 20 },
+  logoInner: {
+    width: 80,
+    height: 80,
+    borderRadius: 25,
+    backgroundColor: "#FFF",
     justifyContent: "center",
-    paddingVertical: 16,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 5,
   },
-  buttonText: {
-    color: "#fff",
-    textAlign: "center",
-    fontFamily: "FredokaBold",
-    fontSize: 18,
-    marginRight: 6,
-  },
-  buttonEmoji: {
-    fontSize: 20,
-  },
+  logo: { width: 50, height: 50 },
 
-  // Divider
-  dividerContainer: {
+  textHeader: { alignItems: "center", marginBottom: 30 },
+  title: { fontSize: 28, fontWeight: "800", color: "#1A1A1A" },
+  subtitle: { fontSize: 14, color: "#777", marginTop: 6, textAlign: "center" },
+
+  form: { width: "100%", marginBottom: 20 },
+  
+  // INPUT SEAMLESS
+  inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    width: "100%",
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: 22,
+    paddingHorizontal: 20,
+    paddingVertical: Platform.OS === 'ios' ? 16 : 12,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "rgba(145, 0, 255, 0.08)",
   },
-  divider: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#E0E0E0",
-  },
-  dividerText: {
-    marginHorizontal: 12,
-    color: "#999",
-    fontFamily: "Fredoka",
-    fontSize: 13,
-  },
+  inputIcon: { marginRight: 15 },
+  input: { fontSize: 15, fontWeight: "600", color: "#1A1A1A", flex: 1 },
 
-  // Footer
-  footerContainer: {
+  passwordInfo: {
     flexDirection: "row",
     alignItems: "center",
-    flexWrap: "wrap",
-    justifyContent: "center",
+    marginTop: -8,
+    marginBottom: 10,
+    paddingHorizontal: 5,
   },
-  footer: {
-    color: "#888",
-    fontSize: 15,
-    fontFamily: "Fredoka",
+  passwordInfoText: {
+    fontSize: 12,
+    color: "#777",
+    marginLeft: 6,
+    flex: 1,
   },
-  link: {
-    color: "#3A7DFF",
-    fontFamily: "FredokaBold",
-    fontSize: 15,
+
+  // TOMBOL CAPSULE
+  mainBtn: { 
+    width: "100%", 
+    borderRadius: 25, 
+    overflow: "hidden", 
+    elevation: 8,
+    shadowColor: "#9100FF",
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    shadowOffset: { width: 0, height: 8 },
   },
+  btnGradient: { 
+    flexDirection: "row", 
+    alignItems: "center", 
+    justifyContent: "center", 
+    paddingVertical: 18, 
+    gap: 12 
+  },
+  btnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
+
+  footer: { flexDirection: "row", alignItems: "center", marginTop: 25 },
+  footerText: { fontSize: 14, color: "#666" },
+  linkText: { fontSize: 14, color: "#9100FF", fontWeight: "800" },
 });
