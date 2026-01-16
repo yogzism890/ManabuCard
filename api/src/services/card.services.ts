@@ -1,7 +1,7 @@
 import { prisma } from "../prisma";
 
-export const createCard = (deckId: string, front: string, back: string) => {
-  return prisma.card.create({
-    data: { deckId, front, back }
+export const createCard = (koleksiId: string, front: string, back: string) => {
+  return prisma.kartu.create({
+    data: { koleksiId, front, back }
   });
 }
