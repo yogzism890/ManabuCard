@@ -58,7 +58,7 @@ export default function WelcomeScreen() {
 
         {/* Text Section */}
         <Animated.View entering={FadeInDown.delay(400).springify()} style={styles.textGroup}>
-          <Text style={styles.greeting}>Mulai Perjalanananmu ✨</Text>
+          <Text style={styles.greeting}>Mulai Perjalanananmu</Text>
           <Text style={styles.title}>Belajar Jadi{"\n"}<Text style={styles.highlightText}>Lebih Asyik</Text></Text>
           <Text style={styles.subtitle}>
             Tingkatkan kemampuanmu dengan metode belajar yang seru dan interaktif setiap hari.
