@@ -136,7 +136,7 @@ export default function RegisterScreen() {
             </View>
 
             <View style={styles.textHeader}>
-              <Text style={styles.title}>Bergabung Sekarang!</Text>
+              <Text style={styles.title}>Ayo Bergabung</Text>
               <Text style={styles.subtitle}>Buat akun untuk memulai perjalanan belajarmu</Text>
             </View>
 
