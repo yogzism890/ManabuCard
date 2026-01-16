@@ -124,7 +124,7 @@ export default function LoginScreen() {
           <View style={styles.footer}>
             <Text style={styles.footerText}>Belum punya akun? </Text>
             <TouchableOpacity onPress={() => router.push("/auth/register")}>
-              <Text style={styles.linkText}>Daftar ✨</Text>
+              <Text style={styles.linkText}>Daftar</Text>
             </TouchableOpacity>
           </View>
 
