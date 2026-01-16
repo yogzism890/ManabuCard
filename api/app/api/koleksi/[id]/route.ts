@@ -179,15 +179,15 @@ export async function DELETE(
                 success = true;
                 strategy = 'Raw SQL with FK Disable';
                 console.log('[DELETE] Strategy 2 succeeded');
-            } catch (error2) {
-                console.log('[DELETE] Strategy 2 failed:', error2.message);
+            } catch (error2: unknown) {
+                const msg = error2 instanceof Error ? error2.message : String(error2);
+                console.log("[DELETE] Strategy 2 failed:", msg);
                 
                 // Strategy 3: Try simple cascade with updateFirst then delete
                 try {
                     console.log('[DELETE] Strategy 3: Cascade with update first');
-                    await prisma.kartu.updateMany({
-                        where: { koleksiId: koleksiId },
-                        data: { koleksiId: null } // Break reference first
+                    await prisma.kartu.deleteMany({
+                    where: { koleksiId },
                     });
                     
                     await prisma.koleksi.delete({
@@ -197,8 +197,9 @@ export async function DELETE(
                     success = true;
                     strategy = 'Cascade with Null Reference';
                     console.log('[DELETE] Strategy 3 succeeded');
-                } catch (error3) {
-                    console.log('[DELETE] Strategy 3 failed:', error3.message);
+                } catch (error3: unknown) {
+                    const msg = error3 instanceof Error ? error3.message : String(error3);
+                    console.log("[DELETE] Strategy 2 failed:", msg);
                     console.log('[DELETE] All strategies failed, providing detailed error info');
                 }
             }
