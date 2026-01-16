@@ -9,6 +9,7 @@ import {
   ScrollView,
   Dimensions,
   Platform,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
@@ -80,6 +81,34 @@ const ReviewScreen = () => {
       setIsLoading(false);
     }
   };
+  const deleteCollection = async (id: string) => {
+  // Gunakan Alert bawaan untuk konfirmasi
+  Alert.alert(
+    "Hapus Koleksi",
+    "Apakah Anda yakin ingin menghapus koleksi ini? Semua kartu di dalamnya juga akan terhapus.",
+    [
+      { text: "Batal", style: "cancel" },
+      {
+        text: "Hapus",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            setIsLoading(true);
+            await apiRequest(`/koleksi/${id}`, {
+              method: "DELETE",
+            });
+            showModal("Sukses", "Koleksi berhasil dihapus", "success");
+            loadCollections(); // Refresh list setelah hapus
+          } catch (error: any) {
+            showModal("Gagal", error?.message || "Gagal menghapus koleksi", "error");
+          } finally {
+            setIsLoading(false);
+          }
+        },
+      },
+    ]
+  );
+};
 
   const selectCollection = async (collection: any) => {
     try {
@@ -277,30 +306,32 @@ const ReviewScreen = () => {
             ) : (
               <View style={{ gap: 12 }}>
                 {collections.map((item) => (
-                  <TouchableOpacity
-                    key={item.id}
-                    style={styles.collectionCard}
-                    onPress={() => selectCollection(item)}
-                    activeOpacity={0.88}
-                  >
-                    <View style={styles.cardIcon}>
-                      <Ionicons name="folder-open" size={22} color={ACCENT} />
-                    </View>
+  <TouchableOpacity
+    key={item.id}
+    style={styles.collectionCard}
+    onPress={() => selectCollection(item)}
+    activeOpacity={0.88}
+  >
+    <View style={styles.cardIcon}>
+      <Ionicons name="folder-open" size={22} color={ACCENT} />
+    </View>
 
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.collectionName} numberOfLines={1}>
-                        {item.nama}
-                      </Text>
-                      <Text style={styles.collectionCount}>
-                        {item.kartuCount} kartu
-                      </Text>
-                    </View>
-
-                    <View style={styles.chev}>
-                      <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
-                    </View>
-                  </TouchableOpacity>
-                ))}
+    <View style={{ flex: 1 }}>
+      <Text style={styles.collectionName} numberOfLines={1}>
+        {item.nama}
+      </Text>
+      <Text style={styles.collectionCount}>
+        {item.kartuCount} kartu
+      </Text>
+    </View>
+    <TouchableOpacity
+      style={styles.deleteInsideBtn}
+      onPress={() => deleteCollection(item.id)}
+    >
+      <Ionicons name="trash-outline" size={18} color="#EF4444" />
+    </TouchableOpacity>
+  </TouchableOpacity>
+))}
               </View>
             )
           ) : (
@@ -876,5 +907,14 @@ const styles = StyleSheet.create({
     fontSize: 12.5,
     color: "#6B7280",
   },
+  deleteInsideBtn: {
+  width: 36,
+  height: 36,
+  borderRadius: 12,
+  backgroundColor: "rgba(239, 68, 68, 0.05)", // Merah sangat transparan
+  justifyContent: "center",
+  alignItems: "center",
+  marginLeft: 4,
+},
 });
 
