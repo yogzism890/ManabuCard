@@ -397,7 +397,7 @@ const CreateCardScreen = () => {
                         value={back}
                         onChangeText={setBack}
                         multiline
-                        placeholder="Contoh: Proses tumbuhan membuat makanan..."
+                        placeholder="Contoh: Mata"
                       />
                     </View>
                   </View>
